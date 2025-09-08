@@ -16,10 +16,10 @@ class LIGHTBRINGER_API UQualitySettingsSubsystem : public UGameInstanceSubsystem
     GENERATED_BODY()
 
 public:
-    static UQualitySettingsSubsystem* Get();
+    static UQualitySettingsSubsystem* Get(class UWorld* World);
 
     UFUNCTION(BlueprintPure)
-    UGraphicsPresetManager* GetManager() const { return Manager; }
+    UGraphicsPresetManager* GetGraphicsPresetManager() const { return Manager; }
 
 protected:
     virtual void Initialize(FSubsystemCollectionBase& Collection);

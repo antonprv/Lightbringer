@@ -2,16 +2,17 @@
 
 #include "View/Subsystems/QualitySettingsSubsystem.h"
 #include "Engine/Engine.h"
+#include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
 
-UQualitySettingsSubsystem* UQualitySettingsSubsystem::Get()
+UQualitySettingsSubsystem* UQualitySettingsSubsystem::Get(UWorld* World)
 {
-    if (!GEngine || !GEngine->GetWorld())
+    if (!World)
     {
         return nullptr;
     }
 
-    if (UGameInstance* GI = UGameplayStatics::GetGameInstance(GEngine->GetWorld()))
+    if (UGameInstance* GI = UGameplayStatics::GetGameInstance(World))
     {
         return GI->GetSubsystem<UQualitySettingsSubsystem>();
     }

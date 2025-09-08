@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
+#include "Engine/World.h"
 #include "LightbringerGameInstance.generated.h"
 
 /**
@@ -17,4 +18,7 @@ class LIGHTBRINGER_API ULightbringerGameInstance : public UGameInstance
 protected:
     virtual void OnStart();
     virtual void Shutdown();
+
+private:
+    void ApplyGraphicsSettingsAfterWorld(UWorld* World, const UWorld::InitializationValues IVS);
 };

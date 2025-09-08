@@ -64,6 +64,7 @@ void UGraphicsPresetManager::SetDefaultScalability()
             Settings->ScalabilityQuality.ShadowQuality = 2;
             Settings->ScalabilityQuality.TextureQuality = 0;
             Settings->ScalabilityQuality.ViewDistanceQuality = 1;
+            Settings->SetFrameRateLimit(120);
 
             // Apply and save the settings
             Settings->ApplyNonResolutionSettings();
@@ -87,6 +88,7 @@ void UGraphicsPresetManager::SetLowScalability()
             Settings->ScalabilityQuality.ShadowQuality = 0;
             Settings->ScalabilityQuality.TextureQuality = 0;
             Settings->ScalabilityQuality.ViewDistanceQuality = 0;
+            Settings->SetFrameRateLimit(120);
 
             // Apply and save the settings
             Settings->ApplyNonResolutionSettings();
@@ -101,13 +103,6 @@ void UGraphicsPresetManager::SetMaxFPS(const int32& MaxFPS)
 {
     if (GEngine)
     {
-        UGameUserSettings* UserSettings = GEngine->GetGameUserSettings();
-        if (UserSettings)
-        {
-            UserSettings->SetFrameRateLimit(MaxFPS);
-            UserSettings->ApplySettings(true);
-        }
-        
-        GEngine->SetMaxFPS(MaxFPS); // "Just in case" call
+        GEngine->SetMaxFPS(MaxFPS);
     }
 }

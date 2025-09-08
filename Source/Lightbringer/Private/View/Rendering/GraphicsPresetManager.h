@@ -42,7 +42,7 @@ public:
     };
 
     UFUNCTION(BlueprintCallable)
-    bool IsLowQuality() const { return CurrentPreset == EGraphicsPreset::Low; }
+    bool IsAtLowQuality() const { return CurrentPreset == EGraphicsPreset::Low; }
 
 private:
     EGraphicsPreset CurrentPreset = EGraphicsPreset::Default;
