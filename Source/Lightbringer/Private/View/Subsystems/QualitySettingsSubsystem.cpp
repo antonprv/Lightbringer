@@ -1,6 +1,6 @@
 // You can use this project non-commercially for educational purposes, any commercial use, derivative commercial use is strictly prohibited
 
-#include "Gameplay/Subsystems/QualitySettingsSubsystem.h"
+#include "View/Subsystems/QualitySettingsSubsystem.h"
 #include "Engine/Engine.h"
 #include "Kismet/GameplayStatics.h"
 
