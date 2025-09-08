@@ -31,8 +31,15 @@ class UGraphicsPresetManager : public UObject
 public:
     static UGraphicsPresetManager* Get();
 
-    void ApplyLowQualitySettings();
-    void ApplyDefaultQualitySettings();
+    void ApplyQualitySettings(const EGraphicsPreset& Preset);
+    void ApplyLowQualitySettings() 
+    {
+        return ApplyQualitySettings(EGraphicsPreset::Low);
+    };
+    void ApplyDefaultQualitySettings()
+    {
+        return ApplyQualitySettings(EGraphicsPreset::Default);
+    };
 
     UFUNCTION(BlueprintCallable)
     bool IsLowQuality() const { return CurrentPreset == EGraphicsPreset::Low; }

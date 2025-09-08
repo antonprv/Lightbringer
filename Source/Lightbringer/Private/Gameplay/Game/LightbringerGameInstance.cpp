@@ -1,8 +1,7 @@
 // You can use this project non-commercially for educational purposes, any commercial use, derivative commercial use is strictly prohibited
 
-#include "Public/GameInstance/LightbringerGameInstance.h"
-#include "Public/Subsystems/QualitySettingsSubsystem.h"
-#include "Rendering/Presets/GraphicsPresetManager.h"
+#include "Gameplay/Game/LightbringerGameInstance.h"
+#include "Gameplay/Subsystems/QualitySettingsSubsystem.h"
 
 void ULightbringerGameInstance::OnStart()
 {

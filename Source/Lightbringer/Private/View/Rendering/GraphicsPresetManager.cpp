@@ -18,20 +18,28 @@ UGraphicsPresetManager* UGraphicsPresetManager::Get()
     return Instance.Get();
 }
 
-void UGraphicsPresetManager::ApplyLowQualitySettings() 
+void UGraphicsPresetManager::ApplyQualitySettings(const EGraphicsPreset& Preset)
 {
-    SetLowScalability();
-    SetMaxFPS(120);
-    SetScreenScaling(EScreenScalingPreset::Half);
-    CurrentPreset = EGraphicsPreset::Low;
-}
-
-void UGraphicsPresetManager::ApplyDefaultQualitySettings() 
-{
-    SetDefaultScalability();
-    SetMaxFPS(120);
-    SetScreenScaling(EScreenScalingPreset::Full);
-    CurrentPreset = EGraphicsPreset::Default;
+    switch (Preset)
+    {
+        case EGraphicsPreset::Low:
+        {
+            SetLowScalability();
+            SetMaxFPS(120);
+            SetScreenScaling(EScreenScalingPreset::Half);
+            CurrentPreset = EGraphicsPreset::Low;
+            break;
+        }
+        case EGraphicsPreset::Default:
+        {
+            SetDefaultScalability();
+            SetMaxFPS(120);
+            SetScreenScaling(EScreenScalingPreset::Full);
+            CurrentPreset = EGraphicsPreset::Default;
+            break;
+        }
+        default: break;
+    }
 }
 
 void UGraphicsPresetManager::SetScreenScaling(const EScreenScalingPreset& ScreenPercentage)
@@ -66,7 +74,7 @@ void UGraphicsPresetManager::SetDefaultScalability()
     }
 }
 
-void UGraphicsPresetManager::SetLowScalability() 
+void UGraphicsPresetManager::SetLowScalability()
 {
     if (GEngine)
     {
