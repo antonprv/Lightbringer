@@ -76,8 +76,8 @@ DerivedDataCache/*
 
 # Ignore Content folder, but keep blueprints and maps
 Content/*
-!Content/Blueprints/**/*
-!Content/Maps/**/*
+!Content/Blueprints/*
+!Content/Maps/*
 
 Package/*
 Saved/*
