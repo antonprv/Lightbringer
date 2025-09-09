@@ -31,10 +31,13 @@ void AQualitySettingsTest::NotifyActorBeginOverlap(AActor* OtherActor)
             if (GraphicsPresetManager->IsAtLowQuality())
             {
                 UE_LOG(QualitySettingsTest, Display, TEXT("Graphics quality is set to low"))
+
+#if WITH_EDITORONLY_DATA
                 GEngine->AddOnScreenDebugMessage(-1, 3.f,  //
                     FColor::Magenta,                       //
                     "Graphics quality is set to low",      //
                     false, FVector2D(3.f, 3.f));
+#endif
             }
         }
     }
