@@ -74,10 +74,14 @@ Plugins/**/Intermediate/*
 # Cache files for the editor to use
 DerivedDataCache/*
 
-# Ignore Content folder, but keep blueprints and maps
+# Ignore everything in Content
 Content/*
-!Content/Blueprints/*
-!Content/Maps/*
+# Re-include Blueprints and Maps directories
+!Content/Blueprints/
+!Content/Maps/
+# Re-include all contents under Blueprints and Maps
+!Content/Blueprints/**/*
+!Content/Maps/**/*
 
 Package/*
 Saved/*
