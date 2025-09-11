@@ -76,16 +76,19 @@ DerivedDataCache/*
 
 # Ignore everything in Content
 Content/*
-# Re-include Blueprints and Maps directories
+
+# Re-include Blueprints, Maps and Input directories
 !Content/Blueprints/
 !Content/Maps/
-# Re-include all contents under Blueprints and Maps
+!Content/Input/
+
+# Re-include all contents under Blueprints, Maps and Input
 !Content/Blueprints/**/*
 !Content/Maps/**/*
+!Content/Input/**/*
 
 Package/*
 Saved/*
 Staging/*
-/Plugins
 Plugins/vc-ue-extensions
 enc_temp_folder/*
