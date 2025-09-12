@@ -1,8 +1,10 @@
-// You can use this project non-commercially for educational purposes, any commercial use, derivative commercial use is strictly prohibited
+// You can use this project non-commercially for educational purposes, any
+// commercial use, derivative commercial use is strictly prohibited
 
 #include "InputActionData.h"
 
-bool UInputActionData::GetBinding(const FName& ActionName, FSimpleInputBinding& OutBinding)
+bool UInputActionData::GetBinding(
+    const FName& ActionName, FSimpleInputBinding& OutBinding)
 {
     if (Bindings.Find(ActionName))
     {
@@ -12,7 +14,8 @@ bool UInputActionData::GetBinding(const FName& ActionName, FSimpleInputBinding& 
     return false;
 }
 
-bool UInputActionData::GetAxisBinding(const FName& ActionName, FSimpleInputBindingAxis& OutAxisBinding)
+bool UInputActionData::GetAxisBinding(
+    const FName& ActionName, FSimpleInputBindingAxis& OutAxisBinding)
 {
     if (Bindings.Find(ActionName))
     {
@@ -23,8 +26,8 @@ bool UInputActionData::GetAxisBinding(const FName& ActionName, FSimpleInputBindi
 }
 
 /*
- * Sets new value to existing binding. Function checks if said ActionName exists
- *  and then fails silently if it doesn't.
+ * Sets new value to existing binding. Function checks if said ActionName
+ * exists and then fails silently if it doesn't.
  *
  * @param ActionName ActionName to search for.
  * @param KeyToPress New key value to set to the Action.
@@ -49,7 +52,8 @@ void UInputActionData::SetBinding(const FName& ActionName, FKey& KeyToPress)
     };
 };
 
-void UInputActionData::SetAxisBinding(const FName& ActionName, FKey& KeyToPress)
+void UInputActionData::SetAxisBinding(
+    const FName& ActionName, FKey& KeyToPress)
 {
     if (AxisBindings.Find(ActionName))
     {

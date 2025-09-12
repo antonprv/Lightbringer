@@ -1,4 +1,5 @@
-// You can use this project non-commercially for educational purposes, any commercial use, derivative commercial use is strictly prohibited
+// You can use this project non-commercially for educational purposes, any
+// commercial use, derivative commercial use is strictly prohibited
 
 #include "ActorSpawnHub.h"
 #include "PhysicsTest.h"
@@ -26,19 +27,22 @@ AActorSpawnHub::AActorSpawnHub()
     SetRootComponent(SpawnPoint);
 
 #if WITH_EDITORONLY_DATA
-    SpawnPointMarker = CreateDefaultSubobject<UBillboardComponent>("Actor Spawn Billboard");
+    SpawnPointMarker =
+        CreateDefaultSubobject<UBillboardComponent>("Actor Spawn Billboard");
     SpawnPointMarker->SetupAttachment(SpawnPoint);
 
     // Load default sprite from engine's Paper2D plugin
     UTexture2D* Sprite = LoadObject<UTexture2D>(nullptr,  //
-        TEXT("Texture2D'/Engine/Tutorial/Paper2D/TutorialAssets/Paper2DSprite_TutorialIcon.Paper2DSprite_TutorialIcon'"));
+        TEXT("Texture2D'/Engine/Tutorial/Paper2D/TutorialAssets/"
+             "Paper2DSprite_TutorialIcon.Paper2DSprite_TutorialIcon'"));
     if (Sprite)
     {
         SpawnPointMarker->SetSprite(Sprite);
     }
     else
     {
-        UE_LOG(AActorSpawnHubLog, Warning, TEXT("Coul not load default sprite, set to None"))
+        UE_LOG(AActorSpawnHubLog, Warning,
+            TEXT("Coul not load default sprite, set to None"))
     }
 #endif
 }
@@ -52,7 +56,8 @@ void AActorSpawnHub::BeginPlay()
 
     if (UWorld* World = GetWorld())
     {
-        UGameplayStatics::GetAllActorsOfClass(World, ASpawnToggle::StaticClass(), ToggleActors);
+        UGameplayStatics::GetAllActorsOfClass(
+            World, ASpawnToggle::StaticClass(), ToggleActors);
 
         if (ToggleActors.Num() > 0)
         {
@@ -60,7 +65,8 @@ void AActorSpawnHub::BeginPlay()
             {
                 if (ASpawnToggle* Toggle = Cast<ASpawnToggle>(Actor))
                 {
-                    Toggle->OnSpawnTriggered.AddUObject(this, &AActorSpawnHub::SpawnWithActorInfo);
+                    Toggle->OnSpawnTriggered.AddUObject(
+                        this, &AActorSpawnHub::SpawnWithActorInfo);
                 }
             }
         }
@@ -94,10 +100,13 @@ void AActorSpawnHub::SpawnWithActorInfo(AActor* Actor)
 
         if (Actor)
         {
-            UE_LOG(AActorSpawnHubLog, Display, TEXT("Spawn triggered by %s"), *Actor->GetName())
+            UE_LOG(AActorSpawnHubLog, Display, TEXT("Spawn triggered by %s"),
+                *Actor->GetName())
 #if WITH_EDITORONLY_DATA
-            FString Message = FString::Printf(TEXT("Spawn triggered by %s"), *Actor->GetName());
-            GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, Message, false, FVector2D(2.f, 2.f));
+            FString Message = FString::Printf(
+                TEXT("Spawn triggered by %s"), *Actor->GetName());
+            GEngine->AddOnScreenDebugMessage(
+                -1, 3.f, FColor::Blue, Message, false, FVector2D(2.f, 2.f));
 #endif
         }
     }

@@ -1,4 +1,5 @@
-// You can use this project non-commercially for educational purposes, any commercial use, derivative commercial use is strictly prohibited
+// You can use this project non-commercially for educational purposes, any
+// commercial use, derivative commercial use is strictly prohibited
 
 #include "QualitySettingsTest.h"
 #include "Components/BoxComponent.h"
@@ -9,7 +10,8 @@ DEFINE_LOG_CATEGORY_STATIC(QualitySettingsTest, Log, All)
 // Sets default values
 AQualitySettingsTest::AQualitySettingsTest()
 {
-    // Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+    // Set this actor to call Tick() every frame.  You can turn this off to
+    // improve performance if you don't need it.
     PrimaryActorTick.bCanEverTick = false;
 
     BoxComponent = CreateDefaultSubobject<UBoxComponent>("Collision Box");
@@ -26,11 +28,13 @@ void AQualitySettingsTest::NotifyActorBeginOverlap(AActor* OtherActor)
 {
     if (BoxComponent && OtherActor)
     {
-        if (UGraphicsPresetManager* GraphicsPresetManager = UGraphicsPresetManager::Get())
+        if (UGraphicsPresetManager* GraphicsPresetManager =
+                UGraphicsPresetManager::Get())
         {
             if (GraphicsPresetManager->IsAtLowQuality())
             {
-                UE_LOG(QualitySettingsTest, Display, TEXT("Graphics quality is set to low"))
+                UE_LOG(QualitySettingsTest, Display,
+                    TEXT("Graphics quality is set to low"))
 
 #if WITH_EDITORONLY_DATA
                 GEngine->AddOnScreenDebugMessage(-1, 3.f,  //

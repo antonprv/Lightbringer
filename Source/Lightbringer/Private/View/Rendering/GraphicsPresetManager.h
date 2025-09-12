@@ -1,4 +1,5 @@
-// You can use this project non-commercially for educational purposes, any commercial use, derivative commercial use is strictly prohibited
+// You can use this project non-commercially for educational purposes, any
+// commercial use, derivative commercial use is strictly prohibited
 
 #pragma once
 
@@ -32,7 +33,7 @@ public:
     static UGraphicsPresetManager* Get();
 
     void ApplyQualitySettings(const EGraphicsPreset& Preset);
-    void ApplyLowQualitySettings() 
+    void ApplyLowQualitySettings()
     {
         return ApplyQualitySettings(EGraphicsPreset::Low);
     };
@@ -42,7 +43,10 @@ public:
     };
 
     UFUNCTION(BlueprintCallable)
-    bool IsAtLowQuality() const { return CurrentPreset == EGraphicsPreset::Low; }
+    bool IsAtLowQuality() const
+    {
+        return CurrentPreset == EGraphicsPreset::Low;
+    }
 
 private:
     EGraphicsPreset CurrentPreset = EGraphicsPreset::Default;

@@ -1,4 +1,5 @@
-// You can use this project non-commercially for educational purposes, any commercial use, derivative commercial use is strictly prohibited
+// You can use this project non-commercially for educational purposes, any
+// commercial use, derivative commercial use is strictly prohibited
 
 #pragma once
 
@@ -64,13 +65,18 @@ public:
     UPROPERTY(EditAnywhere)
     TMap<FName, FSimpleInputBindingAxis> AxisBindings;
 
-    UFUNCTION(BlueprintCallable, meta = (DisplayName = "Get Binding", OverloadName = "Default"))
+    UFUNCTION(BlueprintCallable,
+        meta = (DisplayName = "Get Binding", OverloadName = "Default"))
     bool GetBinding(const FName& ActionName, FSimpleInputBinding& OutBinding);
-    UFUNCTION(BlueprintCallable, meta = (DisplayName = "Get Binding", OverloadName = "With Axis"))
-    bool GetAxisBinding(const FName& ActionName, FSimpleInputBindingAxis& OutAxisBinding);
+    UFUNCTION(BlueprintCallable,
+        meta = (DisplayName = "Get Binding", OverloadName = "With Axis"))
+    bool GetAxisBinding(
+        const FName& ActionName, FSimpleInputBindingAxis& OutAxisBinding);
 
-    UFUNCTION(BlueprintCallable, meta = (DisplayName = "Set Binding", OverloadName = "Default"))
+    UFUNCTION(BlueprintCallable,
+        meta = (DisplayName = "Set Binding", OverloadName = "Default"))
     void SetBinding(const FName& ActionName, FKey& KeyToPress);
-    UFUNCTION(BlueprintCallable, meta = (DisplayName = "Set Binding", OverloadName = "With Axis"))
+    UFUNCTION(BlueprintCallable,
+        meta = (DisplayName = "Set Binding", OverloadName = "With Axis"))
     void SetAxisBinding(const FName& ActionName, FKey& KeyToPress);
 };

@@ -1,4 +1,5 @@
-// You can use this project non-commercially for educational purposes, any commercial use, derivative commercial use is strictly prohibited
+// You can use this project non-commercially for educational purposes, any
+// commercial use, derivative commercial use is strictly prohibited
 
 #pragma once
 
@@ -11,7 +12,8 @@
  *
  */
 UCLASS()
-class LIGHTBRINGER_API UQualitySettingsSubsystem : public UGameInstanceSubsystem
+class LIGHTBRINGER_API UQualitySettingsSubsystem
+    : public UGameInstanceSubsystem
 {
     GENERATED_BODY()
 
@@ -19,7 +21,10 @@ public:
     static UQualitySettingsSubsystem* Get(class UWorld* World);
 
     UFUNCTION(BlueprintPure)
-    UGraphicsPresetManager* GetGraphicsPresetManager() const { return Manager; }
+    UGraphicsPresetManager* GetGraphicsPresetManager() const
+    {
+        return Manager;
+    }
 
 protected:
     virtual void Initialize(FSubsystemCollectionBase& Collection);

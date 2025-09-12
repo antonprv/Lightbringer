@@ -1,4 +1,5 @@
-// You can use this project non-commercially for educational purposes, any commercial use, derivative commercial use is strictly prohibited
+// You can use this project non-commercially for educational purposes, any
+// commercial use, derivative commercial use is strictly prohibited
 
 #include "View/Subsystems/QualitySettingsSubsystem.h"
 #include "Engine/Engine.h"
@@ -20,7 +21,8 @@ UQualitySettingsSubsystem* UQualitySettingsSubsystem::Get(UWorld* World)
     return nullptr;
 }
 
-void UQualitySettingsSubsystem::Initialize(FSubsystemCollectionBase& Collection)
+void UQualitySettingsSubsystem::Initialize(
+    FSubsystemCollectionBase& Collection)
 {
     Super::Initialize(Collection);
     Manager = UGraphicsPresetManager::Get();

@@ -1,4 +1,5 @@
-// You can use this project non-commercially for educational purposes, any commercial use, derivative commercial use is strictly prohibited
+// You can use this project non-commercially for educational purposes, any
+// commercial use, derivative commercial use is strictly prohibited
 
 #include "InputManager.h"
 #include "GameFramework/PlayerController.h"
@@ -6,7 +7,8 @@
 
 DEFINE_LOG_CATEGORY_STATIC(LogInputManager, Log, Log);
 
-void UInputManager::Init(UInputComponent* InputComponent, UInputActionData* InputData)
+void UInputManager::Init(
+    UInputComponent* InputComponent, UInputActionData* InputData)
 {
     if (!InputComponent || !InputData) return;
 
@@ -26,7 +28,8 @@ void UInputManager::Init(UInputComponent* InputComponent, UInputActionData* Inpu
             FInputKeyBinding KeyBinding(Key, IE_Pressed);
             KeyBinding.bConsumeInput = true;
 
-            KeyBinding.KeyDelegate.GetDelegateForManualSet().BindLambda([this, ActionName]() { HandlePressed(ActionName); });
+            KeyBinding.KeyDelegate.GetDelegateForManualSet().BindLambda(
+                [this, ActionName]() { HandlePressed(ActionName); });
             InputComponent->KeyBindings.Add(KeyBinding);
         }
         else if (ActionBinding.EventType == ESimpleInputEventType::Released)
@@ -34,13 +37,15 @@ void UInputManager::Init(UInputComponent* InputComponent, UInputActionData* Inpu
             FInputKeyBinding KeyBinding(Key, IE_Released);
             KeyBinding.bConsumeInput = true;
 
-            KeyBinding.KeyDelegate.GetDelegateForManualSet().BindLambda([this, ActionName]() { HandleReleased(ActionName); });
+            KeyBinding.KeyDelegate.GetDelegateForManualSet().BindLambda(
+                [this, ActionName]() { HandleReleased(ActionName); });
             InputComponent->KeyBindings.Add(KeyBinding);
         }
     }
 
     // Setting up axis actions
-    for (const TPair<FName, FSimpleInputBindingAxis> Binding : InputData->AxisBindings)
+    for (const TPair<FName, FSimpleInputBindingAxis> Binding :
+        InputData->AxisBindings)
     {
         const FName ActionName = Binding.Key;
         const FSimpleInputBindingAxis ActionBinding = Binding.Value;
@@ -51,13 +56,15 @@ void UInputManager::Init(UInputComponent* InputComponent, UInputActionData* Inpu
         FInputAxisKeyBinding AxisBinding(ActionName);
         AxisBinding.AxisKey = ActionBinding.KeyToPress;
         AxisBinding.AxisDelegate.GetDelegateForManualSet().BindLambda(
-            [this, ActionName, AxisName = ActionBinding.Axis](float Value) { HandleAxis(ActionName, AxisName, Value); });
+            [this, ActionName, AxisName = ActionBinding.Axis](float Value)
+            { HandleAxis(ActionName, AxisName, Value); });
         InputComponent->AxisKeyBindings.Add(AxisBinding);
     }
 }
 
 /**
- * Changes input binding in runtime, all changes will be lost when the session ends. Currently for testing only.
+ * Changes input binding in runtime, all changes will be lost when the session
+ * ends. Currently for testing only.
  *
  * @param ActionName Name of the action that should be changed
  * @param NewKey new key that sets this value
@@ -68,7 +75,8 @@ void UInputManager::ChangeInputKey(FName& ActionName, FKey& NewKey)
 }
 
 /**
- * Changes input axis binding in runtime, all changes will be lost when the session ends. Currently for testing only.
+ * Changes input axis binding in runtime, all changes will be lost when the
+ * session ends. Currently for testing only.
  *
  * @param ActionName Name of the action that should be changed
  * @param NewKey new key that sets this value
@@ -88,7 +96,8 @@ void UInputManager::HandleReleased(FName ActionName)
     OnActionReleased.Broadcast(ActionName);
 }
 
-void UInputManager::HandleAxis(FName AxisName, ESimpleInputAxisType AxisType, float Value)
+void UInputManager::HandleAxis(
+    FName AxisName, ESimpleInputAxisType AxisType, float Value)
 {
     OnAxisChanged.Broadcast(AxisName, AxisType, Value);
 }

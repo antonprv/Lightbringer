@@ -1,4 +1,5 @@
-// You can use this project non-commercially for educational purposes, any commercial use, derivative commercial use is strictly prohibited
+// You can use this project non-commercially for educational purposes, any
+// commercial use, derivative commercial use is strictly prohibited
 
 #include "GraphicsPresetManager.h"
 #include "Engine/Engine.h"
@@ -12,13 +13,15 @@ UGraphicsPresetManager* UGraphicsPresetManager::Get()
     if (!Instance.IsValid())
     {
         Instance = NewObject<UGraphicsPresetManager>(GetTransientPackage());
-        Instance->AddToRoot();  // prevent GC if you want it alive for whole runtime
+        Instance->AddToRoot();  // prevent GC if you want it alive for whole
+                                // runtime
     }
 
     return Instance.Get();
 }
 
-void UGraphicsPresetManager::ApplyQualitySettings(const EGraphicsPreset& Preset)
+void UGraphicsPresetManager::ApplyQualitySettings(
+    const EGraphicsPreset& Preset)
 {
     switch (Preset)
     {
@@ -42,12 +45,14 @@ void UGraphicsPresetManager::ApplyQualitySettings(const EGraphicsPreset& Preset)
     }
 }
 
-void UGraphicsPresetManager::SetScreenScaling(const EScreenScalingPreset& ScreenPercentage)
+void UGraphicsPresetManager::SetScreenScaling(
+    const EScreenScalingPreset& ScreenPercentage)
 {
     if (GEngine && GEngine->GameViewport)
     {
         // Set the screen percentage (resolution fraction) via console variable
-        FString Command = FString::Printf(TEXT("r.ScreenPercentage %d"), ScreenPercentage);
+        FString Command =
+            FString::Printf(TEXT("r.ScreenPercentage %d"), ScreenPercentage);
         GEngine->GameViewport->Exec(nullptr, *Command, *GLog);
     }
 }
@@ -107,7 +112,7 @@ void UGraphicsPresetManager::SetMaxFPS(const int32& MaxFPS)
             UserSettings->SetFrameRateLimit(MaxFPS);
             UserSettings->ApplySettings(true);
         }
-        
-        GEngine->SetMaxFPS(MaxFPS); // "Just in case" call
+
+        GEngine->SetMaxFPS(MaxFPS);  // "Just in case" call
     }
 }

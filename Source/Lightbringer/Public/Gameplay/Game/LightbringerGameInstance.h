@@ -1,4 +1,5 @@
-// You can use this project non-commercially for educational purposes, any commercial use, derivative commercial use is strictly prohibited
+// You can use this project non-commercially for educational purposes, any
+// commercial use, derivative commercial use is strictly prohibited
 
 #pragma once
 
@@ -20,5 +21,6 @@ protected:
     virtual void Shutdown();
 
 private:
-    void ApplyGraphicsSettingsAfterWorld(UWorld* World, const UWorld::InitializationValues IVS);
+    void ApplyGraphicsSettingsAfterWorld(
+        UWorld* World, const UWorld::InitializationValues IVS);
 };
