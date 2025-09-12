@@ -7,6 +7,7 @@
 #include "UObject/NoExportTypes.h"
 #include "UObject/Object.h"
 #include "InputActionData.h"
+#include "Components/InputComponent.h"
 #include "InputManager.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnInputAction, FName, ActionName);
@@ -19,8 +20,13 @@ class SIMPLEINPUT_API UInputManager : public UObject
     GENERATED_BODY()
 
 public:
+    static UInputManager* Get();
+
     UFUNCTION(BlueprintCallable)
-    void Init(
+    void BindActionData(
+        class UInputComponent* InputComponent, UInputActionData* InputData);
+    UFUNCTION(BlueprintCallable)
+    void UnbindActionData(
         class UInputComponent* InputComponent, UInputActionData* InputData);
 
     UFUNCTION(BlueprintCallable)
@@ -44,4 +50,17 @@ private:
     void HandleReleased(FName ActionName);
     void HandleAxis(
         FName AxisName, ESimpleInputAxisType AxisType, float Value);
+
+    void AddManagerToRoot();
+
+    void BindKeys_Internal(
+        UInputComponent* InputComponent, UInputActionData* InputData);
+
+    void BindAxis_Internal(
+        UInputComponent* InputComponent, UInputActionData* InputData);
+
+    UPROPERTY()
+    TMap<FName, FInputKeyBinding*> CreatedBindings;
+    UPROPERTY()
+    TMap<FName, FInputAxisKeyBinding*> CreatedAxisBindings;
 };

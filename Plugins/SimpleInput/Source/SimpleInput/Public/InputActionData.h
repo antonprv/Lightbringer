@@ -49,7 +49,8 @@ struct FSimpleInputBindingAxis
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
     ESimpleInputAxisType Axis;
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    UPROPERTY(EditAnywhere, BlueprintReadOnly,
+        meta = (ClampMin = -1.f, ClampMax = 1.f))
     float Scale = 1.f;
 };
 
