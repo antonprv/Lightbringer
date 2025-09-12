@@ -13,8 +13,7 @@ UInputManager* UInputManager::Get()
     if (!Instance.IsValid())
     {
         Instance = NewObject<UInputManager>(GetTransientPackage());
-        Instance->AddToRoot();  // prevent GC if you want it alive for whole
-                                // runtime
+        Instance->AddToRoot();
     }
 
     return Instance.Get();
@@ -50,10 +49,9 @@ void UInputManager::BindActionData(
         LogInputManager, Display, TEXT("Successfully bound InputActionData"))
 }
 
-void UInputManager::UnbindActionData(
-    UInputComponent* InputComponent, UInputActionData* InputData)
+void UInputManager::UnbindAll(UInputComponent* InputComponent)
 {
-    if (!InputComponent || !InputData) return;
+    if (!InputComponent) return;
 
     if (InputActionData)
     {
@@ -62,25 +60,8 @@ void UInputManager::UnbindActionData(
         return;
     }
 
-    // Keys
-    for (const auto& Pair : InputData->Bindings)
-    {
-        if (FInputKeyBinding** Found = CreatedBindings.Find(Pair.Key))
-        {
-            InputComponent->KeyBindings.RemoveSingle(**Found);
-            CreatedBindings.Remove(Pair.Key);
-        }
-    }
-
-    // Axes
-    for (const auto& Pair : InputData->AxisBindings)
-    {
-        if (FInputAxisKeyBinding** Found = CreatedAxisBindings.Find(Pair.Key))
-        {
-            InputComponent->AxisKeyBindings.RemoveSingle(**Found);
-            CreatedAxisBindings.Remove(Pair.Key);
-        }
-    }
+    InputComponent->KeyBindings.Reset();
+    InputComponent->AxisKeyBindings.Reset();
 
     InputActionData = nullptr;
 
@@ -149,19 +130,16 @@ void UInputManager::BindKeys_Internal(
 
         const FKey Key = ActionBinding.KeyToPress;
 
-        FInputKeyBinding NewBinding(
+        FInputKeyBinding KeyBinding(
             Key, Binding.Value.EventType == ESimpleInputEventType::Pressed
                      ? IE_Pressed
                      : IE_Released);
 
-        NewBinding.bConsumeInput = true;
-        NewBinding.KeyDelegate.GetDelegateForManualSet().BindLambda(
+        KeyBinding.bConsumeInput = true;
+        KeyBinding.KeyDelegate.GetDelegateForManualSet().BindLambda(
             [this, ActionName]() { HandlePressed(ActionName); });
 
-        FInputKeyBinding* Added =
-            &InputComponent->KeyBindings.Add_GetRef(NewBinding);
-
-        CreatedBindings.FindOrAdd(ActionName, Added);
+        InputComponent->KeyBindings.Add(KeyBinding);
     }
 }
 
@@ -186,9 +164,6 @@ void UInputManager::BindAxis_Internal(
             [this, ActionName, AxisName = ActionBinding.Axis](float Value)
             { HandleAxis(ActionName, AxisName, Value); });
 
-        FInputAxisKeyBinding* Added =
-            &InputComponent->AxisKeyBindings.Add_GetRef(AxisBinding);
-
-        CreatedAxisBindings.FindOrAdd(ActionName, Added);
+        InputComponent->AxisKeyBindings.Add(AxisBinding);
     }
 }

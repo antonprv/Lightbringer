@@ -26,8 +26,7 @@ public:
     void BindActionData(
         class UInputComponent* InputComponent, UInputActionData* InputData);
     UFUNCTION(BlueprintCallable)
-    void UnbindActionData(
-        class UInputComponent* InputComponent, UInputActionData* InputData);
+    void UnbindAll(class UInputComponent* InputComponent);
 
     UFUNCTION(BlueprintCallable)
     void ChangeInputKey(FName& ActionName, FKey& NewKey);
@@ -58,9 +57,4 @@ private:
 
     void BindAxis_Internal(
         UInputComponent* InputComponent, UInputActionData* InputData);
-
-    UPROPERTY()
-    TMap<FName, FInputKeyBinding*> CreatedBindings;
-    UPROPERTY()
-    TMap<FName, FInputAxisKeyBinding*> CreatedAxisBindings;
 };
