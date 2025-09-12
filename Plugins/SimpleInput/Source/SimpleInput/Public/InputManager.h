@@ -9,6 +9,7 @@
 #include "InputManager.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnInputAction, FName, ActionName);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnInputActionAxis, FName, ActionName, ESimpleInputAxisType, Axis, float, AxisValue);
 
 UCLASS(Blueprintable)
 class SIMPLEINPUT_API UInputManager : public UObject
@@ -21,6 +22,8 @@ public:
 
     UFUNCTION(BlueprintCallable)
     void ChangeInputKey(FName& ActionName, FKey& NewKey);
+    UFUNCTION(BlueprintCallable)
+    void ChangeInputAxisKey(FName& ActionName, FKey& NewKey);
 
     UPROPERTY(BlueprintAssignable)
     FOnInputAction OnActionPressed;
@@ -28,10 +31,13 @@ public:
     UPROPERTY(BlueprintAssignable)
     FOnInputAction OnActionReleased;
 
+    UPROPERTY(BlueprintAssignable)
+    FOnInputActionAxis OnAxisChanged;
+
 private:
-    UPROPERTY()
-    UInputActionData* InputActionData{nullptr};
+    UPROPERTY() UInputActionData* InputActionData{nullptr};
 
     void HandlePressed(FName ActionName);
     void HandleReleased(FName ActionName);
+    void HandleAxis(FName AxisName, ESimpleInputAxisType AxisType, float Value);
 };
