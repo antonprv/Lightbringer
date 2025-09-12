@@ -37,18 +37,6 @@ void UInputActionData::SetBinding(const FName& ActionName, FKey& KeyToPress)
     if (Bindings.Find(ActionName))
     {
         Bindings[ActionName].KeyToPress = KeyToPress;
-    }
-    else if (AxisBindings.Find(ActionName))
-    {
-        AxisBindings[ActionName].KeyToPress = KeyToPress;
-    };
-};
-
-void UInputActionData::SetBinding(const FName& ActionName, FKey& KeyToPress)
-{
-    if (Bindings.Find(ActionName))
-    {
-        Bindings[ActionName].KeyToPress = KeyToPress;
     };
 };
 

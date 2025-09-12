@@ -10,7 +10,7 @@
 #include "InputManager.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnInputAction, FName, ActionName);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnInputActionAxis, FName,
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnInputActionAxis, FName,
     ActionName, ESimpleInputAxisType, Axis, float, AxisValue);
 
 UCLASS(Blueprintable)

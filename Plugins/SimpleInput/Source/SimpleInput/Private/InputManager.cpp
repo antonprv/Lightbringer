@@ -30,6 +30,7 @@ void UInputManager::Init(
 
             KeyBinding.KeyDelegate.GetDelegateForManualSet().BindLambda(
                 [this, ActionName]() { HandlePressed(ActionName); });
+
             InputComponent->KeyBindings.Add(KeyBinding);
         }
         else if (ActionBinding.EventType == ESimpleInputEventType::Released)
@@ -39,6 +40,7 @@ void UInputManager::Init(
 
             KeyBinding.KeyDelegate.GetDelegateForManualSet().BindLambda(
                 [this, ActionName]() { HandleReleased(ActionName); });
+
             InputComponent->KeyBindings.Add(KeyBinding);
         }
     }
@@ -55,9 +57,12 @@ void UInputManager::Init(
 
         FInputAxisKeyBinding AxisBinding(ActionName);
         AxisBinding.AxisKey = ActionBinding.KeyToPress;
+        // AxisBinding.bConsumeInput = true;
+
         AxisBinding.AxisDelegate.GetDelegateForManualSet().BindLambda(
             [this, ActionName, AxisName = ActionBinding.Axis](float Value)
             { HandleAxis(ActionName, AxisName, Value); });
+
         InputComponent->AxisKeyBindings.Add(AxisBinding);
     }
 }
