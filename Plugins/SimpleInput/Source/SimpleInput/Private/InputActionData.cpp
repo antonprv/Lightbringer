@@ -3,48 +3,25 @@
 
 #include "InputActionData.h"
 
-bool UInputActionData::GetBinding(
-    const FName& ActionName, FSimpleInputBinding& OutBinding)
+bool UInputActionData::GetKeyBindings(
+    const FName& ActionName, TArray<FSimpleInputBinding>& OutBindings)
 {
     if (Bindings.Find(ActionName))
     {
-        OutBinding = Bindings[ActionName];
+        OutBindings = Bindings[ActionName].Bindings;
         return true;
     }
     return false;
 }
 
 bool UInputActionData::GetAxisBinding(
-    const FName& ActionName, FSimpleInputBindingAxis& OutAxisBinding)
+    const FName& ActionName, TArray<FSimpleInputBindingAxis>& OutAxisBindings)
 {
     if (Bindings.Find(ActionName))
     {
-        OutAxisBinding = AxisBindings[ActionName];
+        OutAxisBindings = AxisBindings[ActionName].Bindings;
         return true;
     }
+
     return false;
 }
-
-/*
- * Sets new value to existing binding. Function checks if said ActionName
- * exists and then fails silently if it doesn't.
- *
- * @param ActionName ActionName to search for.
- * @param KeyToPress New key value to set to the Action.
- */
-void UInputActionData::SetBinding(const FName& ActionName, FKey& KeyToPress)
-{
-    if (Bindings.Find(ActionName))
-    {
-        Bindings[ActionName].KeyToPress = KeyToPress;
-    };
-};
-
-void UInputActionData::SetAxisBinding(
-    const FName& ActionName, FKey& KeyToPress)
-{
-    if (AxisBindings.Find(ActionName))
-    {
-        AxisBindings[ActionName].KeyToPress = KeyToPress;
-    };
-};

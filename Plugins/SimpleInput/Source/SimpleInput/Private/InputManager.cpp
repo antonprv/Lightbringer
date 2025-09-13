@@ -19,7 +19,7 @@ UInputManager* UInputManager::Get()
     return Instance.Get();
 }
 
-void UInputManager::BindActionData(
+void UInputManager::SetActiveActionData(
     UInputComponent* InputComponent, UInputActionData* InputData)
 {
     if (!InputComponent || !InputData)
@@ -31,14 +31,14 @@ void UInputManager::BindActionData(
         return;
     }
 
-    AddManagerToRoot();
-
     if (InputActionData)
     {
         UE_LOG(LogInputManager, Warning,
             TEXT("Cannot bind InputActionData, already bound."))
         return;
     }
+
+    UnbindAll(InputComponent);
 
     InputActionData = InputData;
 
@@ -69,32 +69,6 @@ void UInputManager::UnbindAll(UInputComponent* InputComponent)
         LogInputManager, Display, TEXT("Successfully unbound InputActionData"))
 }
 
-/**
- * Changes input binding in runtime, all changes will be lost when the session
- * ends. You need to manually call BindActionData() after this.  Currently
- * for testing only.
- *
- * @param ActionName Name of the action that should be changed
- * @param NewKey new key that sets this value
- */
-void UInputManager::ChangeInputKey(FName& ActionName, FKey& NewKey)
-{
-    InputActionData->SetBinding(ActionName, NewKey);
-}
-
-/**
- * Changes input axis binding in runtime, all changes will be lost when the
- * session ends. You need to manually call BindActionData() after this.
- * Currently for testing only.
- *
- * @param ActionName Name of the action that should be changed
- * @param NewKey new key that sets this value
- */
-void UInputManager::ChangeInputAxisKey(FName& ActionName, FKey& NewKey)
-{
-    InputActionData->SetAxisBinding(ActionName, NewKey);
-}
-
 void UInputManager::HandlePressed(FName ActionName)
 {
     OnActionPressed.Broadcast(ActionName);
@@ -111,35 +85,34 @@ void UInputManager::HandleAxis(
     OnAxisChanged.Broadcast(AxisName, AxisType, Value);
 }
 
-void UInputManager::AddManagerToRoot()
-{
-    if (!IsRooted())
-    {
-        AddToRoot();
-    }
-}
-
 void UInputManager::BindKeys_Internal(
     UInputComponent* InputComponent, UInputActionData* InputData)
 {
     // Setting up key actions
-    for (const TPair<FName, FSimpleInputBinding> Binding : InputData->Bindings)
+    for (const TPair<FName, FSimpleInputBindingArray>& Bindings :
+        InputData->Bindings)
     {
-        const FName ActionName = Binding.Key;
-        const FSimpleInputBinding ActionBinding = Binding.Value;
+        const FName ActionName = Bindings.Key;
 
-        const FKey Key = ActionBinding.KeyToPress;
+        for (FSimpleInputBinding ActionBinding : Bindings.Value.Bindings)
+        {
+            const FInputChord KeyChord(ActionBinding.KeyToPress);
 
-        FInputKeyBinding KeyBinding(
-            Key, Binding.Value.EventType == ESimpleInputEventType::Pressed
-                     ? IE_Pressed
-                     : IE_Released);
+            FInputKeyBinding KeyBinding;
 
-        KeyBinding.bConsumeInput = true;
-        KeyBinding.KeyDelegate.GetDelegateForManualSet().BindLambda(
-            [this, ActionName]() { HandlePressed(ActionName); });
+            KeyBinding.Chord = KeyChord;
+            KeyBinding.KeyEvent =
+                ActionBinding.EventType == ESimpleInputEventType::Pressed
+                    ? IE_Pressed
+                    : IE_Released;
 
-        InputComponent->KeyBindings.Add(KeyBinding);
+            KeyBinding.bConsumeInput = false;
+
+            KeyBinding.KeyDelegate.GetDelegateForManualSet().BindLambda(
+                [this, ActionName]() { HandlePressed(ActionName); });
+
+            InputComponent->KeyBindings.Add(KeyBinding);
+        }
     }
 }
 
@@ -147,23 +120,27 @@ void UInputManager::BindAxis_Internal(
     UInputComponent* InputComponent, UInputActionData* InputData)
 {
     // Setting up axis actions
-    for (const TPair<FName, FSimpleInputBindingAxis> Binding :
+    for (const TPair<FName, FSimpleInputBindingAxisArray>& Bindings :
         InputData->AxisBindings)
     {
-        const FName ActionName = Binding.Key;
-        const FSimpleInputBindingAxis ActionBinding = Binding.Value;
+        const FName ActionName = Bindings.Key;
 
-        const FKey Key = ActionBinding.KeyToPress;
-        const ESimpleInputAxisType AxisType = ActionBinding.Axis;
+        for (FSimpleInputBindingAxis AcionAxisBinding :
+            Bindings.Value.Bindings)
+        {
+            const FKey Key = AcionAxisBinding.KeyToPress;
+            const ESimpleInputAxisType AxisType = AcionAxisBinding.Axis;
 
-        FInputAxisKeyBinding AxisBinding(ActionName);
-        AxisBinding.AxisKey = ActionBinding.KeyToPress;
-        // AxisBinding.bConsumeInput = true;
+            FInputAxisKeyBinding AxisBinding;
+            AxisBinding.AxisKey = AcionAxisBinding.KeyToPress;
 
-        AxisBinding.AxisDelegate.GetDelegateForManualSet().BindLambda(
-            [this, ActionName, AxisName = ActionBinding.Axis](float Value)
-            { HandleAxis(ActionName, AxisName, Value); });
+            AxisBinding.bConsumeInput = false;
 
-        InputComponent->AxisKeyBindings.Add(AxisBinding);
+            AxisBinding.AxisDelegate.GetDelegateForManualSet().BindLambda(
+                [this, ActionName, AxisName = AcionAxisBinding.Axis](
+                    float Value) { HandleAxis(ActionName, AxisName, Value); });
+
+            InputComponent->AxisKeyBindings.Add(AxisBinding);
+        }
     }
 }

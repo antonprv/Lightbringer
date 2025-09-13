@@ -23,15 +23,10 @@ public:
     static UInputManager* Get();
 
     UFUNCTION(BlueprintCallable)
-    void BindActionData(
+    void SetActiveActionData(
         class UInputComponent* InputComponent, UInputActionData* InputData);
     UFUNCTION(BlueprintCallable)
     void UnbindAll(class UInputComponent* InputComponent);
-
-    UFUNCTION(BlueprintCallable)
-    void ChangeInputKey(FName& ActionName, FKey& NewKey);
-    UFUNCTION(BlueprintCallable)
-    void ChangeInputAxisKey(FName& ActionName, FKey& NewKey);
 
     UPROPERTY(BlueprintAssignable)
     FOnInputAction OnActionPressed;
@@ -49,8 +44,6 @@ private:
     void HandleReleased(FName ActionName);
     void HandleAxis(
         FName AxisName, ESimpleInputAxisType AxisType, float Value);
-
-    void AddManagerToRoot();
 
     void BindKeys_Internal(
         UInputComponent* InputComponent, UInputActionData* InputData);

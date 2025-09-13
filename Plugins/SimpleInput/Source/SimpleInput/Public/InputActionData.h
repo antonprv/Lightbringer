@@ -31,11 +31,20 @@ struct FSimpleInputBinding
 {
     GENERATED_USTRUCT_BODY();
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
     FKey KeyToPress;
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
     ESimpleInputEventType EventType;
+};
+
+USTRUCT(BlueprintType)
+struct FSimpleInputBindingArray
+{
+    GENERATED_USTRUCT_BODY();
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    TArray<FSimpleInputBinding> Bindings;
 };
 
 USTRUCT(BlueprintType)
@@ -43,15 +52,24 @@ struct FSimpleInputBindingAxis
 {
     GENERATED_USTRUCT_BODY();
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
     FKey KeyToPress;
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
     ESimpleInputAxisType Axis;
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly,
+    UPROPERTY(EditAnywhere, BlueprintReadWrite,
         meta = (ClampMin = -1.f, ClampMax = 1.f))
     float Scale = 1.f;
+};
+
+USTRUCT(BlueprintType)
+struct FSimpleInputBindingAxisArray
+{
+    GENERATED_USTRUCT_BODY();
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    TArray<FSimpleInputBindingAxis> Bindings;
 };
 
 UCLASS(abstract, Blueprintable)
@@ -61,23 +79,18 @@ class SIMPLEINPUT_API UInputActionData : public UPrimaryDataAsset
 
 public:
     UPROPERTY(EditAnywhere)
-    TMap<FName, FSimpleInputBinding> Bindings;
+    TMap<FName, FSimpleInputBindingArray> Bindings;
 
     UPROPERTY(EditAnywhere)
-    TMap<FName, FSimpleInputBindingAxis> AxisBindings;
+    TMap<FName, FSimpleInputBindingAxisArray> AxisBindings;
 
     UFUNCTION(BlueprintCallable,
         meta = (DisplayName = "Get Binding", OverloadName = "Default"))
-    bool GetBinding(const FName& ActionName, FSimpleInputBinding& OutBinding);
-    UFUNCTION(BlueprintCallable,
-        meta = (DisplayName = "Get Binding", OverloadName = "With Axis"))
-    bool GetAxisBinding(
-        const FName& ActionName, FSimpleInputBindingAxis& OutAxisBinding);
+    bool GetKeyBindings(
+        const FName& ActionName, TArray<FSimpleInputBinding>& OutBindings);
 
     UFUNCTION(BlueprintCallable,
-        meta = (DisplayName = "Set Binding", OverloadName = "Default"))
-    void SetBinding(const FName& ActionName, FKey& KeyToPress);
-    UFUNCTION(BlueprintCallable,
-        meta = (DisplayName = "Set Binding", OverloadName = "With Axis"))
-    void SetAxisBinding(const FName& ActionName, FKey& KeyToPress);
+        meta = (DisplayName = "Get Binding", OverloadName = "With Axis"))
+    bool GetAxisBinding(const FName& ActionName,
+        TArray<FSimpleInputBindingAxis>& OutAxisBindings);
 };

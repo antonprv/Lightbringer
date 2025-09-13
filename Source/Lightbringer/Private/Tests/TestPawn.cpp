@@ -2,7 +2,7 @@
 // commercial use, derivative commercial use is strictly prohibited
 
 #include "TestPawn.h"
-
+#include "SimpleInputSubsystem.h"
 #include "InputManager.h"
 #include "InputActionData.h"
 
@@ -31,13 +31,35 @@ void ATestPawn::SetupPlayerInputComponent(
     UInputComponent* PlayerInputComponent)
 {
     Super::SetupPlayerInputComponent(PlayerInputComponent);
+
+    if (USimpleInputSubsystem* SimpleInputSubsystem =
+            USimpleInputSubsystem::Get(GetWorld()))
+    {
+        if (UInputManager* InputManager =
+                SimpleInputSubsystem->GetInputManager())
+        {
+            InputManager->SetActiveActionData(
+                PlayerInputComponent, InputActionData);
+
+            InputManager->OnAxisChanged.AddDynamic(
+                this, &ATestPawn::HandleMovement);
+        }
+    }
 }
 
-void ATestPawn::MoveFowrard(float Amount) {}
+void ATestPawn::MoveFowrard(float Value) {}
 
-void ATestPawn::MoveRight(float Amount) {}
+void ATestPawn::MoveRight(float Value) {}
 
 void ATestPawn::HandleMovement(
     FName AxisName, ESimpleInputAxisType AxisType, float Value)
 {
+    if (AxisName.IsEqual("") && AxisType == ESimpleInputAxisType::Y)
+    {
+        // do stuff with value
+    }
+    else if (AxisName.IsEqual("") && AxisType == ESimpleInputAxisType::X)
+    {
+        // do stuff with value
+    }
 }

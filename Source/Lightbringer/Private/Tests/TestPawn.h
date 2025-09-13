@@ -21,6 +21,9 @@ public:
     UPROPERTY(EditAnywhere)
     float Velocity{300.f};
 
+    UPROPERTY(EditDefaultsOnly)
+    class UInputActionData* InputActionData{nullptr};
+
 protected:
     // Called when the game starts or when spawned
     virtual void BeginPlay() override;
@@ -34,8 +37,8 @@ public:
         class UInputComponent* PlayerInputComponent) override;
 
 private:
-    void MoveFowrard(float Amount);
-    void MoveRight(float Amount);
+    void MoveFowrard(float Value);
+    void MoveRight(float Value);
     void HandleMovement(
         FName AxisName, ESimpleInputAxisType AxisType, float Value);
 };
