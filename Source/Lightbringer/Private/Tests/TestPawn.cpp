@@ -96,19 +96,12 @@ void ATestPawn::MoveRight(float Value)
 void ATestPawn::HandleMovement(
     FName AxisName, ESimpleInputAxisType AxisType, float Value)
 {
-    if (AxisName.IsEqual("MoveForward"))
+    if (AxisName.IsEqual("MoveForward") && AxisType == ESimpleInputAxisType::X)
     {
         MoveFowrard(Value);
     }
-    else if (AxisName.IsEqual("MoveBack"))
-    {
-        MoveFowrard(Value);
-    }
-    else if (AxisName.IsEqual("MoveRight"))
-    {
-        MoveRight(Value);
-    }
-    else if (AxisName.IsEqual("MoveLeft"))
+    else if (AxisName.IsEqual("MoveRight") &&
+             AxisType == ESimpleInputAxisType::Y)
     {
         MoveRight(Value);
     }
