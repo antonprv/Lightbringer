@@ -9,6 +9,9 @@
 
 enum class ESimpleInputAxisType : uint8;
 class APlayerController;
+class UInputActionData;
+class UStaticMeshComponent;
+class UCameraComponent;
 
 UCLASS()
 class ATestPawn : public APawn
@@ -19,29 +22,31 @@ public:
     // Sets default values for this pawn's properties
     ATestPawn();
 
-    UPROPERTY(EditAnywhere)
-    float Velocity{300.f};
+    UPROPERTY(VisibleAnywhere, Category = "Input")
+    float Velocity{50.f};
 
-    UPROPERTY(EditDefaultsOnly)
-    class UInputActionData* InputActionData;
+    UPROPERTY(VisibleAnywhere, Category = "Input")
+    UInputActionData* InputActionData;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Base Components")
+    UCameraComponent* CameraComponent{nullptr};
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Base Components")
+    UStaticMeshComponent* StaticMeshComponent{nullptr};
 
 protected:
     // Called when the game starts or when spawned
     virtual void BeginPlay() override;
 
-public:
-    // Called every frame
-    virtual void Tick(float DeltaTime) override;
+    virtual void PossessedBy(AController* NewController) override;
+    virtual void UnPossessed() override;
 
+public:
     // Called to bind functionality to input
     virtual void SetupPlayerInputComponent(
         class UInputComponent* PlayerInputComponent) override;
 
 private:
     FVector VelocityVector{FVector::ZeroVector};
-
-    UPROPERTY()
-    class USceneComponent* SceneComponent{nullptr};
 
     UPROPERTY()
     APlayerController* PlayerController{nullptr};
@@ -51,4 +56,6 @@ private:
     UFUNCTION()
     void HandleMovement(
         FName AxisName, ESimpleInputAxisType AxisType, float Value);
+
+    bool bIsPossessed{false};
 };

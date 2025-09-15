@@ -3,8 +3,11 @@
 
 #include "TestGameMode.h"
 #include "TestPawn.h"
+#include "TestPlayerController.h"
 
 ATestGameMode::ATestGameMode()
 {
     DefaultPawnClass = ATestPawn::StaticClass();
+
+    PlayerControllerClass = ATestPlayerController::StaticClass();
 }

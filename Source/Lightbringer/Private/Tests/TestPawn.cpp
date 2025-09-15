@@ -2,27 +2,40 @@
 // commercial use, derivative commercial use is strictly prohibited
 
 #include "TestPawn.h"
+
+#include "Components/StaticMeshComponent.h"
+#include "Camera/CameraComponent.h"
+
+#include "Engine/World.h"
+#include "UObject/ConstructorHelpers.h"
+#include "GameFramework/Controller.h"
+
 #include "SimpleInputSubsystem.h"
 #include "InputManager.h"
 #include "InputActionData.h"
-#include "UObject/ConstructorHelpers.h"
-#include "Components/SceneComponent.h"
-#include "Engine/World.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogATestPawn, Log, Log);
 
 // Sets default values
 ATestPawn::ATestPawn()
 {
-    // Set this pawn to call Tick() every frame.  You can turn this off to
-    // improve performance if you don't need it.
-    PrimaryActorTick.bCanEverTick = true;
+    PrimaryActorTick.bCanEverTick = false;
 
-    SceneComponent = CreateDefaultSubobject<USceneComponent>("Root Transform");
-    SetRootComponent(SceneComponent);
+    // Components
+    StaticMeshComponent =
+        CreateDefaultSubobject<UStaticMeshComponent>("Base Mesh");
+    SetRootComponent(StaticMeshComponent);
+    CameraComponent = CreateDefaultSubobject<UCameraComponent>("Camera");
+    CameraComponent->SetupAttachment(GetRootComponent());
 
+    StaticMeshComponent->SetConstraintMode(EDOFMode::XYPlane);
+    StaticMeshComponent->SetLinearDamping(10.f);
+    StaticMeshComponent->SetAngularDamping(10.f);
+    StaticMeshComponent->SetCollisionResponseToAllChannels(ECR_Block);
+
+    // Input
     InputActionData = LoadObject<UInputActionData>(
-        nullptr, TEXT("InputActionData'/Game/Blueprints/Input/"
+        nullptr, TEXT("InputActionData'/Game/Blueprints/Test/Input/"
                       "IAD_TestFly.IAD_TestFly'"));
     if (!IsValid(InputActionData))
     {
@@ -36,29 +49,13 @@ void ATestPawn::BeginPlay()
     Super::BeginPlay();
 }
 
-// Called every frame
-void ATestPawn::Tick(float DeltaTime)
-{
-    Super::Tick(DeltaTime);
-
-    if (!VelocityVector.IsZero())
-    {
-        FVector NewPosition =
-            GetActorLocation() + Velocity * DeltaTime * VelocityVector;
-        SetActorLocation(NewPosition);
-    }
-}
-
 // Called to bind functionality to input
 void ATestPawn::SetupPlayerInputComponent(
     UInputComponent* PlayerInputComponent)
 {
     Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-    if (APlayerController* Controller = GetWorld()->GetFirstPlayerController())
-    {
-        PlayerController = Controller;
-    }
+    PlayerController = GetWorld()->GetFirstPlayerController();
 
     if (USimpleInputSubsystem* SimpleInputSubsystem =
             USimpleInputSubsystem::Get(GetWorld()))
@@ -75,9 +72,29 @@ void ATestPawn::SetupPlayerInputComponent(
     }
 }
 
+void ATestPawn::PossessedBy(AController* NewController)
+{
+    Super::PossessedBy(NewController);
+
+    UE_LOG(LogATestPawn, Display, TEXT("%s possessed by %s"), *GetName(),
+        *NewController->GetName())
+    bIsPossessed = true;
+}
+
+void ATestPawn::UnPossessed()
+{
+    Super::UnPossessed();
+
+    UE_LOG(LogATestPawn, Display, TEXT("%s unpossessed"), *GetName())
+    bIsPossessed = false;
+}
+
 void ATestPawn::MoveFowrard(float Value)
 {
+    if (!bIsPossessed) return;
+
     VelocityVector.X = Value;
+    AddActorLocalOffset(VelocityVector * GetWorld()->GetDeltaSeconds(), true);
     if (Value != 0)
     {
         UE_LOG(LogATestPawn, Display, TEXT("MoveFowrard value: %f"), Value)
@@ -86,7 +103,10 @@ void ATestPawn::MoveFowrard(float Value)
 
 void ATestPawn::MoveRight(float Value)
 {
+    if (!bIsPossessed) return;
+
     VelocityVector.Y = Value;
+    AddActorLocalOffset(VelocityVector * GetWorld()->GetDeltaSeconds(), true);
     if (Value != 0)
     {
         UE_LOG(LogATestPawn, Display, TEXT("MoveRight value: %f"), Value)
