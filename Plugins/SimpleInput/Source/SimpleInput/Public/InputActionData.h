@@ -72,7 +72,7 @@ struct FSimpleInputBindingAxisArray
     TArray<FSimpleInputBindingAxis> Bindings;
 };
 
-UCLASS(abstract, Blueprintable)
+UCLASS()
 class SIMPLEINPUT_API UInputActionData : public UPrimaryDataAsset
 {
     GENERATED_BODY()

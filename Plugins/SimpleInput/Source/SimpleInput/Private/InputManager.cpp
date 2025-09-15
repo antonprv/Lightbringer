@@ -2,7 +2,11 @@
 // commercial use, derivative commercial use is strictly prohibited
 
 #include "InputManager.h"
+#include "InputActionData.h"
+#include "Components/InputComponent.h"
 #include "GameFramework/PlayerController.h"
+#include "GameFramework/PlayerInput.h"
+#include "Engine/World.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogInputManager, Log, Log);
 
@@ -19,22 +23,15 @@ UInputManager* UInputManager::Get()
     return Instance.Get();
 }
 
-void UInputManager::SetActiveActionData(
+void UInputManager::SetActiveActionData(APlayerController* PlayerController,
     UInputComponent* InputComponent, UInputActionData* InputData)
 {
-    if (!InputComponent || !InputData)
+    if (!InputComponent || !InputData || !PlayerController)
     {
         UE_LOG(LogInputManager, Warning,
-            TEXT("Cannot bind ActionData, UInputComponent or UInputActionData "
-                 "are nullptr."))
+            TEXT("Failed to bind ActionData: either the UInputComponent, "
+                 "UInputActionData, or PlayerController is null."))
 
-        return;
-    }
-
-    if (InputActionData)
-    {
-        UE_LOG(LogInputManager, Warning,
-            TEXT("Cannot bind InputActionData, already bound."))
         return;
     }
 
@@ -42,23 +39,21 @@ void UInputManager::SetActiveActionData(
 
     InputActionData = InputData;
 
-    BindKeys_Internal(InputComponent, InputData);
-    BindAxis_Internal(InputComponent, InputData);
+    __Internal_BindKeys(InputComponent, InputData);
+    __Internal_BindAxis(PlayerController, InputComponent, InputData);
 
     UE_LOG(
         LogInputManager, Display, TEXT("Successfully bound InputActionData"))
+
+    UE_LOG(LogInputManager, Display,
+        TEXT("KeyBindings: %d, AxisKeyBindings: %d"),
+        InputComponent->KeyBindings.Num(),
+        InputComponent->AxisKeyBindings.Num());
 }
 
 void UInputManager::UnbindAll(UInputComponent* InputComponent)
 {
-    if (!InputComponent) return;
-
-    if (InputActionData)
-    {
-        UE_LOG(LogInputManager, Warning,
-            TEXT("Cannot bind InputActionData, already unbound."))
-        return;
-    }
+    if (!InputComponent || !InputActionData) return;
 
     InputComponent->KeyBindings.Reset();
     InputComponent->AxisKeyBindings.Reset();
@@ -85,9 +80,11 @@ void UInputManager::HandleAxis(
     OnAxisChanged.Broadcast(AxisName, AxisType, Value);
 }
 
-void UInputManager::BindKeys_Internal(
+void UInputManager::__Internal_BindKeys(
     UInputComponent* InputComponent, UInputActionData* InputData)
 {
+    if (InputData->Bindings.Num() == 0) return;
+
     // Setting up key actions
     for (const TPair<FName, FSimpleInputBindingArray>& Bindings :
         InputData->Bindings)
@@ -108,39 +105,64 @@ void UInputManager::BindKeys_Internal(
 
             KeyBinding.bConsumeInput = false;
 
-            KeyBinding.KeyDelegate.GetDelegateForManualSet().BindLambda(
-                [this, ActionName]() { HandlePressed(ActionName); });
+            if (ActionBinding.EventType == ESimpleInputEventType::Pressed)
+            {
+                KeyBinding.KeyDelegate.GetDelegateForManualSet().BindLambda(
+                    [this, ActionName]() { HandlePressed(ActionName); });
+            }
+            else
+            {
+                KeyBinding.KeyDelegate.GetDelegateForManualSet().BindLambda(
+                    [this, ActionName]() { HandleReleased(ActionName); });
+            }
 
             InputComponent->KeyBindings.Add(KeyBinding);
         }
     }
 }
 
-void UInputManager::BindAxis_Internal(
+void UInputManager::__Internal_BindAxis(APlayerController* PlayerController,
     UInputComponent* InputComponent, UInputActionData* InputData)
 {
-    // Setting up axis actions
+    if (!InputData || !PlayerController || !InputComponent ||
+        InputData->AxisBindings.Num() == 0)
+        return;
+
     for (const TPair<FName, FSimpleInputBindingAxisArray>& Bindings :
         InputData->AxisBindings)
     {
         const FName ActionName = Bindings.Key;
 
-        for (FSimpleInputBindingAxis AcionAxisBinding :
+        for (const FSimpleInputBindingAxis& AxisBindingInfo :
             Bindings.Value.Bindings)
         {
-            const FKey Key = AcionAxisBinding.KeyToPress;
-            const ESimpleInputAxisType AxisType = AcionAxisBinding.Axis;
+            const FKey Key = AxisBindingInfo.KeyToPress;
 
-            FInputAxisKeyBinding AxisBinding;
-            AxisBinding.AxisKey = AcionAxisBinding.KeyToPress;
+            const ESimpleInputAxisType AxisType = AxisBindingInfo.Axis;
+            const float Scale = AxisBindingInfo.Scale;
 
-            AxisBinding.bConsumeInput = false;
+            if (Key.IsFloatAxis())
+            {
+                auto& AxisKeyBinding =
+                    InputComponent->AxisKeyBindings.Add_GetRef(
+                        FInputAxisKeyBinding(Key));
+                AxisKeyBinding.bConsumeInput = false;
+                AxisKeyBinding.AxisDelegate.GetDelegateForManualSet()
+                    .BindLambda(
+                        [this, ActionName, AxisType, Scale](float Value)
+                        { HandleAxis(ActionName, AxisType, Value * Scale); });
+            }
+            else
+            {
+                FInputAxisBinding& AxisBinding =
+                    InputComponent->BindAxis(ActionName);
+                AxisBinding.AxisDelegate.GetDelegateForManualSet().BindLambda(
+                    [this, ActionName, AxisType](float Value)
+                    { HandleAxis(ActionName, AxisType, Value); });
 
-            AxisBinding.AxisDelegate.GetDelegateForManualSet().BindLambda(
-                [this, ActionName, AxisName = AcionAxisBinding.Axis](
-                    float Value) { HandleAxis(ActionName, AxisName, Value); });
-
-            InputComponent->AxisKeyBindings.Add(AxisBinding);
+                PlayerController->PlayerInput->AddAxisMapping(
+                    FInputAxisKeyMapping(ActionName, Key, Scale));
+            }
         }
     }
 }

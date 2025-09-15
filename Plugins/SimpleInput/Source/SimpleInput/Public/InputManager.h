@@ -4,15 +4,15 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UObject/NoExportTypes.h"
-#include "UObject/Object.h"
-#include "InputActionData.h"
-#include "Components/InputComponent.h"
 #include "InputManager.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnInputAction, FName, ActionName);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnInputActionAxis, FName,
     ActionName, ESimpleInputAxisType, Axis, float, AxisValue);
+
+class UInputActionData;
+class UInputComponent;
+class APlayerController;
 
 UCLASS(Blueprintable)
 class SIMPLEINPUT_API UInputManager : public UObject
@@ -23,8 +23,8 @@ public:
     static UInputManager* Get();
 
     UFUNCTION(BlueprintCallable)
-    void SetActiveActionData(
-        class UInputComponent* InputComponent, UInputActionData* InputData);
+    void SetActiveActionData(APlayerController* PlayerController,
+        UInputComponent* InputComponent, UInputActionData* InputData);
     UFUNCTION(BlueprintCallable)
     void UnbindAll(class UInputComponent* InputComponent);
 
@@ -38,16 +38,17 @@ public:
     FOnInputActionAxis OnAxisChanged;
 
 private:
-    UPROPERTY() UInputActionData* InputActionData { nullptr };
+    UPROPERTY()
+    UInputActionData* InputActionData{nullptr};
 
     void HandlePressed(FName ActionName);
     void HandleReleased(FName ActionName);
     void HandleAxis(
         FName AxisName, ESimpleInputAxisType AxisType, float Value);
 
-    void BindKeys_Internal(
+    void __Internal_BindKeys(
         UInputComponent* InputComponent, UInputActionData* InputData);
 
-    void BindAxis_Internal(
+    void __Internal_BindAxis(APlayerController* PlayerController,
         UInputComponent* InputComponent, UInputActionData* InputData);
 };

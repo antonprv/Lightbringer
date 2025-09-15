@@ -5,6 +5,11 @@
 #include "SimpleInputSubsystem.h"
 #include "InputManager.h"
 #include "InputActionData.h"
+#include "UObject/ConstructorHelpers.h"
+#include "Components/SceneComponent.h"
+#include "Engine/World.h"
+
+DEFINE_LOG_CATEGORY_STATIC(LogATestPawn, Log, Log);
 
 // Sets default values
 ATestPawn::ATestPawn()
@@ -12,6 +17,17 @@ ATestPawn::ATestPawn()
     // Set this pawn to call Tick() every frame.  You can turn this off to
     // improve performance if you don't need it.
     PrimaryActorTick.bCanEverTick = true;
+
+    SceneComponent = CreateDefaultSubobject<USceneComponent>("Root Transform");
+    SetRootComponent(SceneComponent);
+
+    InputActionData = LoadObject<UInputActionData>(
+        nullptr, TEXT("InputActionData'/Game/Blueprints/Input/"
+                      "IAD_TestFly.IAD_TestFly'"));
+    if (!IsValid(InputActionData))
+    {
+        UE_LOG(LogATestPawn, Warning, TEXT("Failed to load InputActionData"));
+    }
 }
 
 // Called when the game starts or when spawned
@@ -24,6 +40,13 @@ void ATestPawn::BeginPlay()
 void ATestPawn::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
+
+    if (!VelocityVector.IsZero())
+    {
+        FVector NewPosition =
+            GetActorLocation() + Velocity * DeltaTime * VelocityVector;
+        SetActorLocation(NewPosition);
+    }
 }
 
 // Called to bind functionality to input
@@ -32,6 +55,11 @@ void ATestPawn::SetupPlayerInputComponent(
 {
     Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+    if (APlayerController* Controller = GetWorld()->GetFirstPlayerController())
+    {
+        PlayerController = Controller;
+    }
+
     if (USimpleInputSubsystem* SimpleInputSubsystem =
             USimpleInputSubsystem::Get(GetWorld()))
     {
@@ -39,7 +67,7 @@ void ATestPawn::SetupPlayerInputComponent(
                 SimpleInputSubsystem->GetInputManager())
         {
             InputManager->SetActiveActionData(
-                PlayerInputComponent, InputActionData);
+                PlayerController, PlayerInputComponent, InputActionData);
 
             InputManager->OnAxisChanged.AddDynamic(
                 this, &ATestPawn::HandleMovement);
@@ -47,19 +75,41 @@ void ATestPawn::SetupPlayerInputComponent(
     }
 }
 
-void ATestPawn::MoveFowrard(float Value) {}
+void ATestPawn::MoveFowrard(float Value)
+{
+    VelocityVector.X = Value;
+    if (Value != 0)
+    {
+        UE_LOG(LogATestPawn, Display, TEXT("MoveFowrard value: %f"), Value)
+    }
+}
 
-void ATestPawn::MoveRight(float Value) {}
+void ATestPawn::MoveRight(float Value)
+{
+    VelocityVector.Y = Value;
+    if (Value != 0)
+    {
+        UE_LOG(LogATestPawn, Display, TEXT("MoveRight value: %f"), Value)
+    }
+}
 
 void ATestPawn::HandleMovement(
     FName AxisName, ESimpleInputAxisType AxisType, float Value)
 {
-    if (AxisName.IsEqual("") && AxisType == ESimpleInputAxisType::Y)
+    if (AxisName.IsEqual("MoveForward"))
     {
-        // do stuff with value
+        MoveFowrard(Value);
     }
-    else if (AxisName.IsEqual("") && AxisType == ESimpleInputAxisType::X)
+    else if (AxisName.IsEqual("MoveBack"))
     {
-        // do stuff with value
+        MoveFowrard(Value);
+    }
+    else if (AxisName.IsEqual("MoveRight"))
+    {
+        MoveRight(Value);
+    }
+    else if (AxisName.IsEqual("MoveLeft"))
+    {
+        MoveRight(Value);
     }
 }

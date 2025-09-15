@@ -8,6 +8,7 @@
 #include "TestPawn.generated.h"
 
 enum class ESimpleInputAxisType : uint8;
+class APlayerController;
 
 UCLASS()
 class ATestPawn : public APawn
@@ -22,7 +23,7 @@ public:
     float Velocity{300.f};
 
     UPROPERTY(EditDefaultsOnly)
-    class UInputActionData* InputActionData{nullptr};
+    class UInputActionData* InputActionData;
 
 protected:
     // Called when the game starts or when spawned
@@ -37,8 +38,17 @@ public:
         class UInputComponent* PlayerInputComponent) override;
 
 private:
+    FVector VelocityVector{FVector::ZeroVector};
+
+    UPROPERTY()
+    class USceneComponent* SceneComponent{nullptr};
+
+    UPROPERTY()
+    APlayerController* PlayerController{nullptr};
+
     void MoveFowrard(float Value);
     void MoveRight(float Value);
+    UFUNCTION()
     void HandleMovement(
         FName AxisName, ESimpleInputAxisType AxisType, float Value);
 };
