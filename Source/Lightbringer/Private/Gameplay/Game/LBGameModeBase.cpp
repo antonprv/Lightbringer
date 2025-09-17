@@ -3,8 +3,10 @@
 
 #include "LBGameModeBase.h"
 #include "LBPlayerCharacter.h"
+#include "LBPlayerController.h"
 
 ALBGameModeBase::ALBGameModeBase()
 {
     DefaultPawnClass = ALBPlayerCharacter::StaticClass();
+    PlayerControllerClass = ALBPlayerController::StaticClass();
 }

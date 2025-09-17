@@ -5,12 +5,14 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Interfaces/PlayerControllable.h"
 #include "LBPlayerCharacter.generated.h"
 
 class UCameraComponent;
 
 UCLASS()
-class LIGHTBRINGER_API ALBPlayerCharacter : public ACharacter
+class LIGHTBRINGER_API ALBPlayerCharacter : public ACharacter,
+                                            public IPlayerControllable
 {
     GENERATED_BODY()
 
@@ -27,9 +29,12 @@ protected:
 
 public:
     // Called every frame
-    virtual void Tick(float DeltaTime) override;
+    virtual void Tick(float DeltaTime) override;  // Tick disabled for now
 
     // Called to bind functionality to input
     virtual void SetupPlayerInputComponent(
         class UInputComponent* PlayerInputComponent) override;
+
+    void MoveForward_Implementation(float& Value) override;
+    void MoveRight_Implementation(float& Value) override;
 };
