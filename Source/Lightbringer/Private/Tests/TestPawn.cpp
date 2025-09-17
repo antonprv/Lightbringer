@@ -60,14 +60,18 @@ void ATestPawn::SetupPlayerInputComponent(
     if (USimpleInputSubsystem* SimpleInputSubsystem =
             USimpleInputSubsystem::Get(GetWorld()))
     {
-        if (UInputManager* InputManager =
-                SimpleInputSubsystem->GetInputManager())
+        InputManager = SimpleInputSubsystem->GetInputManager();
+
+        if (InputManager)
         {
             InputManager->SetActiveActionData(
                 PlayerController, PlayerInputComponent, InputActionData);
 
-            InputManager->OnAxisChanged.AddDynamic(
-                this, &ATestPawn::HandleMovement);
+            if (!InputManager->OnAxisChanged.GetAllObjects().Contains(this))
+            {
+                InputManager->OnAxisChanged.AddDynamic(
+                    this, &ATestPawn::HandleMovement);
+            }
         }
     }
 }
@@ -94,7 +98,8 @@ void ATestPawn::MoveFowrard(float Value)
     if (!bIsPossessed) return;
 
     VelocityVector.X = Value;
-    AddActorLocalOffset(VelocityVector * GetWorld()->GetDeltaSeconds(), true);
+    AddActorLocalOffset(
+        VelocityVector * Velocity * GetWorld()->GetDeltaSeconds(), true);
     if (Value != 0)
     {
         UE_LOG(LogATestPawn, Display, TEXT("MoveFowrard value: %f"), Value)
@@ -106,7 +111,8 @@ void ATestPawn::MoveRight(float Value)
     if (!bIsPossessed) return;
 
     VelocityVector.Y = Value;
-    AddActorLocalOffset(VelocityVector * GetWorld()->GetDeltaSeconds(), true);
+    AddActorLocalOffset(
+        VelocityVector * Velocity * GetWorld()->GetDeltaSeconds(), true);
     if (Value != 0)
     {
         UE_LOG(LogATestPawn, Display, TEXT("MoveRight value: %f"), Value)

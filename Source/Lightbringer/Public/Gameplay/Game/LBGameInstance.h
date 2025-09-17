@@ -6,19 +6,16 @@
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
 #include "Engine/World.h"
-#include "LightbringerGameInstance.generated.h"
+#include "LBGameInstance.generated.h"
 
-/**
- *
- */
 UCLASS()
-class LIGHTBRINGER_API ULightbringerGameInstance : public UGameInstance
+class LIGHTBRINGER_API ULBGameInstance : public UGameInstance
 {
     GENERATED_BODY()
 
 protected:
-    virtual void OnStart();
-    virtual void Shutdown();
+    virtual void OnStart() override;
+    virtual void Shutdown() override;
 
 private:
     void ApplyGraphicsSettingsAfterWorld(

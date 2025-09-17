@@ -1,12 +1,12 @@
 // You can use this project non-commercially for educational purposes, any
 // commercial use, derivative commercial use is strictly prohibited
 
-#include "Gameplay/Game/LightbringerGameInstance.h"
-#include "View/Subsystems/QualitySettingsSubsystem.h"
+#include "LBGameInstance.h"
+#include "QualitySettingsSubsystem.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LightBringerGameInstanceLog, All, All)
 
-void ULightbringerGameInstance::OnStart()
+void ULBGameInstance::OnStart()
 {
     Super::OnStart();
 
@@ -22,10 +22,10 @@ void ULightbringerGameInstance::OnStart()
 
     // ...and if not, we subscribe and apply when it is.
     FWorldDelegates::OnPostWorldInitialization.AddUObject(
-        this, &ULightbringerGameInstance::ApplyGraphicsSettingsAfterWorld);
+        this, &ULBGameInstance::ApplyGraphicsSettingsAfterWorld);
 }
 
-void ULightbringerGameInstance::ApplyGraphicsSettingsAfterWorld(
+void ULBGameInstance::ApplyGraphicsSettingsAfterWorld(
     UWorld* World, const UWorld::InitializationValues IVS)
 
 {
@@ -45,7 +45,7 @@ void ULightbringerGameInstance::ApplyGraphicsSettingsAfterWorld(
     }
 }
 
-void ULightbringerGameInstance::Shutdown()
+void ULBGameInstance::Shutdown()
 {
     FWorldDelegates::OnPostWorldInitialization.RemoveAll(this);
     Super::Shutdown();

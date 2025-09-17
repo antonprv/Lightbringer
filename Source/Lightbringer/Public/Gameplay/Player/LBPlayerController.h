@@ -4,16 +4,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/GameModeBase.h"
-#include "TestGameMode.generated.h"
+#include "GameFramework/PlayerController.h"
+#include "LBPlayerController.generated.h"
 
-/*
+/**
  *
  */
 UCLASS()
-class ATestGameMode : public AGameModeBase
+class LIGHTBRINGER_API ALBPlayerController : public APlayerController
 {
     GENERATED_BODY()
-
-    ATestGameMode();
 };

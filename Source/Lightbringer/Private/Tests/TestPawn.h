@@ -13,6 +13,9 @@ class UInputActionData;
 class UStaticMeshComponent;
 class UCameraComponent;
 
+class UInputComponent;
+class UInputManager;
+
 UCLASS()
 class ATestPawn : public APawn
 {
@@ -47,6 +50,9 @@ public:
 
 private:
     FVector VelocityVector{FVector::ZeroVector};
+
+    UPROPERTY()
+    UInputManager* InputManager{nullptr};
 
     UPROPERTY()
     APlayerController* PlayerController{nullptr};

@@ -5,13 +5,16 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
-#include "LightbringerGameMode.generated.h"
+#include "LBGameModeBase.generated.h"
 
 /**
  *
  */
 UCLASS()
-class ALightbringerGameMode : public AGameModeBase
+class LIGHTBRINGER_API ALBGameModeBase : public AGameModeBase
 {
     GENERATED_BODY()
+
+public:
+    ALBGameModeBase();
 };
