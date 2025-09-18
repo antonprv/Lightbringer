@@ -2,17 +2,19 @@
 // commercial use, derivative commercial use is strictly prohibited
 
 #include "LBPlayerCharacter.h"
+
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "Player/LBPlayerCharacter.h"
+#include "Components/HealthComponent.h"
+#include "Components/TextRenderComponent.h"
 
-// Sets default values
+#include "TimerManager.h"
+#include "Engine/World.h"
+
 ALBPlayerCharacter::ALBPlayerCharacter()
 {
-    // Set this character to call Tick() every frame.  You can turn this off to
-    // improve performance if you don't need it.
-    PrimaryActorTick.bCanEverTick = false;
+    PrimaryActorTick.bCanEverTick = true;
 
     SpringArmComponent =
         CreateDefaultSubobject<USpringArmComponent>("Spring Arm");
@@ -26,13 +28,27 @@ ALBPlayerCharacter::ALBPlayerCharacter()
     CameraComponent->SetupAttachment(SpringArmComponent);
 
     DefaultCameraFOV = CameraComponent->FieldOfView;
+    CurrentCameraFOV = DefaultCameraFOV;
     DefaultWalkSpeed = GetCharacterMovement()->MaxWalkSpeed;
+
+    HealthComponent =
+        CreateDefaultSubobject<UHealthComponent>("Health Component");
+    TextRenderComponent =
+        CreateDefaultSubobject<UTextRenderComponent>("Health Text");
+    TextRenderComponent->SetupAttachment(GetRootComponent());
 }
 
-// Called when the game starts or when spawned
+bool ALBPlayerCharacter::IsSprinting()
+{
+    return bIsMovingForward && bWantsToSprint && !GetVelocity().IsZero();
+}
+
 void ALBPlayerCharacter::BeginPlay()
 {
     Super::BeginPlay();
+
+    check(HealthComponent);
+    check(TextRenderComponent);
 }
 
 void ALBPlayerCharacter::Jump()
@@ -40,35 +56,37 @@ void ALBPlayerCharacter::Jump()
     Super::Jump();
 }
 
-// Called every frame
 void ALBPlayerCharacter::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
+
+    DisplayText();
+    InterpolateCamera(DeltaTime);
 }
 
-// Called to bind functionality to input
 void ALBPlayerCharacter::SetupPlayerInputComponent(
     UInputComponent* PlayerInputComponent)
 {
     Super::SetupPlayerInputComponent(PlayerInputComponent);
 }
 
-void ALBPlayerCharacter::MoveForward_Implementation(float& Value)
+void ALBPlayerCharacter::MoveForward_Implementation(const float& Value)
 {
+    bIsMovingForward = Value > 0;
     AddMovementInput(GetActorForwardVector(), Value);
 }
 
-void ALBPlayerCharacter::MoveRight_Implementation(float& Value)
+void ALBPlayerCharacter::MoveRight_Implementation(const float& Value)
 {
     AddMovementInput(GetActorRightVector(), Value);
 }
 
-void ALBPlayerCharacter::LookUp_Implementation(float& Value)
+void ALBPlayerCharacter::LookUp_Implementation(const float& Value)
 {
     AddControllerPitchInput(Value);
 }
 
-void ALBPlayerCharacter::TurnAround_Implementation(float& Value)
+void ALBPlayerCharacter::TurnAround_Implementation(const float& Value)
 {
     AddControllerYawInput(Value);
 }
@@ -80,15 +98,43 @@ void ALBPlayerCharacter::JumpUp_Implementation()
 
 void ALBPlayerCharacter::StartSprinting_Implementation()
 {
-    bIsSprinting = true;
+    if (!GetCharacterMovement()->IsMovingOnGround()) return;
 
+    bWantsToSprint = true;
     GetCharacterMovement()->MaxWalkSpeed = SprintSpeed;
-    CameraComponent->FieldOfView = SpwintCameraFOV;
 }
 
 void ALBPlayerCharacter::StopSprinting_Implementation()
 {
-    bIsSprinting = false;
+    bWantsToSprint = false;
     GetCharacterMovement()->MaxWalkSpeed = DefaultWalkSpeed;
-    CameraComponent->FieldOfView = DefaultCameraFOV;
+}
+
+void ALBPlayerCharacter::InterpolateCamera(const float& DeltaTime)
+{
+    const float TargetFOV =
+        bWantsToSprint ? SprintCameraFOV : DefaultCameraFOV;
+
+    // If already close enough, just set FOV once and return
+    if (FMath::IsNearlyEqual(CurrentCameraFOV, TargetFOV, KINDA_SMALL_NUMBER))
+    {
+        if (CameraComponent->FieldOfView != TargetFOV)
+        {
+            CameraComponent->SetFieldOfView(TargetFOV);
+        }
+        return;
+    }
+
+    CurrentCameraFOV = FMath::FInterpTo(
+        CurrentCameraFOV, TargetFOV, DeltaTime, SprintCameraInterpolation);
+
+    CameraComponent->SetFieldOfView(CurrentCameraFOV);
+}
+
+void ALBPlayerCharacter::DisplayText()
+{
+    const float Health = HealthComponent->GetHealth();
+
+    TextRenderComponent->SetText(
+        FText::FromString(FString::Printf(TEXT("%.0f"), Health)));
 }

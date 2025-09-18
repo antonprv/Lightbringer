@@ -10,6 +10,8 @@
 
 class UCameraComponent;
 class USpringArmComponent;
+class UHealthComponent;
+class UTextRenderComponent;
 
 UCLASS()
 class LIGHTBRINGER_API ALBPlayerCharacter : public ACharacter,
@@ -25,14 +27,23 @@ public:
     UCameraComponent* CameraComponent{nullptr};
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
     USpringArmComponent* SpringArmComponent{nullptr};
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
+    UHealthComponent* HealthComponent{nullptr};
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
+    UTextRenderComponent* TextRenderComponent{nullptr};
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement")
-    float SpwintCameraFOV{100.f};
+    float SprintCameraFOV{100.f};
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement")
+    float SprintCameraInterpolation{0.1f};
+
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement")
     float SprintSpeed{1000.f};
 
     UFUNCTION(BlueprintPure, Category = "Movement")
-    bool GetIsSprinting() { return bIsSprinting; };
+    bool IsSprinting();
+    UFUNCTION(BlueprintPure, Category = "Movement")
+    bool WantsToSprint() { return bWantsToSprint; };
 
 protected:
     // Called when the game starts or when spawned
@@ -48,17 +59,23 @@ public:
     virtual void SetupPlayerInputComponent(
         class UInputComponent* PlayerInputComponent) override;
 
-    virtual void MoveForward_Implementation(float& Value) override;
-    virtual void MoveRight_Implementation(float& Value) override;
-    virtual void LookUp_Implementation(float& Value) override;
-    virtual void TurnAround_Implementation(float& Value) override;
+    virtual void MoveForward_Implementation(const float& Value) override;
+    virtual void MoveRight_Implementation(const float& Value) override;
+    virtual void LookUp_Implementation(const float& Value) override;
+    virtual void TurnAround_Implementation(const float& Value) override;
     virtual void JumpUp_Implementation() override;
     virtual void StartSprinting_Implementation() override;
     virtual void StopSprinting_Implementation() override;
 
 private:
-    bool bIsSprinting{false};
+    float CurrentCameraFOV{0.f};
+
+    bool bWantsToSprint{false};
+    bool bIsMovingForward{false};
 
     float DefaultWalkSpeed;
     float DefaultCameraFOV;
+
+    void InterpolateCamera(const float& DeltaTime);
+    void DisplayText();
 };
