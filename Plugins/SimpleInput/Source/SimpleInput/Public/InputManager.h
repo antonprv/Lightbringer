@@ -35,6 +35,12 @@ public:
     FOnInputAction OnActionReleased;
 
     UPROPERTY(BlueprintAssignable)
+    FOnInputAction OnActionHold;
+
+    UPROPERTY(BlueprintAssignable)
+    FOnInputAction OnActionDoubleClick;
+
+    UPROPERTY(BlueprintAssignable)
     FOnInputActionAxis OnAxisChanged;
 
 private:
@@ -43,6 +49,9 @@ private:
 
     void HandlePressed(FName ActionName);
     void HandleReleased(FName ActionName);
+    void HandleHold(FName ActionName);
+    void HandleDoubleClick(FName ActionName);
+
     void HandleAxis(
         FName AxisName, ESimpleInputAxisType AxisType, float Value);
 

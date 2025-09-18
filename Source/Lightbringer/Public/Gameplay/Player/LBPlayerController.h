@@ -29,6 +29,18 @@ private:
     UFUNCTION()
     void ProcessInput(
         FName ActionName, ESimpleInputAxisType AxisType, float Value);
+    UFUNCTION()
+    void ProcessPressed(FName ActionName);
+    UFUNCTION()
+    void ProcessHold(FName ActionName);
+    UFUNCTION()
+    void ProcessReleased(FName ActionName);
+
     void MovePawnForward(float Value);
     void MovePawnRight(float Value);
+    void PawnLookUp(float Value);
+    void PawnTurnAround(float Value);
+    void PawnJump();
+    void PawnStartSprinting();
+    void PawnStopSprinting();
 };

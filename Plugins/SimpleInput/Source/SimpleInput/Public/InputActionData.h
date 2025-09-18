@@ -16,7 +16,9 @@ UENUM(BlueprintType)
 enum class ESimpleInputEventType : uint8
 {
     Pressed,
-    Released
+    Released,
+    Hold,
+    DoubleClick
 };
 
 UENUM(BlueprintType)

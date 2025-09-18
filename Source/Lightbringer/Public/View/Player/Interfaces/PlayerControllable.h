@@ -32,6 +32,27 @@ public:
         BlueprintCallable, BlueprintNativeEvent, Category = "Process Input")
     void MoveRight(float& Value);
 
+    UFUNCTION(
+        BlueprintCallable, BlueprintNativeEvent, Category = "Process Input")
+    void LookUp(float& Value);
+    UFUNCTION(
+        BlueprintCallable, BlueprintNativeEvent, Category = "Process Input")
+    void TurnAround(float& Value);
+    UFUNCTION(
+        BlueprintCallable, BlueprintNativeEvent, Category = "Process Input")
+    void JumpUp();
+    UFUNCTION(
+        BlueprintCallable, BlueprintNativeEvent, Category = "Process Input")
+    void StartSprinting();
+    UFUNCTION(
+        BlueprintCallable, BlueprintNativeEvent, Category = "Process Input")
+    void StopSprinting();
+
     virtual void MoveForward_Implementation(float& Value) = 0;
     virtual void MoveRight_Implementation(float& Value) = 0;
+    virtual void LookUp_Implementation(float& Value) = 0;
+    virtual void TurnAround_Implementation(float& Value) = 0;
+    virtual void JumpUp_Implementation() = 0;
+    virtual void StartSprinting_Implementation() = 0;
+    virtual void StopSprinting_Implementation() = 0;
 };

@@ -74,6 +74,16 @@ void UInputManager::HandleReleased(FName ActionName)
     OnActionReleased.Broadcast(ActionName);
 }
 
+void UInputManager::HandleHold(FName ActionName)
+{
+    OnActionHold.Broadcast(ActionName);
+}
+
+void UInputManager::HandleDoubleClick(FName ActionName)
+{
+    OnActionDoubleClick.Broadcast(ActionName);
+}
+
 void UInputManager::HandleAxis(
     FName AxisName, ESimpleInputAxisType AxisType, float Value)
 {
@@ -98,22 +108,36 @@ void UInputManager::__Internal_BindKeys(
             FInputKeyBinding KeyBinding;
 
             KeyBinding.Chord = KeyChord;
-            KeyBinding.KeyEvent =
-                ActionBinding.EventType == ESimpleInputEventType::Pressed
-                    ? IE_Pressed
-                    : IE_Released;
 
             KeyBinding.bConsumeInput = false;
 
-            if (ActionBinding.EventType == ESimpleInputEventType::Pressed)
+            switch (ActionBinding.EventType)
             {
-                KeyBinding.KeyDelegate.GetDelegateForManualSet().BindLambda(
-                    [this, ActionName]() { HandlePressed(ActionName); });
-            }
-            else
-            {
-                KeyBinding.KeyDelegate.GetDelegateForManualSet().BindLambda(
-                    [this, ActionName]() { HandleReleased(ActionName); });
+                case ESimpleInputEventType::Pressed:
+                    KeyBinding.KeyEvent = EInputEvent::IE_Pressed;
+                    KeyBinding.KeyDelegate.GetDelegateForManualSet()
+                        .BindLambda([this, ActionName]()
+                            { HandlePressed(ActionName); });
+                    break;
+                case ESimpleInputEventType::Released:
+                    KeyBinding.KeyEvent = EInputEvent::IE_Released;
+                    KeyBinding.KeyDelegate.GetDelegateForManualSet()
+                        .BindLambda([this, ActionName]()
+                            { HandleReleased(ActionName); });
+                    break;
+                case ESimpleInputEventType::Hold:
+                    KeyBinding.KeyEvent = EInputEvent::IE_Repeat;
+                    KeyBinding.KeyDelegate.GetDelegateForManualSet()
+                        .BindLambda(
+                            [this, ActionName]() { HandleHold(ActionName); });
+                    break;
+                case ESimpleInputEventType::DoubleClick:
+                    KeyBinding.KeyEvent = EInputEvent::IE_DoubleClick;
+                    KeyBinding.KeyDelegate.GetDelegateForManualSet()
+                        .BindLambda([this, ActionName]()
+                            { HandleDoubleClick(ActionName); });
+                    break;
+                default: break;
             }
 
             InputComponent->KeyBindings.Add(KeyBinding);
