@@ -25,6 +25,7 @@ ALBDevDamageActor::ALBDevDamageActor()
     // Set this actor to call Tick() every frame.  You can turn this off to
     // improve performance if you don't need it.
     PrimaryActorTick.bCanEverTick = true;
+    PrimaryActorTick.TickInterval = 1 / 30.f;
 
     SceneComponent =
         CreateDefaultSubobject<USceneComponent>("Actor Transform");
@@ -57,6 +58,10 @@ ALBDevDamageActor::ALBDevDamageActor()
 void ALBDevDamageActor::BeginPlay()
 {
     Super::BeginPlay();
+
+#if WITH_EDITORONLY_DATA
+    DrawDebugSphere(GetWorld(), GetActorLocation(), Radius, 16, Color, true);
+#endif
 }
 
 void ALBDevDamageActor::OnConstruction(const FTransform& Transform)
@@ -79,12 +84,12 @@ void ALBDevDamageActor::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
 
-#if WITH_EDITORONLY_DATA
-    DrawDebugSphere(GetWorld(), GetActorLocation(), Radius, 16, Color);
-#endif
-
-    UGameplayStatics::ApplyRadialDamage(
-        GetWorld(), Damage, GetActorLocation(), Radius, DamageType, {}, this);
+    if (!IsOverlappingActor(nullptr))
+    {
+        UGameplayStatics::ApplyRadialDamage(GetWorld(), Damage,
+            GetActorLocation(), Radius, nullptr, {}, this, nullptr,
+            bDoFullDamage);
+    }
 }
 
 void ALBDevDamageActor::UpdateSphereRadius()

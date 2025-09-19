@@ -12,6 +12,7 @@ class UCameraComponent;
 class USpringArmComponent;
 class UHealthComponent;
 class UTextRenderComponent;
+class UAnimMontage;
 
 UCLASS()
 class LIGHTBRINGER_API ALBPlayerCharacter : public ACharacter,
@@ -32,6 +33,9 @@ public:
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
     UTextRenderComponent* TextRenderComponent{nullptr};
 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    UAnimMontage* DeathMontage{nullptr};
+
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement")
     float SprintCameraFOV{100.f};
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement")
@@ -48,6 +52,7 @@ public:
 protected:
     // Called when the game starts or when spawned
     virtual void BeginPlay() override;
+    virtual void EndPlay(EEndPlayReason::Type EndPlayReason) override;
 
     virtual void Jump() override;
 
@@ -70,12 +75,16 @@ public:
 private:
     float CurrentCameraFOV{0.f};
 
+    bool bIsDying{false};
     bool bWantsToSprint{false};
     bool bIsMovingForward{false};
 
     float DefaultWalkSpeed;
     float DefaultCameraFOV;
 
+    void OnDeath();
+    void OnHealthChanged(float Health);
+
     void InterpolateCamera(const float& DeltaTime);
-    void DisplayText();
+    void DisplayText(const float& Health);
 };

@@ -11,7 +11,11 @@
 
 #include "TimerManager.h"
 #include "Engine/World.h"
+#include "Animation/AnimMontage.h"
 
+/*
+ * Class constructor
+ */
 ALBPlayerCharacter::ALBPlayerCharacter()
 {
     PrimaryActorTick.bCanEverTick = true;
@@ -38,29 +42,35 @@ ALBPlayerCharacter::ALBPlayerCharacter()
     TextRenderComponent->SetupAttachment(GetRootComponent());
 }
 
-bool ALBPlayerCharacter::IsSprinting()
-{
-    return bIsMovingForward && bWantsToSprint && !GetVelocity().IsZero();
-}
-
+/*
+ * Setup default values anc do checks
+ */
 void ALBPlayerCharacter::BeginPlay()
 {
     Super::BeginPlay();
 
     check(HealthComponent);
     check(TextRenderComponent);
+    check(GetCharacterMovement());
+
+    OnHealthChanged(HealthComponent->GetHealth());
+
+    HealthComponent->OnDeath.AddUObject(this, &ALBPlayerCharacter::OnDeath);
+    HealthComponent->OnHealthChanged.AddUObject(
+        this, &ALBPlayerCharacter::OnHealthChanged);
 }
 
-void ALBPlayerCharacter::Jump()
+void ALBPlayerCharacter::EndPlay(EEndPlayReason::Type EndPlayReason)
 {
-    Super::Jump();
+    HealthComponent->OnDeath.RemoveAll(this);
+    HealthComponent->OnHealthChanged.RemoveAll(this);
+
+    Super::EndPlay(EndPlayReason);
 }
 
 void ALBPlayerCharacter::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
-
-    DisplayText();
     InterpolateCamera(DeltaTime);
 }
 
@@ -70,6 +80,68 @@ void ALBPlayerCharacter::SetupPlayerInputComponent(
     Super::SetupPlayerInputComponent(PlayerInputComponent);
 }
 
+/*
+ * Player Movement
+ */
+bool ALBPlayerCharacter::IsSprinting()
+{
+    return bIsMovingForward && bWantsToSprint && !GetVelocity().IsZero();
+}
+
+void ALBPlayerCharacter::Jump()
+{
+    Super::Jump();
+}
+
+/*
+ * Callback functions
+ */
+void ALBPlayerCharacter::OnHealthChanged(float Health)
+{
+    DisplayText(Health);
+}
+
+void ALBPlayerCharacter::OnDeath()
+{
+    bIsDying = true;
+    bUseControllerRotationYaw = false;
+    GetCharacterMovement()->DisableMovement();
+    PlayAnimMontage(DeathMontage);
+}
+
+/*
+ * Pure View functions
+ */
+void ALBPlayerCharacter::InterpolateCamera(const float& DeltaTime)
+{
+    const float TargetFOV =
+        bWantsToSprint || bIsDying ? SprintCameraFOV : DefaultCameraFOV;
+
+    // If already close enough, just set FOV once and return
+    if (FMath::IsNearlyEqual(CurrentCameraFOV, TargetFOV, KINDA_SMALL_NUMBER))
+    {
+        if (CameraComponent->FieldOfView != TargetFOV)
+        {
+            CameraComponent->SetFieldOfView(TargetFOV);
+        }
+        return;
+    }
+
+    CurrentCameraFOV = FMath::FInterpTo(
+        CurrentCameraFOV, TargetFOV, DeltaTime, SprintCameraInterpolation);
+
+    CameraComponent->SetFieldOfView(CurrentCameraFOV);
+}
+
+void ALBPlayerCharacter::DisplayText(const float& Health)
+{
+    TextRenderComponent->SetText(
+        FText::FromString(FString::Printf(TEXT("%.0f"), Health)));
+}
+
+/*
+ * Interfaces
+ */
 void ALBPlayerCharacter::MoveForward_Implementation(const float& Value)
 {
     bIsMovingForward = Value > 0;
@@ -108,33 +180,4 @@ void ALBPlayerCharacter::StopSprinting_Implementation()
 {
     bWantsToSprint = false;
     GetCharacterMovement()->MaxWalkSpeed = DefaultWalkSpeed;
-}
-
-void ALBPlayerCharacter::InterpolateCamera(const float& DeltaTime)
-{
-    const float TargetFOV =
-        bWantsToSprint ? SprintCameraFOV : DefaultCameraFOV;
-
-    // If already close enough, just set FOV once and return
-    if (FMath::IsNearlyEqual(CurrentCameraFOV, TargetFOV, KINDA_SMALL_NUMBER))
-    {
-        if (CameraComponent->FieldOfView != TargetFOV)
-        {
-            CameraComponent->SetFieldOfView(TargetFOV);
-        }
-        return;
-    }
-
-    CurrentCameraFOV = FMath::FInterpTo(
-        CurrentCameraFOV, TargetFOV, DeltaTime, SprintCameraInterpolation);
-
-    CameraComponent->SetFieldOfView(CurrentCameraFOV);
-}
-
-void ALBPlayerCharacter::DisplayText()
-{
-    const float Health = HealthComponent->GetHealth();
-
-    TextRenderComponent->SetText(
-        FText::FromString(FString::Printf(TEXT("%.0f"), Health)));
 }

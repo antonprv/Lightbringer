@@ -4,8 +4,6 @@
 #include "Components/HealthComponent.h"
 
 #include "GameFramework/DamageType.h"
-#include "LBFireDamageType.h"
-#include "LBIceDamageType.h"
 
 #include "GameFramework/Actor.h"
 
@@ -39,21 +37,12 @@ void UHealthComponent::OnTakeAnyDamage(AActor* DamagedActor, float Damage,
     const UDamageType* DamageType, AController* InstigatedBy,
     AActor* DamageCauser)
 {
-    Health -= Damage;
+    if (Health <= 0 || IsDead()) return;
+    Health = FMath::Clamp(Health - Damage, 0.f, MaxHealth);
+    OnHealthChanged.Broadcast(Health);
 
-    if (DamageType)
+    if (IsDead())
     {
-        if (DamageType->IsA(ULBFireDamageType::StaticClass()))
-        {
-            UE_LOG(LogUHealthComponent, Display,
-                TEXT("%s is taking damage: %s"), *GetOwner()->GetName(),
-                *ULBFireDamageType::StaticClass()->GetName())
-        }
-        else if (DamageType->IsA(ULBIceDamageType::StaticClass()))
-        {
-            UE_LOG(LogUHealthComponent, Display,
-                TEXT("%s is taking damage: %s"), *GetOwner()->GetName(),
-                *ULBIceDamageType::StaticClass()->GetName())
-        }
+        OnDeath.Broadcast();
     }
 }

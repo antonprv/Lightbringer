@@ -7,6 +7,9 @@
 #include "Components/ActorComponent.h"
 #include "HealthComponent.generated.h"
 
+DECLARE_MULTICAST_DELEGATE(FOnDeath);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnHealthChanged, float);
+
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class LIGHTBRINGER_API UHealthComponent : public UActorComponent
 {
@@ -21,6 +24,10 @@ public:
     float MaxHealth{100.f};
 
     float GetHealth() { return Health; };
+    bool IsDead() { return Health <= 0; };
+
+    FOnDeath OnDeath;
+    FOnHealthChanged OnHealthChanged;
 
 protected:
     // Called when the game starts

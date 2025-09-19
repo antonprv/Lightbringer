@@ -35,9 +35,6 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage")
     bool bDoFullDamage{false};
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage")
-    TSubclassOf<UDamageType> DamageType{nullptr};
-
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Debug")
     FColor Color{FColor::Magenta};
 
