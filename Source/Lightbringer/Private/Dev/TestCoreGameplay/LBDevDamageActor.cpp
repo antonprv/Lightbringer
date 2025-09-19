@@ -2,8 +2,12 @@
 // commercial use, derivative commercial use is strictly prohibited
 
 #include "LBDevDamageActor.h"
+
+#include "GameFramework/DamageType.h"
+
 #include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
+
 #include "Components/SceneComponent.h"
 #include "Components/SphereComponent.h"
 #include "UObject/ConstructorHelpers.h"
@@ -80,7 +84,7 @@ void ALBDevDamageActor::Tick(float DeltaTime)
 #endif
 
     UGameplayStatics::ApplyRadialDamage(
-        GetWorld(), Damage, GetActorLocation(), Radius, nullptr, {}, this);
+        GetWorld(), Damage, GetActorLocation(), Radius, DamageType, {}, this);
 }
 
 void ALBDevDamageActor::UpdateSphereRadius()

@@ -9,6 +9,7 @@
 
 class USceneComponent;
 class USphereComponent;
+class UDamageType;
 
 UCLASS()
 class LIGHTBRINGER_API ALBDevDamageActor : public AActor
@@ -33,6 +34,9 @@ public:
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage")
     bool bDoFullDamage{false};
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage")
+    TSubclassOf<UDamageType> DamageType{nullptr};
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Debug")
     FColor Color{FColor::Magenta};
