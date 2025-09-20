@@ -2,10 +2,13 @@
 // commercial use, derivative commercial use is strictly prohibited
 
 #include "LBPlayerCharacter.h"
+#include "DelegateMediatorSubsystem.h"
 
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/Controller.h"
+
 #include "Components/HealthComponent.h"
 #include "Components/TextRenderComponent.h"
 
@@ -107,6 +110,12 @@ void ALBPlayerCharacter::OnDeath()
     bUseControllerRotationYaw = false;
     GetCharacterMovement()->DisableMovement();
     PlayAnimMontage(DeathMontage);
+
+    if (UDelegateMediatorSubsystem* DelegateMediator =
+            UDelegateMediatorSubsystem::Get(GetWorld()))
+    {
+        DelegateMediator->DispatchPlayerDeath(this);
+    }
 }
 
 /*
@@ -142,28 +151,28 @@ void ALBPlayerCharacter::DisplayText(const float& Health)
 /*
  * Interfaces
  */
-void ALBPlayerCharacter::MoveForward_Implementation(const float& Value)
+void ALBPlayerCharacter::MoveForwardCustom_Implementation(const float& Value)
 {
     bIsMovingForward = Value > 0;
     AddMovementInput(GetActorForwardVector(), Value);
 }
 
-void ALBPlayerCharacter::MoveRight_Implementation(const float& Value)
+void ALBPlayerCharacter::MoveRightCustom_Implementation(const float& Value)
 {
     AddMovementInput(GetActorRightVector(), Value);
 }
 
-void ALBPlayerCharacter::LookUp_Implementation(const float& Value)
+void ALBPlayerCharacter::LookUpCustom_Implementation(const float& Value)
 {
     AddControllerPitchInput(Value);
 }
 
-void ALBPlayerCharacter::TurnAround_Implementation(const float& Value)
+void ALBPlayerCharacter::TurnAroundCustom_Implementation(const float& Value)
 {
     AddControllerYawInput(Value);
 }
 
-void ALBPlayerCharacter::JumpUp_Implementation()
+void ALBPlayerCharacter::JumpCustom_Implementation()
 {
     Jump();
 }

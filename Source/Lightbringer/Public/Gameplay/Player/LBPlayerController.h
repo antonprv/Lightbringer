@@ -8,9 +8,9 @@
 #include "InputActionData.h"
 #include "LBPlayerController.generated.h"
 
-/**
- *
- */
+class APawn;
+class UDelegateMediatorSubsystem;
+
 UCLASS()
 class LIGHTBRINGER_API ALBPlayerController : public APlayerController
 {
@@ -23,6 +23,8 @@ public:
     UInputActionData* InputActionData{nullptr};
 
 protected:
+    virtual void BeginPlay() override;
+    virtual void EndPlay(EEndPlayReason::Type EndPlayReason) override;
     virtual void SetupInputComponent() override;
 
 private:
@@ -43,4 +45,9 @@ private:
     void PawnJump();
     void PawnStartSprinting();
     void PawnStopSprinting();
+
+    UPROPERTY()
+    UDelegateMediatorSubsystem* DelegateMediator{nullptr};
+
+    void OnPawnDeath(APawn* Pawn);
 };

@@ -13,7 +13,8 @@ public class Lightbringer : ModuleRules
             "CoreUObject",
             "Engine",
             "InputCore",
-            "SimpleInput"
+            "SimpleInput",
+            "ExtendedControlStates"
         });
 
         PrivateDependencyModuleNames.AddRange(new string[] { });

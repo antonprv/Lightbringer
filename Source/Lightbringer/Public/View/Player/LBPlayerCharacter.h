@@ -64,11 +64,11 @@ public:
     virtual void SetupPlayerInputComponent(
         class UInputComponent* PlayerInputComponent) override;
 
-    virtual void MoveForward_Implementation(const float& Value) override;
-    virtual void MoveRight_Implementation(const float& Value) override;
-    virtual void LookUp_Implementation(const float& Value) override;
-    virtual void TurnAround_Implementation(const float& Value) override;
-    virtual void JumpUp_Implementation() override;
+    virtual void MoveForwardCustom_Implementation(const float& Value) override;
+    virtual void MoveRightCustom_Implementation(const float& Value) override;
+    virtual void LookUpCustom_Implementation(const float& Value) override;
+    virtual void TurnAroundCustom_Implementation(const float& Value) override;
+    virtual void JumpCustom_Implementation() override;
     virtual void StartSprinting_Implementation() override;
     virtual void StopSprinting_Implementation() override;
 

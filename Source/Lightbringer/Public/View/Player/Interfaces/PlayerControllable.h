@@ -27,20 +27,20 @@ class LIGHTBRINGER_API IPlayerControllable
 public:
     UFUNCTION(
         BlueprintCallable, BlueprintNativeEvent, Category = "Process Input")
-    void MoveForward(const float& Value);
+    void MoveForwardCustom(const float& Value);
     UFUNCTION(
         BlueprintCallable, BlueprintNativeEvent, Category = "Process Input")
-    void MoveRight(const float& Value);
+    void MoveRightCustom(const float& Value);
 
     UFUNCTION(
         BlueprintCallable, BlueprintNativeEvent, Category = "Process Input")
-    void LookUp(const float& Value);
+    void LookUpCustom(const float& Value);
     UFUNCTION(
         BlueprintCallable, BlueprintNativeEvent, Category = "Process Input")
-    void TurnAround(const float& Value);
+    void TurnAroundCustom(const float& Value);
     UFUNCTION(
         BlueprintCallable, BlueprintNativeEvent, Category = "Process Input")
-    void JumpUp();
+    void JumpCustom();
     UFUNCTION(
         BlueprintCallable, BlueprintNativeEvent, Category = "Process Input")
     void StartSprinting();
@@ -48,11 +48,11 @@ public:
         BlueprintCallable, BlueprintNativeEvent, Category = "Process Input")
     void StopSprinting();
 
-    virtual void MoveForward_Implementation(const float& Value) = 0;
-    virtual void MoveRight_Implementation(const float& Value) = 0;
-    virtual void LookUp_Implementation(const float& Value) = 0;
-    virtual void TurnAround_Implementation(const float& Value) = 0;
-    virtual void JumpUp_Implementation() = 0;
+    virtual void MoveForwardCustom_Implementation(const float& Value) = 0;
+    virtual void MoveRightCustom_Implementation(const float& Value) = 0;
+    virtual void LookUpCustom_Implementation(const float& Value) = 0;
+    virtual void TurnAroundCustom_Implementation(const float& Value) = 0;
+    virtual void JumpCustom_Implementation() = 0;
     virtual void StartSprinting_Implementation() = 0;
     virtual void StopSprinting_Implementation() = 0;
 };

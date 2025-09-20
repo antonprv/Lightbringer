@@ -2,8 +2,15 @@
 // commercial use, derivative commercial use is strictly prohibited
 
 #include "LBPlayerController.h"
+
+#include "LBSpectatorPawn.h"
+
+#include "DelegateMediatorSubsystem.h"
+#include "ECStateSubsystem.h"
+
 #include "SimpleInputSubsystem.h"
 #include "InputManager.h"
+
 #include "Interfaces/PlayerControllable.h"
 #include "GameFramework/Pawn.h"
 #include "Engine/World.h"
@@ -13,6 +20,22 @@ ALBPlayerController::ALBPlayerController()
     InputActionData = LoadObject<UInputActionData>(
         nullptr, TEXT("InputActionData'/Game/Blueprints/Data/Input/"
                       "IAD_ThirdPersonControls.IAD_ThirdPersonControls'"));
+}
+
+void ALBPlayerController::BeginPlay()
+{
+    Super::BeginPlay();
+
+    DelegateMediator = UDelegateMediatorSubsystem::Get(GetWorld());
+    check(DelegateMediator);
+
+    DelegateMediator->OnPlayerDeath.AddUObject(
+        this, &ALBPlayerController::OnPawnDeath);
+}
+
+void ALBPlayerController::EndPlay(EEndPlayReason::Type EndPlayReason)
+{
+    Super::EndPlay(EndPlayReason);
 }
 
 void ALBPlayerController::SetupInputComponent()
@@ -106,7 +129,7 @@ void ALBPlayerController::MovePawnForward(float Value)
     if (GetPawn()->GetClass()->ImplementsInterface(
             UPlayerControllable::StaticClass()))
     {
-        IPlayerControllable::Execute_MoveForward(GetPawn(), Value);
+        IPlayerControllable::Execute_MoveForwardCustom(GetPawn(), Value);
     }
 }
 
@@ -115,7 +138,7 @@ void ALBPlayerController::MovePawnRight(float Value)
     if (GetPawn()->GetClass()->ImplementsInterface(
             UPlayerControllable::StaticClass()))
     {
-        IPlayerControllable::Execute_MoveRight(GetPawn(), Value);
+        IPlayerControllable::Execute_MoveRightCustom(GetPawn(), Value);
     }
 }
 
@@ -124,7 +147,7 @@ void ALBPlayerController::PawnLookUp(float Value)
     if (GetPawn()->GetClass()->ImplementsInterface(
             UPlayerControllable::StaticClass()))
     {
-        IPlayerControllable::Execute_LookUp(GetPawn(), Value);
+        IPlayerControllable::Execute_LookUpCustom(GetPawn(), Value);
     }
 }
 
@@ -133,7 +156,7 @@ void ALBPlayerController::PawnTurnAround(float Value)
     if (GetPawn()->GetClass()->ImplementsInterface(
             UPlayerControllable::StaticClass()))
     {
-        IPlayerControllable::Execute_TurnAround(GetPawn(), Value);
+        IPlayerControllable::Execute_TurnAroundCustom(GetPawn(), Value);
     }
 }
 
@@ -142,7 +165,7 @@ void ALBPlayerController::PawnJump()
     if (GetPawn()->GetClass()->ImplementsInterface(
             UPlayerControllable::StaticClass()))
     {
-        IPlayerControllable::Execute_JumpUp(GetPawn());
+        IPlayerControllable::Execute_JumpCustom(GetPawn());
     }
 }
 
@@ -161,5 +184,18 @@ void ALBPlayerController::PawnStopSprinting()
             UPlayerControllable::StaticClass()))
     {
         IPlayerControllable::Execute_StopSprinting(GetPawn());
+    }
+}
+
+void ALBPlayerController::OnPawnDeath(APawn* Pawn)
+{
+    if (GetPawn() == Pawn)
+    {
+        if (UECStateSubsystem* ControllerState =
+                UECStateSubsystem::Get(GetWorld()))
+        {
+            ControllerState->BeginSpectating(
+                this, ALBSpectatorPawn::StaticClass());
+        }
     }
 }

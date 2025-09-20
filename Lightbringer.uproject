@@ -149,6 +149,10 @@
 		{
 			"Name": "SimpleInput",
 			"Enabled": true
+		},
+		{
+			"Name": "ExtendedControlStates",
+			"Enabled": true
 		}
 	]
 }

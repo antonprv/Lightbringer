@@ -1,0 +1,23 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "1.0",
+	"FriendlyName": "Extended Controller States",
+	"Description": "Extended controller states, allowing for dynamic switch to SpectatorPawn and back",
+	"Category": "Gameplay",
+	"CreatedBy": "Anton Piruev",
+	"CreatedByURL": "https://gitverse.ru/anton.prv",
+	"DocsURL": "",
+	"MarketplaceURL": "",
+	"SupportURL": "",
+	"CanContainContent": true,
+	"IsBetaVersion": false,
+	"Installed": true,
+	"Modules": [
+		{
+			"Name": "ExtendedControlStates",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		}
+	]
+}
