@@ -25,3 +25,9 @@ void UDelegateMediatorSubsystem::DispatchPlayerDeath(APawn* DeadPawn)
 {
     OnPlayerDeath.Broadcast(DeadPawn);
 }
+
+void UDelegateMediatorSubsystem::DispatchPlayerJumpDamage(
+    float Velocity, const FHitResult& HitResult)
+{
+    OnJumpDamage.Broadcast(Velocity, HitResult);
+}

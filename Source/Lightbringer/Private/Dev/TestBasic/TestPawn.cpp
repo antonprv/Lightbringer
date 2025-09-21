@@ -28,11 +28,6 @@ ATestPawn::ATestPawn()
     CameraComponent = CreateDefaultSubobject<UCameraComponent>("Camera");
     CameraComponent->SetupAttachment(GetRootComponent());
 
-    StaticMeshComponent->SetConstraintMode(EDOFMode::XYPlane);
-    StaticMeshComponent->SetLinearDamping(10.f);
-    StaticMeshComponent->SetAngularDamping(10.f);
-    StaticMeshComponent->SetCollisionResponseToAllChannels(ECR_Block);
-
     // Input
     InputActionData = LoadObject<UInputActionData>(
         nullptr, TEXT("InputActionData'/Game/Blueprints/Test/Input/"
@@ -47,6 +42,11 @@ ATestPawn::ATestPawn()
 void ATestPawn::BeginPlay()
 {
     Super::BeginPlay();
+
+    StaticMeshComponent->SetConstraintMode(EDOFMode::XYPlane);
+    StaticMeshComponent->SetLinearDamping(10.f);
+    StaticMeshComponent->SetAngularDamping(10.f);
+    StaticMeshComponent->SetCollisionResponseToAllChannels(ECR_Block);
 }
 
 // Called to bind functionality to input

@@ -87,4 +87,7 @@ private:
 
     void InterpolateCamera(const float& DeltaTime);
     void DisplayText(const float& CurrentHealth);
+
+    UFUNCTION()
+    void OnGroundLanding(const FHitResult& Hit);
 };

@@ -3,18 +3,27 @@
 
 #include "Components/HealthComponent.h"
 #include "LBHealthRegenProfile.h"
+#include "LBActorDamageParams.h"
+#include "LBPlayerCharacter.h"
 
 #include "GameFramework/DamageType.h"
 #include "GameFramework/Actor.h"
+#include "GameFramework/Character.h"
 #include "TimerManager.h"
 #include "Engine/World.h"
+#include "DelegateMediatorSubsystem.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogUHealthComponent, Log, Log)
+
+void UHealthComponent::SetCurrentHealth(float Value)
+{
+    CurrentHealth = FMath::Clamp(Value, 0.f, MaxHealth);
+}
 
 UHealthComponent::UHealthComponent()
 {
     PrimaryComponentTick.bCanEverTick = false;
-    CurrentHealth = MaxHealth;
+    SetCurrentHealth(MaxHealth);
 }
 
 // Called when the game starts
@@ -22,25 +31,50 @@ void UHealthComponent::BeginPlay()
 {
     Super::BeginPlay();
 
-    CurrentHealth = MaxHealth;
+    SetCurrentHealth(MaxHealth);
 
-    AActor* Owner = GetOwner();
-
-    if (Owner)
+    if (AActor* Owner = GetOwner())
     {
         if (!Owner->OnTakeAnyDamage.Contains(this, FName("OnTakeAnyDamage")))
         {
             Owner->OnTakeAnyDamage.AddDynamic(
                 this, &UHealthComponent::OnTakeAnyDamage);
         }
+
+        if (UDelegateMediatorSubsystem* DelegateMediator =
+                UDelegateMediatorSubsystem::Get(GetWorld()))
+        {
+            DelegateMediator->OnJumpDamage.AddUObject(
+                this, &UHealthComponent::TakeFallDamage);
+        }
     }
+}
+
+void UHealthComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+    if (UDelegateMediatorSubsystem* DelegateMediator =
+            UDelegateMediatorSubsystem::Get(GetWorld()))
+    {
+        DelegateMediator->OnJumpDamage.RemoveAll(this);
+    }
+
+    if (AActor* Owner = GetOwner())
+    {
+        if (Owner->OnTakeAnyDamage.Contains(this, FName("OnTakeAnyDamage")))
+        {
+            Owner->OnTakeAnyDamage.RemoveDynamic(
+                this, &UHealthComponent::OnTakeAnyDamage);
+        }
+    }
+
+    Super::EndPlay(EndPlayReason);
 }
 
 void UHealthComponent::OnTakeAnyDamage(AActor* DamagedActor, float Damage,
     const UDamageType* DamageType, AController* InstigatedBy,
     AActor* DamageCauser)
 {
-    if (CurrentHealth <= 0 || IsDead()) return;
+    if (!GetWorld() || IsDead()) return;
     CurrentHealth = FMath::Clamp(CurrentHealth - Damage, 0.f, MaxHealth);
     OnHealthChanged.Broadcast(CurrentHealth);
 
@@ -63,12 +97,33 @@ void UHealthComponent::OnTakeAnyDamage(AActor* DamagedActor, float Damage,
     }
 }
 
+void UHealthComponent::TakeFallDamage(
+    float JumpVelocity, const FHitResult& Hit)
+{
+    if (!ActorDamageParams || !GetOwner() ||
+        JumpVelocity < ActorDamageParams->FallVelocityBounds.X)
+        return;
+
+    FPointDamageEvent PointDamageEvent;
+    PointDamageEvent.HitInfo = Hit;
+
+    float Damage = FMath::GetMappedRangeValueClamped(
+        ActorDamageParams->FallVelocityBounds,
+        ActorDamageParams->FallVelocityDamage, JumpVelocity);
+
+    GetOwner()->TakeDamage(Damage, PointDamageEvent, nullptr, nullptr);
+
+    UE_LOG(LogUHealthComponent, Display,
+        TEXT("Took fall damage on %f velocity: %f"), JumpVelocity, Damage);
+}
+
 void UHealthComponent::StartRegen()
 {
-    if (!HealthRegenProfile || CurrentHealth <= 0 || IsDead()) return;
+    if (!HealthRegenProfile || IsDead() || IsAtFullHealth()) return;
 
     float MinHealth = MaxHealth * HealthRegenProfile->MinHealthPercentToRegen;
-    if (CurrentHealth <= MinHealth) return;
+
+    if (FMath::IsNearlyEqual(CurrentHealth, MinHealth)) return;
 
     CurveTime = 0.f;
     GetWorld()->GetTimerManager().SetTimer(RegenTickHandle, this,
@@ -82,14 +137,15 @@ void UHealthComponent::StartRegen()
 
 void UHealthComponent::HandleRegen()
 {
-    if (!HealthRegenProfile || IsDead()) return;
+    if (!HealthRegenProfile) return;
 
-    if (CurrentHealth <= 0.f)
+    if (IsDead())
     {
         StopRegen();
         return;
     }
-    if (CurrentHealth >= MaxHealth)
+
+    if (IsAtFullHealth())
     {
         StopRegen();
         return;
@@ -111,7 +167,10 @@ void UHealthComponent::HandleRegen()
     float HealAmount = RegenRate * HealthRegenProfile->RegenInterval;
     Heal(HealAmount);
 
-    if (CurrentHealth >= MaxHealth) StopRegen();
+    if (IsAtFullHealth() || IsDead())
+    {
+        StopRegen();
+    }
 
     UE_LOG(LogUHealthComponent, Display,
         TEXT(
@@ -121,9 +180,9 @@ void UHealthComponent::HandleRegen()
 
 void UHealthComponent::Heal(float Amount)
 {
-    if (CurrentHealth <= 0 || IsDead()) return;
+    if (IsDead()) return;
 
-    CurrentHealth = FMath::Clamp(CurrentHealth + Amount, 0.f, MaxHealth);
+    SetCurrentHealth(CurrentHealth + Amount);
     OnHealthChanged.Broadcast(CurrentHealth);
 }
 

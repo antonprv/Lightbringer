@@ -29,17 +29,17 @@ APhysicsTest::APhysicsTest()
         UE_LOG(APhysicsTestLog, Warning,
             TEXT("Static Mesh not found, set to None"))
     }
-
-    StaticMesh->SetSimulatePhysics(true);
-    StaticMesh->SetLinearDamping(.1f);
-    StaticMesh->SetAngularDamping(.1f);
-    StaticMesh->SetMassOverrideInKg(NAME_None, 1.f);
 }
 
 // Called when the game starts or when spawned
 void APhysicsTest::BeginPlay()
 {
     Super::BeginPlay();
+
+    StaticMesh->SetSimulatePhysics(true);
+    StaticMesh->SetLinearDamping(.1f);
+    StaticMesh->SetAngularDamping(.1f);
+    StaticMesh->SetMassOverrideInKg(NAME_None, 1.f);
 
     MaterialInstance = StaticMesh->CreateAndSetMaterialInstanceDynamic(0);
 

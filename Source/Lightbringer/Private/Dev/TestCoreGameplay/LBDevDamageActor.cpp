@@ -35,10 +35,6 @@ ALBDevDamageActor::ALBDevDamageActor()
     PreviewSphere = CreateDefaultSubobject<USphereComponent>("PreviewSphere");
     PreviewSphere->SetupAttachment(GetRootComponent());
 
-    PreviewSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-    PreviewSphere->SetHiddenInGame(true);
-    PreviewSphere->SetMobility(EComponentMobility::Movable);
-
 #if WITH_EDITORONLY_DATA
     Billboard = CreateDefaultSubobject<UBillboardComponent>("Billboard");
     Billboard->SetupAttachment(SceneComponent);
@@ -49,9 +45,6 @@ ALBDevDamageActor::ALBDevDamageActor()
         Billboard->SetSprite(SpriteFinder.Get());
     }
 #endif
-
-    UpdateSphereRadius();
-    UpdateSphereColor();
 }
 
 // Called when the game starts or when spawned
@@ -59,7 +52,7 @@ void ALBDevDamageActor::BeginPlay()
 {
     Super::BeginPlay();
 
-#if WITH_EDITORONLY_DATA
+#if WITH_EDITOR
     DrawDebugSphere(GetWorld(), GetActorLocation(), Radius, 16, Color, true);
 #endif
 }
@@ -67,10 +60,19 @@ void ALBDevDamageActor::BeginPlay()
 void ALBDevDamageActor::OnConstruction(const FTransform& Transform)
 {
     Super::OnConstruction(Transform);
+
+    if (!HasAnyFlags(RF_ClassDefaultObject))
+    {
+        PreviewSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+        PreviewSphere->SetHiddenInGame(true);
+        PreviewSphere->SetMobility(EComponentMobility::Movable);
+    }
+
     UpdateSphereRadius();
     UpdateSphereColor();
 }
 
+#if WITH_EDITOR
 void ALBDevDamageActor::PostEditChangeProperty(
     FPropertyChangedEvent& PropertyChangedEvent)
 {
@@ -78,6 +80,7 @@ void ALBDevDamageActor::PostEditChangeProperty(
     UpdateSphereRadius();
     UpdateSphereColor();
 }
+#endif
 
 // Called every frame
 void ALBDevDamageActor::Tick(float DeltaTime)

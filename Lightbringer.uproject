@@ -153,10 +153,6 @@
 		{
 			"Name": "ExtendedControlStates",
 			"Enabled": true
-		},
-		{
-			"Name": "HealthComponent",
-			"Enabled": true
 		}
 	]
 }

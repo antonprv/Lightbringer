@@ -16,6 +16,8 @@
 #include "Engine/World.h"
 #include "Animation/AnimMontage.h"
 
+DEFINE_LOG_CATEGORY_STATIC(LogALBPlayerCharacter, Log, Log)
+
 /*
  * Class constructor
  */
@@ -46,7 +48,7 @@ ALBPlayerCharacter::ALBPlayerCharacter()
 }
 
 /*
- * Setup default values anc do checks
+ * Setup default values and do checks
  */
 void ALBPlayerCharacter::BeginPlay()
 {
@@ -61,12 +63,15 @@ void ALBPlayerCharacter::BeginPlay()
     HealthComponent->OnDeath.AddUObject(this, &ALBPlayerCharacter::OnDeath);
     HealthComponent->OnHealthChanged.AddUObject(
         this, &ALBPlayerCharacter::OnHealthChanged);
+
+    LandedDelegate.AddDynamic(this, &ALBPlayerCharacter::OnGroundLanding);
 }
 
 void ALBPlayerCharacter::EndPlay(EEndPlayReason::Type EndPlayReason)
 {
     HealthComponent->OnDeath.RemoveAll(this);
     HealthComponent->OnHealthChanged.RemoveAll(this);
+    LandedDelegate.RemoveAll(this);
 
     Super::EndPlay(EndPlayReason);
 }
@@ -106,6 +111,8 @@ void ALBPlayerCharacter::OnHealthChanged(float CurrentHealth)
 
 void ALBPlayerCharacter::OnDeath()
 {
+    if (!GetWorld()) return;
+
     bIsDying = true;
     bUseControllerRotationYaw = false;
     GetCharacterMovement()->DisableMovement();
@@ -118,8 +125,24 @@ void ALBPlayerCharacter::OnDeath()
     }
 }
 
+void ALBPlayerCharacter::OnGroundLanding(const FHitResult& Hit)
+{
+    if (!GetWorld()) return;
+
+    float JumpVelocity = -GetCharacterMovement()->Velocity.Z;
+
+    if (UDelegateMediatorSubsystem* DelegateMediator =
+            UDelegateMediatorSubsystem::Get(GetWorld()))
+    {
+        DelegateMediator->DispatchPlayerJumpDamage(JumpVelocity, Hit);
+    }
+
+    UE_LOG(LogALBPlayerCharacter, Display,
+        TEXT("Jump velocity on landing: %f"), JumpVelocity);
+}
+
 /*
- * Pure View functions
+ * Pure view functions
  */
 void ALBPlayerCharacter::InterpolateCamera(const float& DeltaTime)
 {

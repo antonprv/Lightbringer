@@ -10,7 +10,9 @@
 class UWorld;
 class APawn;
 
-DECLARE_MULTICAST_DELEGATE_OneParam(FOnPlayerDeath, APawn*);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnPlayerDeathSignature, APawn*);
+DECLARE_MULTICAST_DELEGATE_TwoParams(
+    FOnJumpDamagSignature, float, const FHitResult&);
 
 UCLASS()
 class LIGHTBRINGER_API UDelegateMediatorSubsystem
@@ -22,6 +24,8 @@ public:
     static UDelegateMediatorSubsystem* Get(UWorld* World);
 
     void DispatchPlayerDeath(APawn* DeadPawn);
+    void DispatchPlayerJumpDamage(float Velocity, const FHitResult& HitResult);
 
-    FOnPlayerDeath OnPlayerDeath;
+    FOnPlayerDeathSignature OnPlayerDeath;
+    FOnJumpDamagSignature OnJumpDamage;
 };
