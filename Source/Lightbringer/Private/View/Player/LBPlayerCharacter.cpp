@@ -99,9 +99,9 @@ void ALBPlayerCharacter::Jump()
 /*
  * Callback functions
  */
-void ALBPlayerCharacter::OnHealthChanged(float Health)
+void ALBPlayerCharacter::OnHealthChanged(float CurrentHealth)
 {
-    DisplayText(Health);
+    DisplayText(CurrentHealth);
 }
 
 void ALBPlayerCharacter::OnDeath()
@@ -124,7 +124,7 @@ void ALBPlayerCharacter::OnDeath()
 void ALBPlayerCharacter::InterpolateCamera(const float& DeltaTime)
 {
     const float TargetFOV =
-        bWantsToSprint || bIsDying ? SprintCameraFOV : DefaultCameraFOV;
+        IsSprinting() || bIsDying ? SprintCameraFOV : DefaultCameraFOV;
 
     // If already close enough, just set FOV once and return
     if (FMath::IsNearlyEqual(CurrentCameraFOV, TargetFOV, KINDA_SMALL_NUMBER))
@@ -142,10 +142,10 @@ void ALBPlayerCharacter::InterpolateCamera(const float& DeltaTime)
     CameraComponent->SetFieldOfView(CurrentCameraFOV);
 }
 
-void ALBPlayerCharacter::DisplayText(const float& Health)
+void ALBPlayerCharacter::DisplayText(const float& CurrentHealth)
 {
     TextRenderComponent->SetText(
-        FText::FromString(FString::Printf(TEXT("%.0f"), Health)));
+        FText::FromString(FString::Printf(TEXT("%.0f"), CurrentHealth)));
 }
 
 /*

@@ -1,8 +1,8 @@
 // You can use this project non-commercially for educational purposes, any
 // commercial use, derivative commercial use is strictly prohibited
 
-#include "Components/HealthComponent.h"
-#include "LBHealthRegenProfile.h"
+#include "HealthComponentCore.h"
+#include "HealthRegenProfile.h"
 
 #include "GameFramework/DamageType.h"
 #include "GameFramework/Actor.h"
@@ -11,14 +11,14 @@
 
 DEFINE_LOG_CATEGORY_STATIC(LogUHealthComponent, Log, Log)
 
-UHealthComponent::UHealthComponent()
+UHealthComponentCore::UHealthComponentCore()
 {
     PrimaryComponentTick.bCanEverTick = false;
     CurrentHealth = MaxHealth;
 }
 
 // Called when the game starts
-void UHealthComponent::BeginPlay()
+void UHealthComponentCore::BeginPlay()
 {
     Super::BeginPlay();
 
@@ -36,7 +36,7 @@ void UHealthComponent::BeginPlay()
     }
 }
 
-void UHealthComponent::OnTakeAnyDamage(AActor* DamagedActor, float Damage,
+void UHealthComponentCore::OnTakeAnyDamage(AActor* DamagedActor, float Damage,
     const UDamageType* DamageType, AController* InstigatedBy,
     AActor* DamageCauser)
 {
@@ -57,13 +57,13 @@ void UHealthComponent::OnTakeAnyDamage(AActor* DamagedActor, float Damage,
         if (HealthRegenProfile)
         {
             GetWorld()->GetTimerManager().SetTimer(RegenDelayHandle, this,
-                &UHealthComponent::StartRegen,
+                &UHealthComponentCore::StartRegen,
                 HealthRegenProfile->DelayAfterDamage, false);
         }
     }
 }
 
-void UHealthComponent::StartRegen()
+void UHealthComponentCore::StartRegen()
 {
     if (!HealthRegenProfile || CurrentHealth <= 0 || IsDead()) return;
 
@@ -80,7 +80,7 @@ void UHealthComponent::StartRegen()
         CurveTime);
 }
 
-void UHealthComponent::HandleRegen()
+void UHealthComponentCore::HandleRegen()
 {
     if (!HealthRegenProfile || IsDead()) return;
 
@@ -119,7 +119,7 @@ void UHealthComponent::HandleRegen()
         CurveTime);
 }
 
-void UHealthComponent::Heal(float Amount)
+void UHealthComponentCore::Heal(float Amount)
 {
     if (CurrentHealth <= 0 || IsDead()) return;
 
@@ -127,7 +127,7 @@ void UHealthComponent::Heal(float Amount)
     OnHealthChanged.Broadcast(CurrentHealth);
 }
 
-void UHealthComponent::StopRegen()
+void UHealthComponentCore::StopRegen()
 {
     GetWorld()->GetTimerManager().ClearTimer(RegenTickHandle);
     GetWorld()->GetTimerManager().ClearTimer(RegenDelayHandle);

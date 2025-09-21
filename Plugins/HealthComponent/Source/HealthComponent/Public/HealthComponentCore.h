@@ -5,7 +5,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "HealthComponent.generated.h"
+#include "HealthComponentCore.generated.h"
 
 class ULBHealthRegenProfile;
 
@@ -13,13 +13,13 @@ DECLARE_MULTICAST_DELEGATE(FOnDeath);
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnHealthChanged, float);
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
-class LIGHTBRINGER_API UHealthComponent : public UActorComponent
+class HEALTHCOMPONENT_API UHealthComponentCore : public UActorComponent
 {
     GENERATED_BODY()
 
 public:
     // Sets default values for this component's properties
-    UHealthComponent();
+    UHealthComponentCore();
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite,
         meta = (ClampMin = "0", ClampMax = "100", DisplayName = "Health"),

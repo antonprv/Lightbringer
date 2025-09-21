@@ -83,8 +83,8 @@ private:
     float DefaultCameraFOV;
 
     void OnDeath();
-    void OnHealthChanged(float Health);
+    void OnHealthChanged(float CurrentHealth);
 
     void InterpolateCamera(const float& DeltaTime);
-    void DisplayText(const float& Health);
+    void DisplayText(const float& CurrentHealth);
 };
