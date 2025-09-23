@@ -2,7 +2,8 @@
 // commercial use, derivative commercial use is strictly prohibited
 
 #include "LBPlayerCharacter.h"
-#include "DelegateMediatorSubsystem.h"
+#include "PlayerDelegateMediator.h"
+#include "ComponentsDelegateMediator.h"
 
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -60,11 +61,29 @@ void ALBPlayerCharacter::BeginPlay()
 
     OnHealthChanged(HealthComponent->GetHealth());
 
-    HealthComponent->OnDeath.AddUObject(this, &ALBPlayerCharacter::OnDeath);
-    HealthComponent->OnHealthChanged.AddUObject(
-        this, &ALBPlayerCharacter::OnHealthChanged);
+    if (!HealthComponent->OnDeath.IsBoundToObject(this))
+    {
+        HealthComponent->OnDeath.AddUObject(
+            this, &ALBPlayerCharacter::OnDeath);
+    }
 
-    LandedDelegate.AddDynamic(this, &ALBPlayerCharacter::OnGroundLanding);
+    if (!HealthComponent->OnHealthChanged.IsBoundToObject(this))
+    {
+        HealthComponent->OnHealthChanged.AddUObject(
+            this, &ALBPlayerCharacter::OnHealthChanged);
+    }
+
+    if (!LandedDelegate.Contains(this,
+            GET_FUNCTION_NAME_CHECKED(ALBPlayerCharacter, OnGroundLanding)))
+    {
+        LandedDelegate.AddDynamic(this, &ALBPlayerCharacter::OnGroundLanding);
+    }
+
+    if (!LandedDelegate.Contains(this,
+            GET_FUNCTION_NAME_CHECKED(ALBPlayerCharacter, HandleDestruction)))
+    {
+        OnDestroyed.AddDynamic(this, &ALBPlayerCharacter::HandleDestruction);
+    }
 }
 
 void ALBPlayerCharacter::EndPlay(EEndPlayReason::Type EndPlayReason)
@@ -104,6 +123,15 @@ void ALBPlayerCharacter::Jump()
 /*
  * Callback functions
  */
+void ALBPlayerCharacter::HandleDestruction(AActor* DestroyedActor)
+{
+    if (UPlayerDelegateMediator* DelegateMediator =
+            UPlayerDelegateMediator::Get(GetWorld()))
+    {
+        DelegateMediator->DispatchPlayerDestruction(DestroyedActor);
+    }
+}
+
 void ALBPlayerCharacter::OnHealthChanged(float CurrentHealth)
 {
     DisplayText(CurrentHealth);
@@ -118,8 +146,8 @@ void ALBPlayerCharacter::OnDeath()
     GetCharacterMovement()->DisableMovement();
     PlayAnimMontage(DeathMontage);
 
-    if (UDelegateMediatorSubsystem* DelegateMediator =
-            UDelegateMediatorSubsystem::Get(GetWorld()))
+    if (UPlayerDelegateMediator* DelegateMediator =
+            UPlayerDelegateMediator::Get(GetWorld()))
     {
         DelegateMediator->DispatchPlayerDeath(this);
     }
@@ -131,8 +159,8 @@ void ALBPlayerCharacter::OnGroundLanding(const FHitResult& Hit)
 
     float JumpVelocity = -GetCharacterMovement()->Velocity.Z;
 
-    if (UDelegateMediatorSubsystem* DelegateMediator =
-            UDelegateMediatorSubsystem::Get(GetWorld()))
+    if (UComponentsDelegateMediator* DelegateMediator =
+            UComponentsDelegateMediator::Get(GetWorld()))
     {
         DelegateMediator->DispatchPlayerJumpDamage(JumpVelocity, Hit);
     }

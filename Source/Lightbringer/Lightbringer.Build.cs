@@ -21,6 +21,13 @@ public class Lightbringer : ModuleRules
 
         PublicIncludePaths.Add(ModuleDirectory);
 
+        PublicIncludePaths.AddRange( new string[] {
+            "Lightbringer/Public/Data",
+            "Lightbringer/Public/Dev",
+            "Lightbringer/Public/Gameplay",
+            "Lightbringer/Public/View"
+        });
+
         // Uncomment if you are using Slate UI
         // PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });
 

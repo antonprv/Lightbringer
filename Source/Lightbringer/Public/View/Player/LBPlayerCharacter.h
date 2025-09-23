@@ -90,4 +90,7 @@ private:
 
     UFUNCTION()
     void OnGroundLanding(const FHitResult& Hit);
+
+    UFUNCTION()
+    void HandleDestruction(AActor* DestroyedActor);
 };

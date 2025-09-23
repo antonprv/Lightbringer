@@ -5,27 +5,25 @@
 
 #include "CoreMinimal.h"
 #include "Subsystems/GameInstanceSubsystem.h"
-#include "DelegateMediatorSubsystem.generated.h"
+#include "PlayerDelegateMediator.generated.h"
 
 class UWorld;
 class APawn;
 
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnPlayerDestructionSignature, AActor*);
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnPlayerDeathSignature, APawn*);
-DECLARE_MULTICAST_DELEGATE_TwoParams(
-    FOnJumpDamagSignature, float, const FHitResult&);
 
 UCLASS()
-class LIGHTBRINGER_API UDelegateMediatorSubsystem
-    : public UGameInstanceSubsystem
+class LIGHTBRINGER_API UPlayerDelegateMediator : public UGameInstanceSubsystem
 {
     GENERATED_BODY()
 
 public:
-    static UDelegateMediatorSubsystem* Get(UWorld* World);
+    static UPlayerDelegateMediator* Get(UWorld* World);
 
+    void DispatchPlayerDestruction(AActor* PlayerActor);
     void DispatchPlayerDeath(APawn* DeadPawn);
-    void DispatchPlayerJumpDamage(float Velocity, const FHitResult& HitResult);
 
+    FOnPlayerDestructionSignature OnPlayerDestruction;
     FOnPlayerDeathSignature OnPlayerDeath;
-    FOnJumpDamagSignature OnJumpDamage;
 };

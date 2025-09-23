@@ -27,7 +27,7 @@ UECStateSubsystem* UECStateSubsystem::Get(UWorld* World)
 void UECStateSubsystem::BeginSpectating(
     AController* Controller, TSubclassOf<ASpectatorPawn> SpectatorPawn)
 {
-    if (!Controller) return;
+    if (!Controller || IsSpectating()) return;
 
     FVector ViewLocation;
     FRotator ViewRotation;
@@ -38,12 +38,14 @@ void UECStateSubsystem::BeginSpectating(
         SpectatorPawn, ViewLocation, ViewRotation);
     Controller->UnPossess();
     Controller->Possess(Spectator);
+
+    CurrentState = ESpectatingState::Spectating;
 }
 
 void UECStateSubsystem::RespawnInWorld(
     AGameModeBase* GameMode, AController* Controller)
 {
-    if (!Controller || !GameMode) return;
+    if (!Controller || !GameMode || IsPlaying()) return;
 
     if (SpectatorPawn)
     {
@@ -56,4 +58,6 @@ void UECStateSubsystem::RespawnInWorld(
     {
         GameMode->RestartPlayer(Controller);
     }
+
+    CurrentState = ESpectatingState::Playing;
 }

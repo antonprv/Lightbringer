@@ -1,12 +1,12 @@
 // You can use this project non-commercially for educational purposes, any
 // commercial use, derivative commercial use is strictly prohibited
 
-#include "Gameplay/Subsystems/DelegateMediatorSubsystem.h"
+#include "ComponentsDelegateMediator.h"
 
 #include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
 
-UDelegateMediatorSubsystem* UDelegateMediatorSubsystem::Get(UWorld* World)
+UComponentsDelegateMediator* UComponentsDelegateMediator::Get(UWorld* World)
 {
     if (!World)
     {
@@ -15,18 +15,13 @@ UDelegateMediatorSubsystem* UDelegateMediatorSubsystem::Get(UWorld* World)
 
     if (UGameInstance* GI = UGameplayStatics::GetGameInstance(World))
     {
-        return GI->GetSubsystem<UDelegateMediatorSubsystem>();
+        return GI->GetSubsystem<UComponentsDelegateMediator>();
     }
 
     return nullptr;
 }
 
-void UDelegateMediatorSubsystem::DispatchPlayerDeath(APawn* DeadPawn)
-{
-    OnPlayerDeath.Broadcast(DeadPawn);
-}
-
-void UDelegateMediatorSubsystem::DispatchPlayerJumpDamage(
+void UComponentsDelegateMediator::DispatchPlayerJumpDamage(
     float Velocity, const FHitResult& HitResult)
 {
     OnJumpDamage.Broadcast(Velocity, HitResult);

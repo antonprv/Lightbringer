@@ -13,6 +13,14 @@
  * possessing DefaultPawn (Spawning it from the PlayerStart)
  */
 
+UENUM()
+enum class ESpectatingState : uint8
+{
+    Spectating,
+    Playing,
+    Default
+};
+
 class UWorld;
 class ASpectatorPawn;
 class AController;
@@ -33,6 +41,19 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Extended Controller States")
     void RespawnInWorld(AGameModeBase* GameMode, AController* Controller);
 
+    UFUNCTION(BlueprintCallable, BlueprintPure,
+        Category = "Extended Controller States")
+    bool IsSpectating()
+    {
+        return CurrentState == ESpectatingState::Spectating;
+    }
+
+    UFUNCTION(BlueprintCallable, BlueprintPure,
+        Category = "Extended Controller States")
+    bool IsPlaying() { return CurrentState == ESpectatingState::Playing; }
+
 private:
     ASpectatorPawn* SpectatorPawn;
+
+    ESpectatingState CurrentState{ESpectatingState::Default};
 };

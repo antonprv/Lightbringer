@@ -3,6 +3,7 @@
 
 #include "LBGameInstance.h"
 #include "QualitySettingsSubsystem.h"
+#include "GraphicsPresetManager.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LightBringerGameInstanceLog, All, All)
 

@@ -9,7 +9,7 @@
 #include "LBPlayerController.generated.h"
 
 class APawn;
-class UDelegateMediatorSubsystem;
+class UPlayerDelegateMediator;
 
 UCLASS()
 class LIGHTBRINGER_API ALBPlayerController : public APlayerController
@@ -47,7 +47,8 @@ private:
     void PawnStopSprinting();
 
     UPROPERTY()
-    UDelegateMediatorSubsystem* DelegateMediator{nullptr};
+    UPlayerDelegateMediator* DelegateMediator{nullptr};
 
     void OnPawnDeath(APawn* Pawn);
+    void OnPawnDestruction(AActor* DestroyedPawnActor);
 };

@@ -5,12 +5,14 @@
 
 #include "CoreMinimal.h"
 #include "Subsystems/GameInstanceSubsystem.h"
-#include "View/Rendering/GraphicsPresetManager.h"
 #include "QualitySettingsSubsystem.generated.h"
 
 /**
  *
  */
+
+class UGraphicsPresetManager;
+
 UCLASS()
 class LIGHTBRINGER_API UQualitySettingsSubsystem
     : public UGameInstanceSubsystem

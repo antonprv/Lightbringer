@@ -27,4 +27,12 @@ public:
     virtual void JumpCustom_Implementation() override;
     virtual void StartSprinting_Implementation() override;
     virtual void StopSprinting_Implementation() override;
+
+protected:
+    virtual void BeginPlay() override;
+    virtual void EndPlay(EEndPlayReason::Type EndPlayReason) override;
+
+private:
+    UFUNCTION()
+    void HandleDestruction(AActor* DestroyedActor);
 };

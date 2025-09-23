@@ -11,7 +11,7 @@
 #include "GameFramework/Character.h"
 #include "TimerManager.h"
 #include "Engine/World.h"
-#include "DelegateMediatorSubsystem.h"
+#include "ComponentsDelegateMediator.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogUHealthComponent, Log, Log)
 
@@ -41,8 +41,8 @@ void UHealthComponent::BeginPlay()
                 this, &UHealthComponent::OnTakeAnyDamage);
         }
 
-        if (UDelegateMediatorSubsystem* DelegateMediator =
-                UDelegateMediatorSubsystem::Get(GetWorld()))
+        if (UComponentsDelegateMediator* DelegateMediator =
+                UComponentsDelegateMediator::Get(GetWorld()))
         {
             DelegateMediator->OnJumpDamage.AddUObject(
                 this, &UHealthComponent::TakeFallDamage);
@@ -52,8 +52,8 @@ void UHealthComponent::BeginPlay()
 
 void UHealthComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
-    if (UDelegateMediatorSubsystem* DelegateMediator =
-            UDelegateMediatorSubsystem::Get(GetWorld()))
+    if (UComponentsDelegateMediator* DelegateMediator =
+            UComponentsDelegateMediator::Get(GetWorld()))
     {
         DelegateMediator->OnJumpDamage.RemoveAll(this);
     }
