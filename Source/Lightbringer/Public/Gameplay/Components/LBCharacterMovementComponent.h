@@ -65,6 +65,7 @@ private:
     bool bIsJumpAllowed{false};
     bool bWantsToSprint{false};
     bool bIsMovingForward{false};
+    bool bIsMovingBack{false};
     bool bIsMovingSideways{false};
     bool bIsMoving{false};
 
@@ -75,4 +76,5 @@ private:
     float CurrentFowrardValue{0.f};
 
     void SprintInterp(float DeltaTime);
+    void SetRotationRules();
 };

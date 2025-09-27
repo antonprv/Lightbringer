@@ -58,11 +58,10 @@ void ULBCharacterMovementComponent::SetForwardInput(const float& Value)
     if (!CharacterOwner) return;
 
     bIsMovingForward = Value > 0;
+    bIsMovingBack = Value < 0;
     bIsMoving = Value != 0;
 
-    bOrientRotationToMovement = bIsMovingForward;
-
-    CharacterOwner->bUseControllerRotationYaw = Value < 0;
+    SetRotationRules();
 
     // find out which way is forward
     const FRotator Rotation = CharacterOwner->Controller->GetControlRotation();
@@ -90,10 +89,7 @@ void ULBCharacterMovementComponent::SetRightInput(const float& Value)
 
     bIsMovingSideways = Value != 0;
 
-    // Use left-right animations with no character rotation when A\D keys are
-    // pressed, and no forward input received
-    CharacterOwner->bUseControllerRotationYaw =
-        bIsMovingSideways && !bIsMoving;
+    SetRotationRules();
 
     // find out which way is right
     const FRotator Rotation = CharacterOwner->Controller->GetControlRotation();
@@ -178,6 +174,15 @@ void ULBCharacterMovementComponent::SprintInterp(float DeltaTime)
         TargetMaxWalkSpeed, DeltaTime, SprintSmoothingSpeed);
 
     MaxWalkSpeed = CurrentMaxWalkSpeed;
+}
+
+void ULBCharacterMovementComponent::SetRotationRules()
+{
+    bOrientRotationToMovement = bIsMovingForward;
+
+    CharacterOwner->bUseControllerRotationYaw =
+        (bIsMovingSideways && !bIsMoving) || bIsMovingBack ||
+        (bIsMovingForward && bIsMovingSideways);
 }
 
 bool ULBCharacterMovementComponent::IsSprintForbidden()
