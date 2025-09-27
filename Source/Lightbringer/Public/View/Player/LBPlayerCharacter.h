@@ -8,10 +8,12 @@
 #include "Interfaces/PlayerControllable.h"
 #include "LBPlayerCharacter.generated.h"
 
+class ULBCharacterMovementComponent;
 class UCameraComponent;
 class USpringArmComponent;
 class UHealthComponent;
 class UTextRenderComponent;
+class ALBWeaponBase;
 class UAnimMontage;
 
 UCLASS()
@@ -22,8 +24,10 @@ class LIGHTBRINGER_API ALBPlayerCharacter : public ACharacter,
 
 public:
     // Sets default values for this character's properties
-    ALBPlayerCharacter();
+    ALBPlayerCharacter(const FObjectInitializer& ObjInit);
 
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+    ULBCharacterMovementComponent* MovementHandlerComponent{nullptr};
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
     UCameraComponent* CameraComponent{nullptr};
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
@@ -33,37 +37,40 @@ public:
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
     UTextRenderComponent* TextRenderComponent{nullptr};
 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
+    TSubclassOf<ALBWeaponBase> WeaponClass{nullptr};
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Weapon")
+    FVector GetWeaponLeftHandSocketLocation()
+    {
+        UpdateLeftHandLocation();
+        return WeaponLeftHandSocketLocation;
+    };
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Weapon")
+    FRotator GetWeaponLeftHandSocketRotation()
+    {
+        UpdateLeftHandRotation();
+        return WeaponLeftHandSocketRotation;
+    };
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     UAnimMontage* DeathMontage{nullptr};
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement")
     float SprintCameraFOV{100.f};
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement")
-    float SprintCameraInterpolation{0.1f};
+    float SprintCameraInterpolationSpeed{5.f};
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement")
-    float SprintSpeed{1000.f};
-
-    UFUNCTION(BlueprintPure, Category = "Movement")
-    bool IsSprinting();
-    UFUNCTION(BlueprintPure, Category = "Movement")
-    bool WantsToSprint() { return bWantsToSprint; };
+    float JumpDelay{0.2f};
 
 protected:
     // Called when the game starts or when spawned
     virtual void BeginPlay() override;
+    virtual void Tick(float DeltaSeconds) override;
     virtual void EndPlay(EEndPlayReason::Type EndPlayReason) override;
-
     virtual void Jump() override;
 
 public:
-    // Called every frame
-    virtual void Tick(float DeltaTime) override;  // Tick disabled for now
-
-    // Called to bind functionality to input
-    virtual void SetupPlayerInputComponent(
-        class UInputComponent* PlayerInputComponent) override;
-
     virtual void MoveForwardCustom_Implementation(const float& Value) override;
     virtual void MoveRightCustom_Implementation(const float& Value) override;
     virtual void LookUpCustom_Implementation(const float& Value) override;
@@ -76,16 +83,17 @@ private:
     float CurrentCameraFOV{0.f};
 
     bool bIsDying{false};
-    bool bWantsToSprint{false};
-    bool bIsMovingForward{false};
 
-    float DefaultWalkSpeed;
+    // JumpCooldown
+    FTimerHandle JumpHandle;
+    void AllowJumping();
+
     float DefaultCameraFOV;
 
     void OnDeath();
     void OnHealthChanged(float CurrentHealth);
 
-    void InterpolateCamera(const float& DeltaTime);
+    void InterpolateCamera(const float& DeltaSeconds);
     void DisplayText(const float& CurrentHealth);
 
     UFUNCTION()
@@ -93,4 +101,13 @@ private:
 
     UFUNCTION()
     void HandleDestruction(AActor* DestroyedActor);
+
+    UPROPERTY()
+    ALBWeaponBase* WeaponMesh{nullptr};
+    FVector WeaponLeftHandSocketLocation{FVector::ZeroVector};
+    FRotator WeaponLeftHandSocketRotation{FRotator::ZeroRotator};
+
+    void SpawnWeapon();
+    void UpdateLeftHandLocation();
+    void UpdateLeftHandRotation();
 };

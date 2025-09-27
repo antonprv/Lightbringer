@@ -5,13 +5,17 @@
 #include "PlayerDelegateMediator.h"
 #include "ComponentsDelegateMediator.h"
 
+#include "LBWeaponBase.h"
+
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
 
+#include "Components/LBCharacterMovementComponent.h"
 #include "Components/HealthComponent.h"
 #include "Components/TextRenderComponent.h"
+#include "Components/SkeletalMeshComponent.h"
 
 #include "TimerManager.h"
 #include "Engine/World.h"
@@ -22,9 +26,23 @@ DEFINE_LOG_CATEGORY_STATIC(LogALBPlayerCharacter, Log, Log)
 /*
  * Class constructor
  */
-ALBPlayerCharacter::ALBPlayerCharacter()
+ALBPlayerCharacter::ALBPlayerCharacter(const FObjectInitializer& ObjInit)
+    : Super(ObjInit.SetDefaultSubobjectClass<ULBCharacterMovementComponent>(
+          ACharacter::CharacterMovementComponentName))
 {
+    MovementHandlerComponent =
+        Cast<ULBCharacterMovementComponent>(GetCharacterMovement());
+
     PrimaryActorTick.bCanEverTick = true;
+
+    bUseControllerRotationPitch = false;
+    bUseControllerRotationYaw = false;
+    bUseControllerRotationRoll = false;
+
+    // Configure character movement
+    GetCharacterMovement()->bOrientRotationToMovement = false;
+    GetCharacterMovement()->RotationRate = FRotator(0.0f, 540.0f, 0.0f);
+    GetCharacterMovement()->AirControl = 0.2f;
 
     SpringArmComponent =
         CreateDefaultSubobject<USpringArmComponent>("Spring Arm");
@@ -32,14 +50,16 @@ ALBPlayerCharacter::ALBPlayerCharacter()
     SpringArmComponent->bUsePawnControlRotation = true;
     SpringArmComponent->CameraLagSpeed = 25.f;
     SpringArmComponent->bEnableCameraLag = true;
+    SpringArmComponent->bUsePawnControlRotation = true;
 
     CameraComponent =
         CreateDefaultSubobject<UCameraComponent>("Player Camera");
-    CameraComponent->SetupAttachment(SpringArmComponent);
+    CameraComponent->SetupAttachment(
+        SpringArmComponent, USpringArmComponent::SocketName);
+    CameraComponent->bUsePawnControlRotation = false;
 
     DefaultCameraFOV = CameraComponent->FieldOfView;
     CurrentCameraFOV = DefaultCameraFOV;
-    DefaultWalkSpeed = GetCharacterMovement()->MaxWalkSpeed;
 
     HealthComponent =
         CreateDefaultSubobject<UHealthComponent>("Health Component");
@@ -84,6 +104,15 @@ void ALBPlayerCharacter::BeginPlay()
     {
         OnDestroyed.AddDynamic(this, &ALBPlayerCharacter::HandleDestruction);
     }
+
+    SpawnWeapon();
+}
+
+void ALBPlayerCharacter::Tick(float DeltaSeconds)
+{
+    Super::Tick(DeltaSeconds);
+
+    InterpolateCamera(DeltaSeconds);
 }
 
 void ALBPlayerCharacter::EndPlay(EEndPlayReason::Type EndPlayReason)
@@ -95,26 +124,42 @@ void ALBPlayerCharacter::EndPlay(EEndPlayReason::Type EndPlayReason)
     Super::EndPlay(EndPlayReason);
 }
 
-void ALBPlayerCharacter::Tick(float DeltaTime)
+/*
+ * Animation parameters
+ */
+void ALBPlayerCharacter::SpawnWeapon()
 {
-    Super::Tick(DeltaTime);
-    InterpolateCamera(DeltaTime);
+    if (!GetWorld()) return;
+
+    WeaponMesh = GetWorld()->SpawnActor<ALBWeaponBase>(WeaponClass);
+    if (WeaponMesh)
+    {
+        FAttachmentTransformRules AttachmentRules(
+            EAttachmentRule::SnapToTarget, false);
+        WeaponMesh->AttachToComponent(
+            GetMesh(), AttachmentRules, FName("WeaponSocket"));
+    }
 }
 
-void ALBPlayerCharacter::SetupPlayerInputComponent(
-    UInputComponent* PlayerInputComponent)
+void ALBPlayerCharacter::UpdateLeftHandRotation()
 {
-    Super::SetupPlayerInputComponent(PlayerInputComponent);
+    if (!WeaponMesh) return;
+
+    WeaponLeftHandSocketRotation =
+        WeaponMesh->SkeletalMesh->GetSocketRotation(FName("LeftHandSocket"));
+}
+
+void ALBPlayerCharacter::UpdateLeftHandLocation()
+{
+    if (!WeaponMesh) return;
+
+    WeaponLeftHandSocketLocation =
+        WeaponMesh->SkeletalMesh->GetSocketLocation(FName("LeftHandSocket"));
 }
 
 /*
  * Player Movement
  */
-bool ALBPlayerCharacter::IsSprinting()
-{
-    return bIsMovingForward && bWantsToSprint && !GetVelocity().IsZero();
-}
-
 void ALBPlayerCharacter::Jump()
 {
     Super::Jump();
@@ -157,6 +202,8 @@ void ALBPlayerCharacter::OnGroundLanding(const FHitResult& Hit)
 {
     if (!GetWorld()) return;
 
+    MovementHandlerComponent->SetIsJumpAllowed(false);
+
     float JumpVelocity = -GetCharacterMovement()->Velocity.Z;
 
     if (UComponentsDelegateMediator* DelegateMediator =
@@ -167,15 +214,28 @@ void ALBPlayerCharacter::OnGroundLanding(const FHitResult& Hit)
 
     UE_LOG(LogALBPlayerCharacter, Display,
         TEXT("Jump velocity on landing: %f"), JumpVelocity);
+
+    GetWorldTimerManager().SetTimer(JumpHandle, this,
+        &ALBPlayerCharacter::AllowJumping, 0.01f, false, JumpDelay);
+}
+
+void ALBPlayerCharacter::AllowJumping()
+{
+    MovementHandlerComponent->SetIsJumpAllowed(true);
+
+    JumpHandle.Invalidate();
 }
 
 /*
  * Pure view functions
  */
-void ALBPlayerCharacter::InterpolateCamera(const float& DeltaTime)
+void ALBPlayerCharacter::InterpolateCamera(const float& DeltaSeconds)
 {
-    const float TargetFOV =
-        IsSprinting() || bIsDying ? SprintCameraFOV : DefaultCameraFOV;
+    if (!GetWorld()) return;
+
+    const float TargetFOV = MovementHandlerComponent->IsSprinting() || bIsDying
+                                ? SprintCameraFOV
+                                : DefaultCameraFOV;
 
     // If already close enough, just set FOV once and return
     if (FMath::IsNearlyEqual(CurrentCameraFOV, TargetFOV, KINDA_SMALL_NUMBER))
@@ -184,11 +244,12 @@ void ALBPlayerCharacter::InterpolateCamera(const float& DeltaTime)
         {
             CameraComponent->SetFieldOfView(TargetFOV);
         }
+
         return;
     }
 
-    CurrentCameraFOV = FMath::FInterpTo(
-        CurrentCameraFOV, TargetFOV, DeltaTime, SprintCameraInterpolation);
+    CurrentCameraFOV = FMath::FInterpTo(CurrentCameraFOV, TargetFOV,
+        DeltaSeconds, SprintCameraInterpolationSpeed);
 
     CameraComponent->SetFieldOfView(CurrentCameraFOV);
 }
@@ -204,40 +265,35 @@ void ALBPlayerCharacter::DisplayText(const float& CurrentHealth)
  */
 void ALBPlayerCharacter::MoveForwardCustom_Implementation(const float& Value)
 {
-    bIsMovingForward = Value > 0;
-    AddMovementInput(GetActorForwardVector(), Value);
+    MovementHandlerComponent->SetForwardInput(Value);
 }
 
 void ALBPlayerCharacter::MoveRightCustom_Implementation(const float& Value)
 {
-    AddMovementInput(GetActorRightVector(), Value);
+    MovementHandlerComponent->SetRightInput(Value);
 }
 
 void ALBPlayerCharacter::LookUpCustom_Implementation(const float& Value)
 {
-    AddControllerPitchInput(Value);
+    MovementHandlerComponent->SetLookUpInput(Value);
 }
 
 void ALBPlayerCharacter::TurnAroundCustom_Implementation(const float& Value)
 {
-    AddControllerYawInput(Value);
+    MovementHandlerComponent->SetTurnAroundInput(Value);
 }
 
 void ALBPlayerCharacter::JumpCustom_Implementation()
 {
-    Jump();
+    MovementHandlerComponent->PerformJump();
 }
 
 void ALBPlayerCharacter::StartSprinting_Implementation()
 {
-    if (!GetCharacterMovement()->IsMovingOnGround()) return;
-
-    bWantsToSprint = true;
-    GetCharacterMovement()->MaxWalkSpeed = SprintSpeed;
+    MovementHandlerComponent->SetStartSprinting();
 }
 
 void ALBPlayerCharacter::StopSprinting_Implementation()
 {
-    bWantsToSprint = false;
-    GetCharacterMovement()->MaxWalkSpeed = DefaultWalkSpeed;
+    MovementHandlerComponent->SetStopSprinting();
 }

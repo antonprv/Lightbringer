@@ -172,6 +172,10 @@
 				"IOS",
 				"TVOS"
 			]
+		},
+		{
+			"Name": "ControlRig",
+			"Enabled": true
 		}
 	]
 }
