@@ -202,7 +202,7 @@ void ALBPlayerCharacter::OnGroundLanding(const FHitResult& Hit)
 {
     if (!GetWorld()) return;
 
-    MovementHandlerComponent->SetIsJumpAllowed(false);
+    MovementHandlerComponent->SetLandingRules();
 
     float JumpVelocity = -GetCharacterMovement()->Velocity.Z;
 
@@ -214,16 +214,6 @@ void ALBPlayerCharacter::OnGroundLanding(const FHitResult& Hit)
 
     UE_LOG(LogALBPlayerCharacter, Display,
         TEXT("Jump velocity on landing: %f"), JumpVelocity);
-
-    GetWorldTimerManager().SetTimer(JumpHandle, this,
-        &ALBPlayerCharacter::AllowJumping, 0.01f, false, JumpDelay);
-}
-
-void ALBPlayerCharacter::AllowJumping()
-{
-    MovementHandlerComponent->SetIsJumpAllowed(true);
-
-    JumpHandle.Invalidate();
 }
 
 /*

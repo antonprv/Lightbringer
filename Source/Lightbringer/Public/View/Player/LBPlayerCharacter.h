@@ -26,8 +26,11 @@ public:
     // Sets default values for this character's properties
     ALBPlayerCharacter(const FObjectInitializer& ObjInit);
 
+    // Direct getter for custom movement component
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
     ULBCharacterMovementComponent* MovementHandlerComponent{nullptr};
+
+    // Getters for other components
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
     UCameraComponent* CameraComponent{nullptr};
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
@@ -39,6 +42,8 @@ public:
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
     TSubclassOf<ALBWeaponBase> WeaponClass{nullptr};
+
+    // Socket info getters
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Weapon")
     FVector GetWeaponLeftHandSocketLocation()
     {
@@ -60,9 +65,6 @@ public:
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement")
     float SprintCameraInterpolationSpeed{5.f};
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement")
-    float JumpDelay{0.2f};
-
 protected:
     // Called when the game starts or when spawned
     virtual void BeginPlay() override;
@@ -83,10 +85,6 @@ private:
     float CurrentCameraFOV{0.f};
 
     bool bIsDying{false};
-
-    // JumpCooldown
-    FTimerHandle JumpHandle;
-    void AllowJumping();
 
     float DefaultCameraFOV;
 

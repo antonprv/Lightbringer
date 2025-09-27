@@ -5,6 +5,7 @@
 
 #include "GameFramework/Character.h"
 #include "GameFramework/Controller.h"
+#include "TimerManager.h"
 
 #include "Engine/World.h"
 
@@ -129,7 +130,7 @@ void ULBCharacterMovementComponent::SetStartSprinting()
 {
     if (!CharacterOwner) return;
 
-    if (IsSprintForbidden()) return;
+    if (IsSprintForbidden() || !IsMovingOnGround()) return;
 
     bWantsToSprint = true;
 }
@@ -144,6 +145,21 @@ void ULBCharacterMovementComponent::PerformJump()
     if (!bIsJumpAllowed) return;
 
     CharacterOwner->Jump();
+}
+
+void ULBCharacterMovementComponent::SetLandingRules()
+{
+    bIsJumpAllowed = false;
+
+    GetWorld()->GetTimerManager().SetTimer(JumpHandle, this,
+        &ULBCharacterMovementComponent::AllowJumping, 0.01f, false, JumpDelay);
+}
+
+void ULBCharacterMovementComponent::AllowJumping()
+{
+    bIsJumpAllowed = true;
+
+    JumpHandle.Invalidate();
 }
 
 void ULBCharacterMovementComponent::SprintInterp(float DeltaTime)
@@ -187,8 +203,7 @@ void ULBCharacterMovementComponent::SetRotationRules()
 
 bool ULBCharacterMovementComponent::IsSprintForbidden()
 {
-    return (!bIsMovingForward && bIsMovingSideways) || !bIsMovingForward ||
-           !IsMovingOnGround();
+    return (!bIsMovingForward && bIsMovingSideways) || !bIsMovingForward;
 }
 
 bool ULBCharacterMovementComponent::IsSprinting()

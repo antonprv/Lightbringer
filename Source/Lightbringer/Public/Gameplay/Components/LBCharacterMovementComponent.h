@@ -29,28 +29,33 @@ public:
     virtual void TickComponent(float DeltaTime, ELevelTick TickType,
         FActorComponentTickFunction* ThisTickFunction) override;
 
-    // Numeric movement values
-    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement")
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite,
+        Category = "Ground Movement Params")
     float SprintSpeed{1000.f};
-    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement")
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite,
+        Category = "Ground Movement Params")
     float MovementSmoothingSpeed{2.5f};
-    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement")
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite,
+        Category = "Ground Movement Params")
     float SprintSmoothingSpeed{2.f};
 
-    // Getters for animation blueprint
-    UFUNCTION(BlueprintPure, Category = "Movement")
-    bool IsSprintForbidden();
-    UFUNCTION(BlueprintPure, Category = "Movement")
+    // Getter for animation blueprint
+    UFUNCTION(BlueprintPure, Category = "Ground Movement States")
     bool IsSprinting();
 
     // Inline getters
-    UFUNCTION(BlueprintPure, Category = "Movement")
+    UFUNCTION(BlueprintPure, Category = "Ground Movement States")
     bool IsMoving() { return bIsMoving; };
-    UFUNCTION(BlueprintPure, Category = "Movement")
+    UFUNCTION(BlueprintPure, Category = "Ground Movement States")
     bool IsMovingSideways() { return bIsMovingSideways; };
 
-    UFUNCTION(BlueprintCallable, Category = "Movement")
+    UFUNCTION(BlueprintPure, Category = "Ground Movement Triggers")
+    bool IsSprintForbidden();
+
+    UFUNCTION(BlueprintCallable, Category = "Jump Rules")
     void SetIsJumpAllowed(bool Value);
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Jump Rules")
+    float JumpDelay{0.2f};
 
     // Movement Handlers
     void SetForwardInput(const float& Value);
@@ -60,6 +65,8 @@ public:
     void SetStartSprinting();
     void SetStopSprinting();
     void PerformJump();
+
+    void SetLandingRules();
 
 private:
     bool bIsJumpAllowed{false};
@@ -77,4 +84,8 @@ private:
 
     void SprintInterp(float DeltaTime);
     void SetRotationRules();
+
+    // Jumping Rules
+    FTimerHandle JumpHandle;
+    void AllowJumping();
 };
