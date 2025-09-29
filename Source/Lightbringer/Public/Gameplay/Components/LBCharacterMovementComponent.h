@@ -8,6 +8,7 @@
 #include "LBCharacterMovementComponent.generated.h"
 
 class ACharacter;
+class UAnimMontage;
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class LIGHTBRINGER_API ULBCharacterMovementComponent
@@ -38,6 +39,9 @@ public:
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite,
         Category = "Ground Movement Params")
     float SprintSmoothingSpeed{2.f};
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite,
+        Category = "Ground Movement Params")
+    float RotationSmoothing{0.2f};
 
     // Getter for animation blueprint
     UFUNCTION(BlueprintPure, Category = "Ground Movement States")
@@ -48,6 +52,10 @@ public:
     bool IsMoving() { return bIsMoving; };
     UFUNCTION(BlueprintPure, Category = "Ground Movement States")
     bool IsMovingSideways() { return bIsMovingSideways; };
+    UFUNCTION(BlueprintPure, Category = "Ground Movement States")
+    bool IsMovingForward() { return bIsMovingForward; };
+    UFUNCTION(BlueprintPure, Category = "Ground Movement States")
+    bool IsMovingBack() { return bIsMovingBack; };
 
     UFUNCTION(BlueprintPure, Category = "Ground Movement Triggers")
     bool IsSprintForbidden();
@@ -74,6 +82,7 @@ private:
     bool bIsMovingForward{false};
     bool bIsMovingBack{false};
     bool bIsMovingSideways{false};
+    bool bIsMovingLeft{false};
     bool bIsMoving{false};
 
     float DefaultWalkSpeed{0.f};

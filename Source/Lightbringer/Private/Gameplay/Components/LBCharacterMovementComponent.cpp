@@ -8,6 +8,7 @@
 #include "TimerManager.h"
 
 #include "Engine/World.h"
+#include "Animation/AnimMontage.h"
 
 // Sets default values for this component's properties
 ULBCharacterMovementComponent::ULBCharacterMovementComponent()
@@ -60,7 +61,7 @@ void ULBCharacterMovementComponent::SetForwardInput(const float& Value)
 
     bIsMovingForward = Value > 0;
     bIsMovingBack = Value < 0;
-    bIsMoving = Value != 0;
+    bIsMoving = !FMath::IsNearlyZero(Value);
 
     SetRotationRules();
 
@@ -88,7 +89,7 @@ void ULBCharacterMovementComponent::SetRightInput(const float& Value)
 {
     if (!CharacterOwner) return;
 
-    bIsMovingSideways = Value != 0;
+    bIsMovingSideways = !FMath::IsNearlyZero(Value);
 
     SetRotationRules();
 
@@ -175,8 +176,7 @@ void ULBCharacterMovementComponent::SprintInterp(float DeltaTime)
     const float TargetMaxWalkSpeed =
         bWantsToSprint ? SprintSpeed : DefaultWalkSpeed;
 
-    if (FMath::IsNearlyEqual(
-            CurrentMaxWalkSpeed, TargetMaxWalkSpeed, KINDA_SMALL_NUMBER))
+    if (FMath::IsNearlyEqual(CurrentMaxWalkSpeed, TargetMaxWalkSpeed))
     {
         if (MaxWalkSpeed != TargetMaxWalkSpeed)
         {
@@ -194,11 +194,21 @@ void ULBCharacterMovementComponent::SprintInterp(float DeltaTime)
 
 void ULBCharacterMovementComponent::SetRotationRules()
 {
-    bOrientRotationToMovement = bIsMovingForward;
-
-    CharacterOwner->bUseControllerRotationYaw =
-        (bIsMovingSideways && !bIsMoving) || bIsMovingBack ||
-        (bIsMovingForward && bIsMovingSideways);
+    if (bIsMovingForward)
+    {
+        bOrientRotationToMovement = true;
+        CharacterOwner->bUseControllerRotationYaw = false;
+    }
+    else if (bIsMovingBack || bIsMovingSideways)
+    {
+        bOrientRotationToMovement = false;
+        CharacterOwner->bUseControllerRotationYaw = true;
+    }
+    else
+    {
+        bOrientRotationToMovement = true;
+        CharacterOwner->bUseControllerRotationYaw = false;
+    }
 }
 
 bool ULBCharacterMovementComponent::IsSprintForbidden()
