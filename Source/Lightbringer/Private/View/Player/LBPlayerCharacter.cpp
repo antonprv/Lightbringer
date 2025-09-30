@@ -39,11 +39,6 @@ ALBPlayerCharacter::ALBPlayerCharacter(const FObjectInitializer& ObjInit)
     bUseControllerRotationYaw = false;
     bUseControllerRotationRoll = false;
 
-    // Configure character movement
-    GetCharacterMovement()->bOrientRotationToMovement = false;
-    GetCharacterMovement()->RotationRate = FRotator(0.0f, 540.0f, 0.0f);
-    GetCharacterMovement()->AirControl = 0.2f;
-
     SpringArmComponent =
         CreateDefaultSubobject<USpringArmComponent>("Spring Arm");
     SpringArmComponent->SetupAttachment(GetRootComponent());
@@ -51,6 +46,14 @@ ALBPlayerCharacter::ALBPlayerCharacter(const FObjectInitializer& ObjInit)
     SpringArmComponent->CameraLagSpeed = 25.f;
     SpringArmComponent->bEnableCameraLag = true;
     SpringArmComponent->bUsePawnControlRotation = true;
+
+    SpringArmComponent->SocketOffset = {144.f, 78.f, 66.f};
+
+    DefaultSocketRightOffset = SpringArmComponent->SocketOffset.Y;
+    CurrentSocketRightOffset = DefaultSocketRightOffset;
+
+    DefaultSprintRightCameraInterpolationSpeed =
+        SprintRightCameraInterpolationSpeed;
 
     CameraComponent =
         CreateDefaultSubobject<UCameraComponent>("Player Camera");
@@ -112,7 +115,8 @@ void ALBPlayerCharacter::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
 
-    InterpolateCamera(DeltaSeconds);
+    InterpolateSprintCamera(DeltaSeconds);
+    InterpolateSprintRightCamera(DeltaSeconds);
 }
 
 void ALBPlayerCharacter::EndPlay(EEndPlayReason::Type EndPlayReason)
@@ -219,7 +223,7 @@ void ALBPlayerCharacter::OnGroundLanding(const FHitResult& Hit)
 /*
  * Pure view functions
  */
-void ALBPlayerCharacter::InterpolateCamera(const float& DeltaSeconds)
+void ALBPlayerCharacter::InterpolateSprintCamera(const float& DeltaSeconds)
 {
     if (!GetWorld()) return;
 
@@ -244,8 +248,45 @@ void ALBPlayerCharacter::InterpolateCamera(const float& DeltaSeconds)
     CameraComponent->SetFieldOfView(CurrentCameraFOV);
 }
 
+void ALBPlayerCharacter::InterpolateSprintRightCamera(
+    const float& DeltaSeconds)
+{
+    if (!GetWorld()) return;
+
+    /*SpringArmComponent->SocketOffset;*/
+
+    const float TargetOffset = MovementHandlerComponent->bIsMovingRight &&
+                                       MovementHandlerComponent->IsSprinting()
+                                   ? -DefaultSocketRightOffset
+                                   : DefaultSocketRightOffset;
+
+    // If already close enough, just set FOV once and return
+    if (FMath::IsNearlyEqual(
+            CurrentSocketRightOffset, TargetOffset, KINDA_SMALL_NUMBER))
+    {
+        if (SpringArmComponent->SocketOffset.Y != TargetOffset)
+        {
+            SpringArmComponent->SocketOffset.Y = TargetOffset;
+        }
+
+        return;
+    }
+
+    SprintRightCameraInterpolationSpeed =
+        MovementHandlerComponent->IsSprinting()
+            ? DefaultSprintRightCameraInterpolationSpeed
+            : SprintCameraInterpolationSpeed;
+
+    CurrentSocketRightOffset = FMath::FInterpTo(CurrentSocketRightOffset,
+        TargetOffset, DeltaSeconds, SprintRightCameraInterpolationSpeed);
+
+    SpringArmComponent->SocketOffset.Y = CurrentSocketRightOffset;
+}
+
 void ALBPlayerCharacter::DisplayText(const float& CurrentHealth)
 {
+    if (!TextRenderComponent) return;
+
     TextRenderComponent->SetText(
         FText::FromString(FString::Printf(TEXT("%.0f"), CurrentHealth)));
 }
@@ -255,35 +296,49 @@ void ALBPlayerCharacter::DisplayText(const float& CurrentHealth)
  */
 void ALBPlayerCharacter::MoveForwardCustom_Implementation(const float& Value)
 {
+    if (!MovementHandlerComponent) return;
+
     MovementHandlerComponent->SetForwardInput(Value);
 }
 
 void ALBPlayerCharacter::MoveRightCustom_Implementation(const float& Value)
 {
+    if (!MovementHandlerComponent) return;
+
     MovementHandlerComponent->SetRightInput(Value);
 }
 
 void ALBPlayerCharacter::LookUpCustom_Implementation(const float& Value)
 {
+    if (!MovementHandlerComponent) return;
+
     MovementHandlerComponent->SetLookUpInput(Value);
 }
 
 void ALBPlayerCharacter::TurnAroundCustom_Implementation(const float& Value)
 {
+    if (!MovementHandlerComponent) return;
+
     MovementHandlerComponent->SetTurnAroundInput(Value);
 }
 
 void ALBPlayerCharacter::JumpCustom_Implementation()
 {
+    if (!MovementHandlerComponent) return;
+
     MovementHandlerComponent->PerformJump();
 }
 
 void ALBPlayerCharacter::StartSprinting_Implementation()
 {
+    if (!MovementHandlerComponent) return;
+
     MovementHandlerComponent->SetStartSprinting();
 }
 
 void ALBPlayerCharacter::StopSprinting_Implementation()
 {
+    if (!MovementHandlerComponent) return;
+
     MovementHandlerComponent->SetStopSprinting();
 }

@@ -17,8 +17,8 @@ ULBCharacterMovementComponent::ULBCharacterMovementComponent()
     // ticked every frame.  You can turn these features off to improve
     // performance if you don't need them.
     PrimaryComponentTick.bCanEverTick = true;
-
-    //
+    AirControl = JumpAirControl;
+    RotationRate = {0, RotationSpeed, 0.f};
 }
 
 // Called when the game starts
@@ -47,6 +47,7 @@ void ULBCharacterMovementComponent::TickComponent(float DeltaTime,
 {
     Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+    bUseControllerDesiredRotation = !CharacterOwner->GetVelocity().IsZero();
     SprintInterp(DeltaTime);
 }
 
@@ -63,7 +64,7 @@ void ULBCharacterMovementComponent::SetForwardInput(const float& Value)
     bIsMovingBack = Value < 0;
     bIsMoving = !FMath::IsNearlyZero(Value);
 
-    SetRotationRules();
+    // SetRunningRules();
 
     // find out which way is forward
     const FRotator Rotation = CharacterOwner->Controller->GetControlRotation();
@@ -90,8 +91,7 @@ void ULBCharacterMovementComponent::SetRightInput(const float& Value)
     if (!CharacterOwner) return;
 
     bIsMovingSideways = !FMath::IsNearlyZero(Value);
-
-    SetRotationRules();
+    bIsMovingRight = Value > 0;
 
     // find out which way is right
     const FRotator Rotation = CharacterOwner->Controller->GetControlRotation();
@@ -190,25 +190,6 @@ void ULBCharacterMovementComponent::SprintInterp(float DeltaTime)
         TargetMaxWalkSpeed, DeltaTime, SprintSmoothingSpeed);
 
     MaxWalkSpeed = CurrentMaxWalkSpeed;
-}
-
-void ULBCharacterMovementComponent::SetRotationRules()
-{
-    if (bIsMovingForward)
-    {
-        bOrientRotationToMovement = true;
-        CharacterOwner->bUseControllerRotationYaw = false;
-    }
-    else if (bIsMovingBack || bIsMovingSideways)
-    {
-        bOrientRotationToMovement = false;
-        CharacterOwner->bUseControllerRotationYaw = true;
-    }
-    else
-    {
-        bOrientRotationToMovement = true;
-        CharacterOwner->bUseControllerRotationYaw = false;
-    }
 }
 
 bool ULBCharacterMovementComponent::IsSprintForbidden()

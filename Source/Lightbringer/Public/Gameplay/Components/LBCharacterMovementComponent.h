@@ -41,7 +41,13 @@ public:
     float SprintSmoothingSpeed{2.f};
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite,
         Category = "Ground Movement Params")
-    float RotationSmoothing{0.2f};
+    float RotationSpeed{540.f};
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite,
+        Category = "Ground Movement Params")
+    float RunTransitionDelay{0.4f};
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite,
+        Category = "Ground Movement Params")
+    float JumpAirControl{0.2f};
 
     // Getter for animation blueprint
     UFUNCTION(BlueprintPure, Category = "Ground Movement States")
@@ -56,6 +62,9 @@ public:
     bool IsMovingForward() { return bIsMovingForward; };
     UFUNCTION(BlueprintPure, Category = "Ground Movement States")
     bool IsMovingBack() { return bIsMovingBack; };
+
+    // Public bools
+    bool bIsMovingRight{false};
 
     UFUNCTION(BlueprintPure, Category = "Ground Movement Triggers")
     bool IsSprintForbidden();
@@ -92,7 +101,6 @@ private:
     float CurrentFowrardValue{0.f};
 
     void SprintInterp(float DeltaTime);
-    void SetRotationRules();
 
     // Jumping Rules
     FTimerHandle JumpHandle;

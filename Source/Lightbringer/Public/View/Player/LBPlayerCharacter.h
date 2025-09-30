@@ -64,6 +64,8 @@ public:
     float SprintCameraFOV{100.f};
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement")
     float SprintCameraInterpolationSpeed{5.f};
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement")
+    float SprintRightCameraInterpolationSpeed{0.8f};
 
 protected:
     // Called when the game starts or when spawned
@@ -82,16 +84,21 @@ public:
     virtual void StopSprinting_Implementation() override;
 
 private:
-    float CurrentCameraFOV{0.f};
-
     bool bIsDying{false};
 
-    float DefaultCameraFOV;
+    float CurrentCameraFOV{0.f};
+    float DefaultCameraFOV{0.f};
+
+    float CurrentSocketRightOffset{0.f};
+    float DefaultSocketRightOffset{0.f};
+
+    float DefaultSprintRightCameraInterpolationSpeed{0.f};
 
     void OnDeath();
     void OnHealthChanged(float CurrentHealth);
 
-    void InterpolateCamera(const float& DeltaSeconds);
+    void InterpolateSprintCamera(const float& DeltaSeconds);
+    void InterpolateSprintRightCamera(const float& DeltaSeconds);
     void DisplayText(const float& CurrentHealth);
 
     UFUNCTION()
