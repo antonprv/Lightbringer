@@ -47,6 +47,8 @@ void ULBCharacterMovementComponent::TickComponent(float DeltaTime,
 {
     Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+    if (!CharacterOwner) return;
+
     bUseControllerDesiredRotation = !CharacterOwner->GetVelocity().IsZero();
     SprintInterp(DeltaTime);
 }

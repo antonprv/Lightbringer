@@ -5,10 +5,12 @@
 #include "LBPlayerCharacter.h"
 #include "LBPlayerController.h"
 #include "LBSpectatorPawn.h"
+#include "UI/LBHUD.h"
 
 ALBGameModeBase::ALBGameModeBase()
 {
     DefaultPawnClass = ALBPlayerCharacter::StaticClass();
     PlayerControllerClass = ALBPlayerController::StaticClass();
     SpectatorClass = ALBSpectatorPawn::StaticClass();
+    HUDClass = ALBHUD::StaticClass();
 }

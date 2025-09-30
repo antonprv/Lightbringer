@@ -11,6 +11,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
+#include "GameFramework/PlayerController.h"
 
 #include "Components/LBCharacterMovementComponent.h"
 #include "Components/HealthComponent.h"
@@ -69,6 +70,8 @@ ALBPlayerCharacter::ALBPlayerCharacter(const FObjectInitializer& ObjInit)
     TextRenderComponent =
         CreateDefaultSubobject<UTextRenderComponent>("Health Text");
     TextRenderComponent->SetupAttachment(GetRootComponent());
+
+    TextRenderComponent->bOwnerNoSee = true;
 }
 
 /*
@@ -114,6 +117,14 @@ void ALBPlayerCharacter::BeginPlay()
 void ALBPlayerCharacter::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
+
+    FRotator DesiredRotation = {
+        -GetWorld()->GetFirstPlayerController()->GetControlRotation().Pitch,
+        GetWorld()->GetFirstPlayerController()->GetControlRotation().Yaw +
+            180.f,
+        0.f};
+
+    TextRenderComponent->SetWorldRotation(DesiredRotation);
 
     InterpolateSprintCamera(DeltaSeconds);
     InterpolateSprintRightCamera(DeltaSeconds);
@@ -231,7 +242,6 @@ void ALBPlayerCharacter::InterpolateSprintCamera(const float& DeltaSeconds)
                                 ? SprintCameraFOV
                                 : DefaultCameraFOV;
 
-    // If already close enough, just set FOV once and return
     if (FMath::IsNearlyEqual(CurrentCameraFOV, TargetFOV, KINDA_SMALL_NUMBER))
     {
         if (CameraComponent->FieldOfView != TargetFOV)
@@ -253,14 +263,11 @@ void ALBPlayerCharacter::InterpolateSprintRightCamera(
 {
     if (!GetWorld()) return;
 
-    /*SpringArmComponent->SocketOffset;*/
-
     const float TargetOffset = MovementHandlerComponent->bIsMovingRight &&
                                        MovementHandlerComponent->IsSprinting()
                                    ? -DefaultSocketRightOffset
                                    : DefaultSocketRightOffset;
 
-    // If already close enough, just set FOV once and return
     if (FMath::IsNearlyEqual(
             CurrentSocketRightOffset, TargetOffset, KINDA_SMALL_NUMBER))
     {
