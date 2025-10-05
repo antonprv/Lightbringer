@@ -14,7 +14,8 @@ public class Lightbringer : ModuleRules
             "Engine",
             "InputCore",
             "SimpleInput",
-            "ExtendedControlStates"
+            "ExtendedControlStates",
+            "FakeShadow"
         });
 
         PrivateDependencyModuleNames.AddRange(new string[] { });

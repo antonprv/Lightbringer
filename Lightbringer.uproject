@@ -176,6 +176,10 @@
 		{
 			"Name": "ControlRig",
 			"Enabled": true
+		},
+		{
+			"Name": "FakeShadow",
+			"Enabled": true
 		}
 	]
 }

@@ -18,11 +18,11 @@ class ALBWeaponBase;
 class UHealthComponent;
 class UWeaponComponent;
 class UAnimationComponent;
+class UFakeShadowComponent;
 
 class UCameraComponent;
 class USpringArmComponent;
 class UTextRenderComponent;
-class UDecalComponent;
 
 UCLASS()
 class LIGHTBRINGER_API ALBPlayerCharacter : public ACharacter,
@@ -34,47 +34,46 @@ public:
     // Sets default values for this character's properties
     ALBPlayerCharacter(const FObjectInitializer& ObjInit);
 
-    // Direct getter for custom movement component
-    UPROPERTY(
-        VisibleAnywhere, BlueprintReadOnly, Category = "Components | Other")
+    // My custom components
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly,
+        Category = "Components | Gameplay | Other")
     ULBCharacterMovementComponent* MovementHandlerComponent{nullptr};
-    UPROPERTY(
-        VisibleAnywhere, BlueprintReadOnly, Category = "Components | Other")
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly,
+        Category = "Components | Gameplay | Other")
     UWeaponComponent* WeaponComponent{nullptr};
-    UPROPERTY(
-        VisibleAnywhere, BlueprintReadOnly, Category = "Components | Other")
-    UAnimationComponent* AnimationComponent{nullptr};
 
-    // Getters for other components
-    UPROPERTY(
-        VisibleAnywhere, BlueprintReadOnly, Category = "Components | Camera")
-    UCameraComponent* CameraComponent{nullptr};
-    UPROPERTY(
-        VisibleAnywhere, BlueprintReadOnly, Category = "Components | Camera")
-    USpringArmComponent* SpringArmComponent{nullptr};
-
-    UPROPERTY(
-        VisibleAnywhere, BlueprintReadWrite, Category = "Components | Health")
+    // Unreal Components
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite,
+        Category = "Components | Gameplay | Health")
     UHealthComponent* HealthComponent{nullptr};
-    UPROPERTY(
-        VisibleAnywhere, BlueprintReadWrite, Category = "Components | Health")
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite,
+        Category = "Components | Gameplay | Health")
     UTextRenderComponent* TextRenderComponent{nullptr};
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadWrite,
-        Category = "Components | Decal Shadow")
-    UDecalComponent* DecalShadow{nullptr};
-    UPROPERTY(EditAnywhere, BlueprintReadWrite,
-        Category = "Components | Decal Shadow")
-    bool bIsDecalShadowDebugEnabled{false};
-    UPROPERTY(EditAnywhere, BlueprintReadWrite,
-        Category = "Components | Decal Shadow", meta = (ClampMin = "0"))
-    float DecalTraceDistance{1000.f};
+    // My custom components
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly,
+        Category = "Components | View | Animation")
+    UAnimationComponent* AnimationComponent{nullptr};
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly,
+        Category = "Components | View | Shadow")
+    UFakeShadowComponent* FakeShadowComponent{nullptr};
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement")
+    // Unreal Components
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly,
+        Category = "Components | View | Camera")
+    UCameraComponent* CameraComponent{nullptr};
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly,
+        Category = "Components | View | Camera")
+    USpringArmComponent* SpringArmComponent{nullptr};
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite,
+        Category = "Components | View | Camera")
     float SprintCameraFOV{100.f};
-    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement")
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite,
+        Category = "Components | View | Camera")
     float SprintCameraInterpolationSpeed{5.f};
-    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement")
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite,
+        Category = "Components | View | Camera")
     float SprintRightCameraInterpolationSpeed{0.8f};
 
 protected:
@@ -117,10 +116,4 @@ private:
 
     UFUNCTION()
     void HandleDestruction(AActor* DestroyedActor);
-
-    bool bHasDecalHit{false};
-    FHitResult DecalHitResult;
-    FVector DecalStartHit{FVector::ZeroVector};
-    FVector DecalEndHit{FVector::ZeroVector};
-    void UpdateDecalTransform();
 };
