@@ -31,6 +31,10 @@ void UHealthComponent::BeginPlay()
 {
     Super::BeginPlay();
 
+    ComponentsDelegateMediator = UComponentsDelegateMediator::Get(GetWorld());
+
+    check(ComponentsDelegateMediator);
+
     SetCurrentHealth(MaxHealth);
 
     if (AActor* Owner = GetOwner())
@@ -41,10 +45,9 @@ void UHealthComponent::BeginPlay()
                 this, &UHealthComponent::OnTakeAnyDamage);
         }
 
-        if (UComponentsDelegateMediator* DelegateMediator =
-                UComponentsDelegateMediator::Get(GetWorld()))
+        if (!ComponentsDelegateMediator->OnJumpDamage.IsBoundToObject(this))
         {
-            DelegateMediator->OnJumpDamage.AddUObject(
+            ComponentsDelegateMediator->OnJumpDamage.AddUObject(
                 this, &UHealthComponent::TakeFallDamage);
         }
     }
@@ -67,6 +70,11 @@ void UHealthComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
         }
     }
 
+    if (ComponentsDelegateMediator->OnJumpDamage.IsBoundToObject(this))
+    {
+        ComponentsDelegateMediator->OnJumpDamage.RemoveAll(this);
+    }
+
     Super::EndPlay(EndPlayReason);
 }
 
@@ -81,7 +89,12 @@ void UHealthComponent::OnTakeAnyDamage(AActor* DamagedActor, float Damage,
     if (IsDead())
     {
         StopRegen();
-        OnDeath.Broadcast();
+
+        if (ComponentsDelegateMediator)
+        {
+            ComponentsDelegateMediator->DispatchActorDeath(GetOwner());
+        }
+
         return;
     }
 
@@ -98,9 +111,9 @@ void UHealthComponent::OnTakeAnyDamage(AActor* DamagedActor, float Damage,
 }
 
 void UHealthComponent::TakeFallDamage(
-    float JumpVelocity, const FHitResult& Hit)
+    AActor* DamagedActor, float JumpVelocity, const FHitResult& Hit)
 {
-    if (!ActorDamageParams || !GetOwner() ||
+    if (!ActorDamageParams || !GetOwner() || GetOwner() != DamagedActor ||
         JumpVelocity < ActorDamageParams->FallVelocityBounds.X)
         return;
 

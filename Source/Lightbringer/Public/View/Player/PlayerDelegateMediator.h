@@ -7,6 +7,11 @@
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "PlayerDelegateMediator.generated.h"
 
+/*
+ * Class responsible for interactions between Player-controlled Pawn and
+ * Controller
+ */
+
 class UWorld;
 class APawn;
 

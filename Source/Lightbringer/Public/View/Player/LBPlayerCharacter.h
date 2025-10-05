@@ -8,13 +8,21 @@
 #include "Interfaces/PlayerControllable.h"
 #include "LBPlayerCharacter.generated.h"
 
+class AActor;
+
 class ULBCharacterMovementComponent;
+class UComponentsDelegateMediator;
+
+class ALBWeaponBase;
+
+class UHealthComponent;
+class UWeaponComponent;
+class UAnimationComponent;
+
 class UCameraComponent;
 class USpringArmComponent;
-class UHealthComponent;
 class UTextRenderComponent;
-class ALBWeaponBase;
-class UAnimMontage;
+class UDecalComponent;
 
 UCLASS()
 class LIGHTBRINGER_API ALBPlayerCharacter : public ACharacter,
@@ -27,38 +35,40 @@ public:
     ALBPlayerCharacter(const FObjectInitializer& ObjInit);
 
     // Direct getter for custom movement component
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+    UPROPERTY(
+        VisibleAnywhere, BlueprintReadOnly, Category = "Components | Other")
     ULBCharacterMovementComponent* MovementHandlerComponent{nullptr};
+    UPROPERTY(
+        VisibleAnywhere, BlueprintReadOnly, Category = "Components | Other")
+    UWeaponComponent* WeaponComponent{nullptr};
+    UPROPERTY(
+        VisibleAnywhere, BlueprintReadOnly, Category = "Components | Other")
+    UAnimationComponent* AnimationComponent{nullptr};
 
     // Getters for other components
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+    UPROPERTY(
+        VisibleAnywhere, BlueprintReadOnly, Category = "Components | Camera")
     UCameraComponent* CameraComponent{nullptr};
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+    UPROPERTY(
+        VisibleAnywhere, BlueprintReadOnly, Category = "Components | Camera")
     USpringArmComponent* SpringArmComponent{nullptr};
-    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
+
+    UPROPERTY(
+        VisibleAnywhere, BlueprintReadWrite, Category = "Components | Health")
     UHealthComponent* HealthComponent{nullptr};
-    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
+    UPROPERTY(
+        VisibleAnywhere, BlueprintReadWrite, Category = "Components | Health")
     UTextRenderComponent* TextRenderComponent{nullptr};
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
-    TSubclassOf<ALBWeaponBase> WeaponClass{nullptr};
-
-    // Socket info getters
-    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Weapon")
-    FVector GetWeaponLeftHandSocketLocation()
-    {
-        UpdateLeftHandLocation();
-        return WeaponLeftHandSocketLocation;
-    };
-    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Weapon")
-    FRotator GetWeaponLeftHandSocketRotation()
-    {
-        UpdateLeftHandRotation();
-        return WeaponLeftHandSocketRotation;
-    };
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    UAnimMontage* DeathMontage{nullptr};
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite,
+        Category = "Components | Decal Shadow")
+    UDecalComponent* DecalShadow{nullptr};
+    UPROPERTY(EditAnywhere, BlueprintReadWrite,
+        Category = "Components | Decal Shadow")
+    bool bIsDecalShadowDebugEnabled{false};
+    UPROPERTY(EditAnywhere, BlueprintReadWrite,
+        Category = "Components | Decal Shadow", meta = (ClampMin = "0"))
+    float DecalTraceDistance{1000.f};
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement")
     float SprintCameraFOV{100.f};
@@ -84,7 +94,8 @@ public:
     virtual void StopSprinting_Implementation() override;
 
 private:
-    bool bIsDying{false};
+    UPROPERTY()
+    UComponentsDelegateMediator* ComponentsDelegateMediator{nullptr};
 
     float CurrentCameraFOV{0.f};
     float DefaultCameraFOV{0.f};
@@ -94,7 +105,7 @@ private:
 
     float DefaultSprintRightCameraInterpolationSpeed{0.f};
 
-    void OnDeath();
+    void HandleActorDeath(AActor* DeadActor);
     void OnHealthChanged(float CurrentHealth);
 
     void InterpolateSprintCamera(const float& DeltaSeconds);
@@ -107,12 +118,9 @@ private:
     UFUNCTION()
     void HandleDestruction(AActor* DestroyedActor);
 
-    UPROPERTY()
-    ALBWeaponBase* WeaponMesh{nullptr};
-    FVector WeaponLeftHandSocketLocation{FVector::ZeroVector};
-    FRotator WeaponLeftHandSocketRotation{FRotator::ZeroRotator};
-
-    void SpawnWeapon();
-    void UpdateLeftHandLocation();
-    void UpdateLeftHandRotation();
+    bool bHasDecalHit{false};
+    FHitResult DecalHitResult;
+    FVector DecalStartHit{FVector::ZeroVector};
+    FVector DecalEndHit{FVector::ZeroVector};
+    void UpdateDecalTransform();
 };

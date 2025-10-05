@@ -5,8 +5,6 @@
 #include "PlayerDelegateMediator.h"
 #include "ComponentsDelegateMediator.h"
 
-#include "LBWeaponBase.h"
-
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -15,12 +13,21 @@
 
 #include "Components/LBCharacterMovementComponent.h"
 #include "Components/HealthComponent.h"
+#include "Components/WeaponComponent.h"
+#include "Components/AnimationComponent.h"
+
 #include "Components/TextRenderComponent.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Components/DecalComponent.h"
+#include "Components/CapsuleComponent.h"
 
 #include "TimerManager.h"
+
+#if WITH_EDITORONLY_DATA
+#include "DrawDebugHelpers.h"
+#endif
+
 #include "Engine/World.h"
-#include "Animation/AnimMontage.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogALBPlayerCharacter, Log, Log)
 
@@ -31,9 +38,6 @@ ALBPlayerCharacter::ALBPlayerCharacter(const FObjectInitializer& ObjInit)
     : Super(ObjInit.SetDefaultSubobjectClass<ULBCharacterMovementComponent>(
           ACharacter::CharacterMovementComponentName))
 {
-    MovementHandlerComponent =
-        Cast<ULBCharacterMovementComponent>(GetCharacterMovement());
-
     PrimaryActorTick.bCanEverTick = true;
 
     bUseControllerRotationPitch = false;
@@ -62,6 +66,14 @@ ALBPlayerCharacter::ALBPlayerCharacter(const FObjectInitializer& ObjInit)
         SpringArmComponent, USpringArmComponent::SocketName);
     CameraComponent->bUsePawnControlRotation = false;
 
+    DecalShadow =
+        CreateDefaultSubobject<UDecalComponent>(TEXT("Decal Shadow"));
+    DecalShadow->SetupAttachment(GetRootComponent());
+    DecalShadow->SetRelativeLocation(FVector(0.f, 0.f,
+        -GetCapsuleComponent()
+            ->GetScaledCapsuleHalfHeight()));  // bottom of the capsule
+    DecalShadow->SetRelativeRotation(FRotator(-90.f, 0.f, 0.f));  // face down
+
     DefaultCameraFOV = CameraComponent->FieldOfView;
     CurrentCameraFOV = DefaultCameraFOV;
 
@@ -72,6 +84,12 @@ ALBPlayerCharacter::ALBPlayerCharacter(const FObjectInitializer& ObjInit)
     TextRenderComponent->SetupAttachment(GetRootComponent());
 
     TextRenderComponent->bOwnerNoSee = true;
+
+    WeaponComponent =
+        CreateDefaultSubobject<UWeaponComponent>("Weapon Component");
+
+    AnimationComponent =
+        CreateDefaultSubobject<UAnimationComponent>("Animation Component");
 }
 
 /*
@@ -85,12 +103,22 @@ void ALBPlayerCharacter::BeginPlay()
     check(TextRenderComponent);
     check(GetCharacterMovement());
 
+    ComponentsDelegateMediator = UComponentsDelegateMediator::Get(GetWorld());
+    MovementHandlerComponent =
+        Cast<ULBCharacterMovementComponent>(GetCharacterMovement());
+
+    check(MovementHandlerComponent);
+    check(ComponentsDelegateMediator);
+    check(DecalShadow);
+
+    UpdateDecalTransform();
+
     OnHealthChanged(HealthComponent->GetHealth());
 
-    if (!HealthComponent->OnDeath.IsBoundToObject(this))
+    if (!ComponentsDelegateMediator->OnActorDeath.IsBoundToObject(this))
     {
-        HealthComponent->OnDeath.AddUObject(
-            this, &ALBPlayerCharacter::OnDeath);
+        ComponentsDelegateMediator->OnActorDeath.AddUObject(
+            this, &ALBPlayerCharacter::HandleActorDeath);
     }
 
     if (!HealthComponent->OnHealthChanged.IsBoundToObject(this))
@@ -110,8 +138,6 @@ void ALBPlayerCharacter::BeginPlay()
     {
         OnDestroyed.AddDynamic(this, &ALBPlayerCharacter::HandleDestruction);
     }
-
-    SpawnWeapon();
 }
 
 void ALBPlayerCharacter::Tick(float DeltaSeconds)
@@ -128,48 +154,15 @@ void ALBPlayerCharacter::Tick(float DeltaSeconds)
 
     InterpolateSprintCamera(DeltaSeconds);
     InterpolateSprintRightCamera(DeltaSeconds);
+    UpdateDecalTransform();
 }
 
 void ALBPlayerCharacter::EndPlay(EEndPlayReason::Type EndPlayReason)
 {
-    HealthComponent->OnDeath.RemoveAll(this);
     HealthComponent->OnHealthChanged.RemoveAll(this);
     LandedDelegate.RemoveAll(this);
 
     Super::EndPlay(EndPlayReason);
-}
-
-/*
- * Animation parameters
- */
-void ALBPlayerCharacter::SpawnWeapon()
-{
-    if (!GetWorld()) return;
-
-    WeaponMesh = GetWorld()->SpawnActor<ALBWeaponBase>(WeaponClass);
-    if (WeaponMesh)
-    {
-        FAttachmentTransformRules AttachmentRules(
-            EAttachmentRule::SnapToTarget, false);
-        WeaponMesh->AttachToComponent(
-            GetMesh(), AttachmentRules, FName("WeaponSocket"));
-    }
-}
-
-void ALBPlayerCharacter::UpdateLeftHandRotation()
-{
-    if (!WeaponMesh) return;
-
-    WeaponLeftHandSocketRotation =
-        WeaponMesh->SkeletalMesh->GetSocketRotation(FName("LeftHandSocket"));
-}
-
-void ALBPlayerCharacter::UpdateLeftHandLocation()
-{
-    if (!WeaponMesh) return;
-
-    WeaponLeftHandSocketLocation =
-        WeaponMesh->SkeletalMesh->GetSocketLocation(FName("LeftHandSocket"));
 }
 
 /*
@@ -197,14 +190,12 @@ void ALBPlayerCharacter::OnHealthChanged(float CurrentHealth)
     DisplayText(CurrentHealth);
 }
 
-void ALBPlayerCharacter::OnDeath()
+void ALBPlayerCharacter::HandleActorDeath(AActor* DeadActor)
 {
-    if (!GetWorld()) return;
+    if (!GetWorld() || DeadActor != this) return;
 
-    bIsDying = true;
     bUseControllerRotationYaw = false;
     GetCharacterMovement()->DisableMovement();
-    PlayAnimMontage(DeathMontage);
 
     if (UPlayerDelegateMediator* DelegateMediator =
             UPlayerDelegateMediator::Get(GetWorld()))
@@ -221,10 +212,10 @@ void ALBPlayerCharacter::OnGroundLanding(const FHitResult& Hit)
 
     float JumpVelocity = -GetCharacterMovement()->Velocity.Z;
 
-    if (UComponentsDelegateMediator* DelegateMediator =
-            UComponentsDelegateMediator::Get(GetWorld()))
+    if (ComponentsDelegateMediator)
     {
-        DelegateMediator->DispatchPlayerJumpDamage(JumpVelocity, Hit);
+        ComponentsDelegateMediator->DispatchPlayerJumpDamage(
+            this, JumpVelocity, Hit);
     }
 
     UE_LOG(LogALBPlayerCharacter, Display,
@@ -234,11 +225,40 @@ void ALBPlayerCharacter::OnGroundLanding(const FHitResult& Hit)
 /*
  * Pure view functions
  */
+void ALBPlayerCharacter::UpdateDecalTransform()
+{
+    if (!GetWorld()) return;
+
+    DecalStartHit = GetMesh()->GetSocketLocation(FName("DecalRoot"));
+
+    DecalEndHit = GetActorLocation();
+    DecalEndHit.Z = GetActorLocation().Z - DecalTraceDistance;
+
+    bHasDecalHit = GetWorld()->LineTraceSingleByChannel(  //
+        DecalHitResult,                                   //
+        DecalStartHit,                                    //
+        DecalEndHit,                                      //
+        ECC_Visibility,
+        FCollisionQueryParams(),    //
+        FCollisionResponseParams()  //
+    );
+
+#if WITH_EDITORONLY_DATA
+    if (bIsDecalShadowDebugEnabled)
+    {
+        DrawDebugLine(
+            GetWorld(), DecalStartHit, DecalEndHit, FColor::Emerald, false);
+    }
+#endif
+
+    DecalShadow->SetWorldLocation(DecalHitResult.Location);
+}
+
 void ALBPlayerCharacter::InterpolateSprintCamera(const float& DeltaSeconds)
 {
     if (!GetWorld()) return;
 
-    const float TargetFOV = MovementHandlerComponent->IsSprinting() || bIsDying
+    const float TargetFOV = MovementHandlerComponent->IsSprinting()
                                 ? SprintCameraFOV
                                 : DefaultCameraFOV;
 

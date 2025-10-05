@@ -3,6 +3,8 @@
 
 #include "ComponentsDelegateMediator.h"
 
+#include "GameFramework/Actor.h"
+
 #include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -22,7 +24,12 @@ UComponentsDelegateMediator* UComponentsDelegateMediator::Get(UWorld* World)
 }
 
 void UComponentsDelegateMediator::DispatchPlayerJumpDamage(
-    float Velocity, const FHitResult& HitResult)
+    AActor* DamagedActor, float Velocity, const FHitResult& HitResult)
 {
-    OnJumpDamage.Broadcast(Velocity, HitResult);
+    OnJumpDamage.Broadcast(DamagedActor, Velocity, HitResult);
+}
+
+void UComponentsDelegateMediator::DispatchActorDeath(AActor* DeadActor)
+{
+    OnActorDeath.Broadcast(DeadActor);
 }

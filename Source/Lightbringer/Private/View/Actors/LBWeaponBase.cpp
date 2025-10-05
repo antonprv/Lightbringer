@@ -11,4 +11,6 @@ ALBWeaponBase::ALBWeaponBase()
 
     SkeletalMesh =
         CreateDefaultSubobject<USkeletalMeshComponent>("Weapon Mesh");
+
+    SetRootComponent(SkeletalMesh);
 }

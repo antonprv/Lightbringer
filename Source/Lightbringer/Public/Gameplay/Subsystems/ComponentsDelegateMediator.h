@@ -8,11 +8,15 @@
 #include "ComponentsDelegateMediator.generated.h"
 
 /**
- * Effectively an event bus between Player View and gameplay logic
+ * Serves as "event bus" between different actor components, while also
+ * bridging view logic and gameplay logic
  */
 
-DECLARE_MULTICAST_DELEGATE_TwoParams(
-    FOnJumpDamageSignature, float, const FHitResult&);
+class AActor;
+
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnActorDeathSignature, AActor*);
+DECLARE_MULTICAST_DELEGATE_ThreeParams(
+    FOnJumpDamageSignature, AActor*, float, const FHitResult&);
 
 UCLASS()
 class LIGHTBRINGER_API UComponentsDelegateMediator
@@ -23,7 +27,11 @@ class LIGHTBRINGER_API UComponentsDelegateMediator
 public:
     static UComponentsDelegateMediator* Get(UWorld* World);
 
-    void DispatchPlayerJumpDamage(float Velocity, const FHitResult& HitResult);
+    void DispatchPlayerJumpDamage(
+        AActor* DamagedActor, float Velocity, const FHitResult& HitResult);
+
+    void DispatchActorDeath(AActor* DeadActor);
 
     FOnJumpDamageSignature OnJumpDamage;
+    FOnActorDeathSignature OnActorDeath;
 };

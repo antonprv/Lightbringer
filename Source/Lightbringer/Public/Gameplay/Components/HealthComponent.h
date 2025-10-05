@@ -9,8 +9,10 @@
 
 class ULBHealthRegenProfile;
 class ULBActorDamageParams;
+class UComponentsDelegateMediator;
 
-DECLARE_MULTICAST_DELEGATE(FOnDeathSignature);
+class APlayerController;
+
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnHealthChangedSignature, float);
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
@@ -44,7 +46,8 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = "Damage Parameters",
         meta = (Tooltip = "Fall damage function"))
-    virtual void TakeFallDamage(float JumpVelocity, const FHitResult& Hit);
+    virtual void TakeFallDamage(
+        AActor* DamagedAcotr, float JumpVelocity, const FHitResult& Hit);
 
     UFUNCTION(BlueprintCallable, Category = "Health")
     float GetHealth() { return CurrentHealth; };
@@ -62,7 +65,6 @@ public:
         return FMath::IsNearlyEqual(CurrentHealth, MaxHealth);
     }
 
-    FOnDeathSignature OnDeath;
     FOnHealthChangedSignature OnHealthChanged;
 
 protected:
@@ -82,6 +84,9 @@ protected:
     void HandleRegen();
 
 private:
+    UPROPERTY()
+    UComponentsDelegateMediator* ComponentsDelegateMediator{nullptr};
+
     float CurrentHealth{0.f};
 
     FTimerHandle RegenDelayHandle;
