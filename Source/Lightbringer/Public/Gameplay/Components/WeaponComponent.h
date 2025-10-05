@@ -41,9 +41,10 @@ public:
         return WeaponLeftHandSocketRotation;
     };
 
-private:
     UPROPERTY()
     ALBWeaponBase* WeaponActor{nullptr};
+
+private:
     UPROPERTY()
     ACharacter* CharacterOwner{nullptr};
     FVector WeaponLeftHandSocketLocation{FVector::ZeroVector};

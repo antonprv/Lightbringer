@@ -116,4 +116,6 @@ private:
 
     UFUNCTION()
     void HandleDestruction(AActor* DestroyedActor);
+
+    void BindDelegates();
 };

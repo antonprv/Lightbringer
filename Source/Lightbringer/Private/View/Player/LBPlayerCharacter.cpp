@@ -5,6 +5,8 @@
 #include "PlayerDelegateMediator.h"
 #include "ComponentsDelegateMediator.h"
 
+#include "LBWeaponBase.h"
+
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -16,6 +18,8 @@
 #include "Components/WeaponComponent.h"
 #include "Components/AnimationComponent.h"
 #include "Components/FakeShadowComponent.h"
+#include "Components/SceneCaptureComponent2D.h"
+#include "Components/SkeletalMeshComponent.h"
 
 #include "Components/TextRenderComponent.h"
 
@@ -82,7 +86,7 @@ ALBPlayerCharacter::ALBPlayerCharacter(const FObjectInitializer& ObjInit)
 }
 
 /*
- * Setup default values and do checks
+ * Setup default values and perform checks
  */
 void ALBPlayerCharacter::BeginPlay()
 {
@@ -91,39 +95,22 @@ void ALBPlayerCharacter::BeginPlay()
     check(HealthComponent);
     check(TextRenderComponent);
     check(GetCharacterMovement());
+    check(FakeShadowComponent);
 
     ComponentsDelegateMediator = UComponentsDelegateMediator::Get(GetWorld());
     MovementHandlerComponent =
         Cast<ULBCharacterMovementComponent>(GetCharacterMovement());
+
+    FakeShadowComponent->ShadowRenderer->ShowOnlyComponents.Add(
+        WeaponComponent->WeaponActor->SkeletalMesh);
+    FakeShadowComponent->SetRelativeLocation(FVector(0.f, 0.f, -527.f));
 
     check(MovementHandlerComponent);
     check(ComponentsDelegateMediator);
 
     OnHealthChanged(HealthComponent->GetHealth());
 
-    if (!ComponentsDelegateMediator->OnActorDeath.IsBoundToObject(this))
-    {
-        ComponentsDelegateMediator->OnActorDeath.AddUObject(
-            this, &ALBPlayerCharacter::HandleActorDeath);
-    }
-
-    if (!HealthComponent->OnHealthChanged.IsBoundToObject(this))
-    {
-        HealthComponent->OnHealthChanged.AddUObject(
-            this, &ALBPlayerCharacter::OnHealthChanged);
-    }
-
-    if (!LandedDelegate.Contains(this,
-            GET_FUNCTION_NAME_CHECKED(ALBPlayerCharacter, OnGroundLanding)))
-    {
-        LandedDelegate.AddDynamic(this, &ALBPlayerCharacter::OnGroundLanding);
-    }
-
-    if (!LandedDelegate.Contains(this,
-            GET_FUNCTION_NAME_CHECKED(ALBPlayerCharacter, HandleDestruction)))
-    {
-        OnDestroyed.AddDynamic(this, &ALBPlayerCharacter::HandleDestruction);
-    }
+    BindDelegates();
 }
 
 void ALBPlayerCharacter::Tick(float DeltaSeconds)
@@ -148,6 +135,33 @@ void ALBPlayerCharacter::EndPlay(EEndPlayReason::Type EndPlayReason)
     LandedDelegate.RemoveAll(this);
 
     Super::EndPlay(EndPlayReason);
+}
+
+void ALBPlayerCharacter::BindDelegates()
+{
+    if (!ComponentsDelegateMediator->OnActorDeath.IsBoundToObject(this))
+    {
+        ComponentsDelegateMediator->OnActorDeath.AddUObject(
+            this, &ALBPlayerCharacter::HandleActorDeath);
+    }
+
+    if (!HealthComponent->OnHealthChanged.IsBoundToObject(this))
+    {
+        HealthComponent->OnHealthChanged.AddUObject(
+            this, &ALBPlayerCharacter::OnHealthChanged);
+    }
+
+    if (!LandedDelegate.Contains(this,
+            GET_FUNCTION_NAME_CHECKED(ALBPlayerCharacter, OnGroundLanding)))
+    {
+        LandedDelegate.AddDynamic(this, &ALBPlayerCharacter::OnGroundLanding);
+    }
+
+    if (!LandedDelegate.Contains(this,
+            GET_FUNCTION_NAME_CHECKED(ALBPlayerCharacter, HandleDestruction)))
+    {
+        OnDestroyed.AddDynamic(this, &ALBPlayerCharacter::HandleDestruction);
+    }
 }
 
 /*

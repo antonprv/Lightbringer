@@ -49,4 +49,7 @@ private:
     UMaterialInterface* FakeShadowMaterial{nullptr};
     UPROPERTY()
     UTextureRenderTarget2D* FakeShadowTexture{nullptr};
+
+    void CreateShadowRenderer();
+    void AssignMaterials();
 };
