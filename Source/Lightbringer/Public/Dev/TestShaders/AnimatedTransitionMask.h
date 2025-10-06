@@ -14,7 +14,10 @@
 
 class FMaterialCompiler;
 
-UCLASS(meta = (DisplayName = "Animated Transition Mask", Category = "Masks"))
+UCLASS(
+    meta = (DisplayName = "Animated Transition Mask", Category = "Masks",
+        Tooltip =
+            "Smoothly moves a black - and-white mask from left to right with no gradient."))
 class LIGHTBRINGER_API UAnimatedTransitionMask : public UMaterialExpression
 {
     GENERATED_BODY()
@@ -25,13 +28,15 @@ public:
     UPROPERTY()
     FExpressionInput UV;
     UPROPERTY()
-    FExpressionInput InTime;
+    FExpressionInput Time;
     UPROPERTY()
-    FExpressionInput NumSteps;
+    FExpressionInput Steps;
 
 protected:
 #if WITH_EDITOR
     virtual void GetCaption(TArray<FString>& OutCaptions) const override;
+    virtual FString GetDescription() const override;
+
     virtual int32 Compile(FMaterialCompiler* C, int32 OutputIndex) override;
 #endif
 

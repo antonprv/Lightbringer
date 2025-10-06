@@ -11,7 +11,7 @@ class ACharacter;
 
 class UMaterialInterface;
 
-UCLASS()
+UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class FAKESHADOW_API UBlobShadowComponent : public UDecalComponent
 {
     GENERATED_BODY()
