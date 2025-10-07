@@ -25,6 +25,8 @@ UBlobShadowComponent::UBlobShadowComponent()
     BlobShadowMaterial = LoadObject<UMaterialInterface>(nullptr,
         TEXT(
             "MaterialInstanceConstant'/FakeShadow/Assets/Decals/Shadow/MI_Decal.MI_Decal'"));
+
+    SetDecalMaterial(BlobShadowMaterial);
 }
 
 void UBlobShadowComponent::BeginPlay()
@@ -32,11 +34,6 @@ void UBlobShadowComponent::BeginPlay()
     Super::BeginPlay();
 
     CharacterOwner = Cast<ACharacter>(GetOwner());
-
-    if (BlobShadowMaterial)
-    {
-        SetDecalMaterial(BlobShadowMaterial);
-    }
 
     SetRelativeLocation(FVector(0.f, 0.f,
         -CharacterOwner->GetCapsuleComponent()

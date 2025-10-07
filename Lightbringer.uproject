@@ -180,6 +180,10 @@
 		{
 			"Name": "FakeShadow",
 			"Enabled": true
+		},
+		{
+			"Name": "ExtendedShaders",
+			"Enabled": true
 		}
 	]
 }

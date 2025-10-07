@@ -18,7 +18,7 @@ UCLASS(
     meta = (DisplayName = "Animated Transition Mask", Category = "Masks",
         Tooltip =
             "Smoothly moves a black - and-white mask from left to right with no gradient."))
-class LIGHTBRINGER_API UAnimatedTransitionMask : public UMaterialExpression
+class EXTENDEDSHADERS_API UAnimatedTransitionMask : public UMaterialExpression
 {
     GENERATED_BODY()
 

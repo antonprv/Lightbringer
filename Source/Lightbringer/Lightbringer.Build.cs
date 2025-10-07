@@ -13,16 +13,25 @@ public class Lightbringer : ModuleRules
             "CoreUObject",
             "Engine",
             "InputCore",
+            "RenderCore",
             "SimpleInput",
             "ExtendedControlStates",
             "FakeShadow"
         });
 
-        PrivateDependencyModuleNames.AddRange(new string[] { });
+        PrivateDependencyModuleNames.AddRange(new string[]
+        {
+            //
+        });
+
+        PrivateIncludePaths.AddRange(new string[]
+        {
+            //
+        });
 
         PublicIncludePaths.Add(ModuleDirectory);
 
-        PublicIncludePaths.AddRange( new string[] {
+        PublicIncludePaths.AddRange(new string[] {
             "Lightbringer/Public/Data",
             "Lightbringer/Public/Dev",
             "Lightbringer/Public/Gameplay",

@@ -13,7 +13,7 @@ UCLASS(
     meta = (DisplayName = "Draw Circle", Category = "Shapes",
         ToolTip =
             "Draws a circle, size and position value can be animated externally."))
-class LIGHTBRINGER_API UDrawCircle : public UMaterialExpression
+class EXTENDEDSHADERS_API UDrawCircle : public UMaterialExpression
 {
     GENERATED_BODY()
 
