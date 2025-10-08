@@ -5,7 +5,7 @@
 
 #if WITH_EDITOR
 #include "MaterialCompiler.h"
-#include "ShaderCodeUtils.h"
+#include "Utils/ShaderCodeUtils.h"
 #endif
 
 UDrawCircle::UDrawCircle()
