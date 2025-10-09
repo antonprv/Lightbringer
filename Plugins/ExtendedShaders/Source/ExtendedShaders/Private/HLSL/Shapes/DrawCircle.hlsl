@@ -1,12 +1,12 @@
-float2 tiled_uv = frac(uv * tiling);
+float2 TiledUV = frac(UV * Tiling);
 
-float positioned = length(position - tiled_uv);
+float Positioned = length(Position - TiledUV);
 
-if (!is_soft)
+if (!bIsSoft)
 {
-    return positioned < size;
+    return Positioned < Size;
 }
 else
 {
-    return pow(positioned, size);
+    return pow(Positioned, Size);
 }

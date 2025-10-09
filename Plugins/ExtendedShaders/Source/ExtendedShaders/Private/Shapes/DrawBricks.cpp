@@ -10,10 +10,10 @@ UDrawBricks::UDrawBricks(const FObjectInitializer& ObjInit) : Super(ObjInit)
     FriendlyDescription = "Generates a tileable brick wall.";
     SetCategoryAndDescription();
 
-    NodeInputs.Add("uv", &UV);
-    NodeInputs.Add("tiling", &Tiling);
-    NodeInputs.Add("offset", &Offset);
-    NodeInputs.Add("dimension", &Dimension);
+    NodeInputs.Add("UV", &UV);
+    NodeInputs.Add("Tiling", &Tiling);
+    NodeInputs.Add("Offset", &Offset);
+    NodeInputs.Add("Dimension", &Dimension);
 
     NodeOutputType = CMOT_Float1;
     SetHLSLFilePath(

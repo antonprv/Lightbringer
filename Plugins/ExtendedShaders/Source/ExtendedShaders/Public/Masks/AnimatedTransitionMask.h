@@ -39,5 +39,5 @@ public:
     FExpressionInput Speed;
 
     UPROPERTY()
-    FExpressionInput IsGradient;
+    FExpressionInput bIsGradient;
 };

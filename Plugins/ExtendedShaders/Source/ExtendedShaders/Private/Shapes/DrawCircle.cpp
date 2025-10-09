@@ -11,11 +11,11 @@ UDrawCircle::UDrawCircle(const FObjectInitializer& ObjInit) : Super(ObjInit)
         "Draws a circle, size and position value can be animated externally.";
     SetCategoryAndDescription();
 
-    NodeInputs.Add("uv", &UV);
-    NodeInputs.Add("tiling", &Tiling);
-    NodeInputs.Add("position", &Position);
-    NodeInputs.Add("is_soft", &IsSoft);
-    NodeInputs.Add("size", &Size);
+    NodeInputs.Add("UV", &UV);
+    NodeInputs.Add("Tiling", &Tiling);
+    NodeInputs.Add("Position", &Position);
+    NodeInputs.Add("bIsSoft", &bIsSoft);
+    NodeInputs.Add("Size", &Size);
 
     NodeOutputType = CMOT_Float1;
     SetHLSLFilePath(

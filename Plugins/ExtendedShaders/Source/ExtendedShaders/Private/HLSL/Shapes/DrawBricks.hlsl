@@ -1,8 +1,8 @@
-float2 tex = float2(uv.x * tiling.x + offset.x, uv.y* tiling.y + offset.y);
-float2 tex_fractured = frac(tex);
+float2 BlocksCoord =
+    frac(float2(UV.x * Tiling.x + Offset.x, UV.y* Tiling.y + Offset.y));
 
-if (tex_fractured.x >= dimension.x || tex_fractured.x <= -dimension.x ||
-    tex_fractured.y >= dimension.y || tex_fractured.y <= -dimension.y)
+if (BlocksCoord.x >= Dimension.x || BlocksCoord.x <= -Dimension.x ||
+    BlocksCoord.y >= Dimension.y || BlocksCoord.y <= -Dimension.y)
 {
     return (1);
 }

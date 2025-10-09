@@ -1,12 +1,12 @@
-float2 stepped_mask = ceil(uv * steps) / steps;
+float2 SteppedMask = ceil(UV * Steps) / Steps;
 
-float sin_animation = sin(time * speed);
+float SinAnimation = sin(Time * Speed);
 
-if (is_gradient)
+if (bIsGradient)
 {
-    return stepped_mask - sin_animation;
+    return SteppedMask - SinAnimation;
 }
 else
 {
-    return trunc(stepped_mask - sin_animation);
+    return trunc(SteppedMask - SinAnimation);
 }

@@ -30,7 +30,7 @@ public:
     FExpressionInput Position;
 
     UPROPERTY()
-    FExpressionInput IsSoft;
+    FExpressionInput bIsSoft;
 
     UPROPERTY()
     FExpressionInput Size;

@@ -13,7 +13,11 @@ public class ExtendedShaders : ModuleRules
         PrivateIncludePaths.AddRange(
             new string[] {
                 "ExtendedShaders/Private",
-                "ExtendedShaders/Private/HLSL"
+                "ExtendedShaders/Private/HLSL",
+                "ExtendedShaders/Private/HLSL/Masks",
+                "ExtendedShaders/Private/HLSL/Shapes",
+                "ExtendedShaders/Private/USF",
+                "ExtendedShaders/Private/USF/Functions"
             }
             );
 

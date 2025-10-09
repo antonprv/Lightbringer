@@ -13,11 +13,11 @@ UAnimatedTransitionMask::UAnimatedTransitionMask(
         "Smoothly moves a black - and-white mask from left to right with no gradient.";
     SetCategoryAndDescription();
 
-    NodeInputs.Add("uv", &UV);
-    NodeInputs.Add("steps", &Steps);
-    NodeInputs.Add("time", &Time);
-    NodeInputs.Add("speed", &Speed);
-    NodeInputs.Add("is_gradient", &IsGradient);
+    NodeInputs.Add("UV", &UV);
+    NodeInputs.Add("Steps", &Steps);
+    NodeInputs.Add("Time", &Time);
+    NodeInputs.Add("Speed", &Speed);
+    NodeInputs.Add("bIsGradient", &bIsGradient);
 
     NodeOutputType = CMOT_Float1;
     SetHLSLFilePath(

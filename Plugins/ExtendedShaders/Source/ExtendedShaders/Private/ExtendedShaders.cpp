@@ -8,14 +8,20 @@
 #include "ShaderCore.h"
 #include "Misc/Paths.h"
 
+DEFINE_LOG_CATEGORY_STATIC(LogFExtendedShadersModule, Log, Log)
+
 void FExtendedShadersModule::StartupModule()
 {
-    const FString PluginDir =
+    FString PluginShaderDir =
         FPaths::Combine(IPluginManager::Get()
                             .FindPlugin(TEXT("ExtendedShaders"))
                             ->GetBaseDir(),
-            TEXT("Source/ExtendedShaders/Private/HLSL"));
-    AddShaderSourceDirectoryMapping(TEXT("/ExtendedShaders"), PluginDir);
+            TEXT("Source/ExtendedShaders/Private/Library"));
+
+    UE_LOG(LogFExtendedShadersModule, Display,
+        TEXT("Loaded .usf shader dir: %s"), *PluginShaderDir);
+
+    AddShaderSourceDirectoryMapping(TEXT("/Library"), PluginShaderDir);
 }
 
 void FExtendedShadersModule::ShutdownModule()
