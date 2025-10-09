@@ -5,31 +5,28 @@
 
 #include "CoreMinimal.h"
 #include "Utils/CustomHLSLExpression.h"
-#include "BrickGenerator.generated.h"
+#include "DrawBricks.generated.h"
 
 class FMaterialCompiler;
 
 UCLASS(meta = (DisplayName = "Draw Bricks", Category = "Shapes",
            ToolTip = "Generates a tileable brick wall."))
-class EXTENDEDSHADERS_API UBrickGenerator : public UCustomHLSLExpression
+class EXTENDEDSHADERS_API UDrawBricks : public UCustomHLSLExpression
 {
     GENERATED_BODY()
 
 public:
-    UBrickGenerator(const FObjectInitializer& ObjInit);
-
-    UPROPERTY()
-    FExpressionInput Coord;
+    UDrawBricks(const FObjectInitializer& ObjInit);
 
     UPROPERTY()
     FExpressionInput UV;
 
     UPROPERTY()
-    FExpressionInput IsSoft;
+    FExpressionInput Tiling;
 
     UPROPERTY()
-    FExpressionInput Size;
+    FExpressionInput Offset;
 
     UPROPERTY()
-    FExpressionInput Dist;
+    FExpressionInput Dimension;
 };

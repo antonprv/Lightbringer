@@ -3,78 +3,23 @@
 
 #include "AnimatedTransitionMask.h"
 
-#if WITH_EDITOR
-#include "MaterialCompiler.h"
-#include "ShaderCodeUtils.h"
-#endif
-
-UAnimatedTransitionMask::UAnimatedTransitionMask()
+UAnimatedTransitionMask::UAnimatedTransitionMask(
+    const FObjectInitializer& ObjInit)
+    : Super(ObjInit)
 {
-    MenuCategories.Add(FText::FromString(TEXT("Masks")));
+    FriendlyName = "Animated Transition Mask";
+    FriendlyCategory = "Masks";
+    FriendlyDescription =
+        "Smoothly moves a black - and-white mask from left to right with no gradient.";
+    SetCategoryAndDescription();
 
-#if WITH_EDITOR
-    Desc =
-        "Smoothly moves a black-and-white mask from left to right with no gradient.";
-#endif
+    NodeInputs.Add("uv", &UV);
+    NodeInputs.Add("steps", &Steps);
+    NodeInputs.Add("time", &Time);
+    NodeInputs.Add("speed", &Speed);
+    NodeInputs.Add("is_gradient", &IsGradient);
+
+    NodeOutputType = CMOT_Float1;
+    SetHLSLFilePath(
+        "/Source/ExtendedShaders/Private/HLSL/Masks/AnimLeftToRightMask.hlsl");
 }
-
-#if WITH_EDITOR
-void UAnimatedTransitionMask::GetCaption(TArray<FString>& OutCaptions) const
-{
-    OutCaptions.Add(TEXT("Animated Transition Mask"));
-}
-
-FString UAnimatedTransitionMask::GetDescription() const
-{
-    return TEXT(
-        "Smoothly moves a black-and-white mask from left to right with no gradient.");
-}
-
-int32 UAnimatedTransitionMask::Compile(FMaterialCompiler* C, int32 OutputIndex)
-{
-    if (!UV.Expression)
-    {
-        return C->Errorf(MissingInputFmt, UVName);
-    }
-    if (!Time.Expression)
-    {
-        return C->Errorf(MissingInputFmt, TimeName);
-    }
-    if (!Steps.Expression)
-    {
-        return C->Errorf(MissingInputFmt, StepsName);
-    }
-
-    const int32 CodeUV = UV.Compile(C);
-    const int32 CodeInTime = Time.Compile(C);
-    const int32 CodeSteps = Steps.Compile(C);
-
-    const EMaterialValueType UVType = C->GetType(CodeUV);
-    const EMaterialValueType InTimeType = C->GetType(CodeInTime);
-    const EMaterialValueType StepsType = C->GetType(CodeSteps);
-
-    if (UVType != MCT_Float2)
-    {
-        return C->Errorf(FShaderCodeUtils::WrongTypeFmt, UVName,
-            FShaderCodeUtils::CMOTFloat2Name);
-    }
-    if (InTimeType != MCT_Float)
-    {
-        return C->Errorf(FShaderCodeUtils::WrongTypeFmt, TimeName,
-            FShaderCodeUtils::ScalarFloatName);
-    }
-    if (StepsType != MCT_Float)
-    {
-        return C->Errorf(FShaderCodeUtils::WrongTypeFmt, StepsName,
-            FShaderCodeUtils::ScalarFloatName);
-    }
-
-    // return (trunc((ceil(uv * smth) / smth) - (sin(t*3))));
-
-    int32 Trunc = C->Truncate(
-        C->Sub(C->Div(C->Ceil(C->Mul(CodeUV, CodeSteps)), CodeSteps),
-            C->Sine(CodeInTime)));
-
-    return C->ComponentMask(Trunc, true, false, false, false);
-}
-#endif

@@ -4,7 +4,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Materials/MaterialExpression.h"
+#include "Utils/CustomHLSLExpression.h"
 #include "AnimatedTransitionMask.generated.h"
 
 /**
@@ -18,31 +18,26 @@ UCLASS(
     meta = (DisplayName = "Animated Transition Mask", Category = "Masks",
         Tooltip =
             "Smoothly moves a black - and-white mask from left to right with no gradient."))
-class EXTENDEDSHADERS_API UAnimatedTransitionMask : public UMaterialExpression
+class EXTENDEDSHADERS_API UAnimatedTransitionMask
+    : public UCustomHLSLExpression
 {
     GENERATED_BODY()
 
 public:
-    UAnimatedTransitionMask();
+    UAnimatedTransitionMask(const FObjectInitializer& ObjInit);
 
     UPROPERTY()
     FExpressionInput UV;
-    UPROPERTY()
-    FExpressionInput Time;
+
     UPROPERTY()
     FExpressionInput Steps;
 
-protected:
-#if WITH_EDITOR
-    virtual void GetCaption(TArray<FString>& OutCaptions) const override;
-    virtual FString GetDescription() const override;
+    UPROPERTY()
+    FExpressionInput Time;
 
-    virtual int32 Compile(FMaterialCompiler* C, int32 OutputIndex) override;
-#endif
+    UPROPERTY()
+    FExpressionInput Speed;
 
-private:
-    static constexpr TCHAR MissingInputFmt[] = TEXT("Missing input '%s'");
-    static constexpr TCHAR UVName[] = TEXT("UV");
-    static constexpr TCHAR TimeName[] = TEXT("InTime");
-    static constexpr TCHAR StepsName[] = TEXT("NumSteps");
+    UPROPERTY()
+    FExpressionInput IsGradient;
 };

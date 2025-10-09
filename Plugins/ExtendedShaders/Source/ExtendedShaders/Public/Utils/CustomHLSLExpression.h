@@ -5,6 +5,11 @@
 
 #include "CoreMinimal.h"
 #include "Materials/MaterialExpression.h"
+
+#if WITH_EDITOR
+#include "Materials/MaterialExpressionCustom.h"
+#endif
+
 #include "CustomHLSLExpression.generated.h"
 
 /**

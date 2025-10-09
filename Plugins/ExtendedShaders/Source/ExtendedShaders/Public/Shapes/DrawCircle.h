@@ -4,7 +4,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Materials/MaterialExpression.h"
+#include "Utils/CustomHLSLExpression.h"
 #include "DrawCircle.generated.h"
 
 class FMaterialCompiler;
@@ -13,44 +13,25 @@ UCLASS(
     meta = (DisplayName = "Draw Circle", Category = "Shapes",
         ToolTip =
             "Draws a circle, size and position value can be animated externally."))
-class EXTENDEDSHADERS_API UDrawCircle : public UMaterialExpression
+class EXTENDEDSHADERS_API UDrawCircle : public UCustomHLSLExpression
 {
     GENERATED_BODY()
 
 public:
-    UDrawCircle();
+    UDrawCircle(const FObjectInitializer& ObjInit);
 
     UPROPERTY()
     FExpressionInput UV;
 
     UPROPERTY()
-    FExpressionInput Position;
-
-    UPROPERTY()
-    FExpressionInput Size;
-
-    UPROPERTY()
     FExpressionInput Tiling;
 
     UPROPERTY()
-    FExpressionInput Softness;
+    FExpressionInput Position;
 
     UPROPERTY()
-    FExpressionInput NoSoftness;
+    FExpressionInput IsSoft;
 
-protected:
-#if WITH_EDITOR
-    virtual void GetCaption(TArray<FString>& OutCaptions) const override;
-    virtual FString GetDescription() const override;
-
-    virtual int32 Compile(FMaterialCompiler* C, int32 OutputIndex) override;
-#endif
-
-private:
-    static constexpr TCHAR UVName[] = TEXT("UV");
-    static constexpr TCHAR PositionName[] = TEXT("Position");
-    static constexpr TCHAR SizeName[] = TEXT("Size");
-    static constexpr TCHAR TilingName[] = TEXT("Tiling");
-    static constexpr TCHAR SoftnessName[] = TEXT("Softness");
-    static constexpr TCHAR NoSoftnessName[] = TEXT("NoSoftness");
+    UPROPERTY()
+    FExpressionInput Size;
 };

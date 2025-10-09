@@ -5,7 +5,6 @@
 
 #if WITH_EDITOR
 #include "MaterialCompiler.h"
-#include "Materials/MaterialExpressionCustom.h"
 #include "MaterialExpressionIO.h"
 
 #include "Misc/FileHelper.h"
