@@ -1,20 +1,63 @@
-#include "/Library/Functions/Shapes.ush"
+#include "/Libraries/Shapes/CircleShape.ush"
 
-// inputs: NumSides, Center, Radius, UV, Size
+// inputs: NumSides, NumRepeats, bIs3DMovement, Time, Speed, Center, Radius, UV, Size
 
 float Result = 0;
 
-DrawCircle Circle;
+CircleShape Circle;
 
-for (int i = 0; i < NumSides; ++i)
+// Windows-like movement
+if (!bIs3DMovement && NumRepeats == 0)
 {
-    float Angle = (float(i) / NumSides) * 2 * 3.14;
+    for (int i = 0; i < NumSides; ++i)
+    {
+        float Angle = (i / NumSides) * (Time * Speed) * 3.14;
+        float2 SinAngle = float2(cos(Angle), sin(Angle));
+        float2 Pos = Center + Radius * SinAngle;
 
-    float2 SinAngle = float2(cos(Angle), sin(Angle));
+        Result += Circle.Draw(Pos, UV, Size);
+    }
+}
+else if (bIs3DMovement && NumRepeats == 0)
+{
+    for (int i = 0; i < NumSides; ++i)
+    {
+        float Angle = (i / NumSides) * (Time * Speed) * 3.14;
+        float2 SinAngle = float2(cos(1 - Angle), sin(3 * Angle));
+        float2 Pos = Center + Radius * SinAngle;
 
-    float2 Pos = Center + Radius * SinAngle;
+        Result += Circle.Draw(Pos, UV, Size);
+    }
+}
 
-    result += Circle.Draw(Pos, UV, Size);
+// Array movement
+if (!bIs3DMovement && NumRepeats > 0)
+{
+    for (int i = 0; i < NumSides; ++i)
+    {
+        for(int j = 0; j < NumRepeats; ++j)
+        {
+            float Angle = (i / NumSides) * (Time * Speed) * 3.14;
+            float2 SinAngle = float2(cos(Angle), sin(Angle));
+            float2 Pos = Center + (j / NumRepeats) * Radius * SinAngle;
+
+            Result += Circle.Draw(Pos, UV, Size);
+        }
+    }
+}
+else if (bIs3DMovement && NumRepeats > 0)
+{
+    for (int i = 0; i < NumSides; ++i)
+    {
+        for(int j = 0; j < NumRepeats; ++j)
+        {
+            float Angle = (i / NumSides) * (Time * Speed) * 3.14;
+            float2 SinAngle = float2(cos(1 - Angle), sin(3 * Angle));
+            float2 Pos = Center + (j / NumRepeats) * Radius * SinAngle;
+
+            Result += Circle.Draw(Pos, UV, Size);
+        }
+    }
 }
 
 return Result;

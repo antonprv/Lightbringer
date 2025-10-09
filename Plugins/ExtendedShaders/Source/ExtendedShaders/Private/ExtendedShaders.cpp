@@ -16,12 +16,12 @@ void FExtendedShadersModule::StartupModule()
         FPaths::Combine(IPluginManager::Get()
                             .FindPlugin(TEXT("ExtendedShaders"))
                             ->GetBaseDir(),
-            TEXT("Source/ExtendedShaders/Private/Library"));
+            TEXT("Source/ExtendedShaders/Private/HLSL/Libraries"));
 
     UE_LOG(LogFExtendedShadersModule, Display,
         TEXT("Loaded .usf shader dir: %s"), *PluginShaderDir);
 
-    AddShaderSourceDirectoryMapping(TEXT("/Library"), PluginShaderDir);
+    AddShaderSourceDirectoryMapping(TEXT("/Libraries"), PluginShaderDir);
 }
 
 void FExtendedShadersModule::ShutdownModule()

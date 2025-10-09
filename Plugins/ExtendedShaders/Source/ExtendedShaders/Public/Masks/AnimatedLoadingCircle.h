@@ -23,13 +23,26 @@ class EXTENDEDSHADERS_API UAnimatedLoadingCircle : public UCustomHLSLExpression
 public:
     UAnimatedLoadingCircle(const FObjectInitializer& ObjInit);
 
-    // inputs: n_sides, center, radius, uv, size
+    // inputs: NumSides, NumRepeats, bIs3DMovement, Time, Speed, Center,
+    // Radius, UV, Size
 
     UPROPERTY()
     FExpressionInput NumSides;
 
     UPROPERTY()
-    FExpressionInput CenterPosition;
+    FExpressionInput NumRepeats;
+
+    UPROPERTY()
+    FExpressionInput Is3DMovement;
+
+    UPROPERTY()
+    FExpressionInput Time;
+
+    UPROPERTY()
+    FExpressionInput Speed;
+
+    UPROPERTY()
+    FExpressionInput Center;
 
     UPROPERTY()
     FExpressionInput Radius;

@@ -1,9 +1,9 @@
 #pragma once
 
-struct DrawCircle
+struct CircleShape
 {
     float Draw(float2 Position, float2 UV, float Size)
-    {
-        return float(length(Position - UV < Size);
+    {   
+        return length(Position - UV) < Size;
     }
 };

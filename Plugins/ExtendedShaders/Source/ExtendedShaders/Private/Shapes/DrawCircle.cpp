@@ -14,7 +14,7 @@ UDrawCircle::UDrawCircle(const FObjectInitializer& ObjInit) : Super(ObjInit)
     NodeInputs.Add("UV", &UV);
     NodeInputs.Add("Tiling", &Tiling);
     NodeInputs.Add("Position", &Position);
-    NodeInputs.Add("bIsSoft", &bIsSoft);
+    NodeInputs.Add("bIsSoft", &IsSoft);
     NodeInputs.Add("Size", &Size);
 
     NodeOutputType = CMOT_Float1;

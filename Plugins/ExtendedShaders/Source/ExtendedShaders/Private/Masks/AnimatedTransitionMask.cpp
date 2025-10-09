@@ -17,7 +17,7 @@ UAnimatedTransitionMask::UAnimatedTransitionMask(
     NodeInputs.Add("Steps", &Steps);
     NodeInputs.Add("Time", &Time);
     NodeInputs.Add("Speed", &Speed);
-    NodeInputs.Add("bIsGradient", &bIsGradient);
+    NodeInputs.Add("bIsGradient", &IsGradient);
 
     NodeOutputType = CMOT_Float1;
     SetHLSLFilePath(

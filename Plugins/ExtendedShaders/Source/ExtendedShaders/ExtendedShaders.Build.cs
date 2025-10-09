@@ -16,8 +16,8 @@ public class ExtendedShaders : ModuleRules
                 "ExtendedShaders/Private/HLSL",
                 "ExtendedShaders/Private/HLSL/Masks",
                 "ExtendedShaders/Private/HLSL/Shapes",
-                "ExtendedShaders/Private/USF",
-                "ExtendedShaders/Private/USF/Functions"
+                "ExtendedShaders/Private/HLSL/Libraries",
+                "ExtendedShaders/Private/HLSL/Libraries/Functions"
             }
             );
 
