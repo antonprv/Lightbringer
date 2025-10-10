@@ -5,35 +5,28 @@
 
 #include "CoreMinimal.h"
 #include "Utils/CustomHLSLExpression.h"
-#include "AnimatedLoadingCircle.generated.h"
+#include "HologramConeAnim.generated.h"
 
 /**
- * Smoothly moves black and white mask left to right with no gradient.
- * Simple testing.
+ *  Holographic-looking pseudo3D scifi shader.
  */
 
-class FMaterialCompiler;
-
-UCLASS(meta = (DisplayName = "Animated Loading Circle", Category = "Masks",
-           Tooltip = "Windows-style circle loading animation."))
-class EXTENDEDSHADERS_API UAnimatedLoadingCircle : public UCustomHLSLExpression
+UCLASS(meta = (DisplayName = "Hologram Cone", Category = "Animations"))
+class EXTENDEDSHADERS_API UHologramConeAnim : public UCustomHLSLExpression
 {
     GENERATED_BODY()
 
 public:
-    UAnimatedLoadingCircle(const FObjectInitializer& ObjInit);
+    UHologramConeAnim(const FObjectInitializer& ObjInit);
 
-    // inputs: NumSides, NumRepeats, bIs3DMovement, Time, Speed, Center,
-    // Radius, UV, Size
+    // inputs: NumSides, NumRepeats, Time, Speed, Center, Radius, UV, Size,
+    // ColorStart, ColorEnd, WhiteBrightness
 
     UPROPERTY()
     FExpressionInput NumSides;
 
     UPROPERTY()
     FExpressionInput NumRepeats;
-
-    UPROPERTY()
-    FExpressionInput Is3DMovement;
 
     UPROPERTY()
     FExpressionInput Time;
@@ -52,4 +45,13 @@ public:
 
     UPROPERTY()
     FExpressionInput Size;
+
+    UPROPERTY()
+    FExpressionInput ColorStart;
+
+    UPROPERTY()
+    FExpressionInput ColorEnd;
+
+    UPROPERTY()
+    FExpressionInput WhiteBrightness;
 };

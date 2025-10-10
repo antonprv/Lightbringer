@@ -1,12 +1,13 @@
 // You can use this project non-commercially for educational purposes, any
 // commercial use, derivative commercial use is strictly prohibited
 
-#include "DrawBricks.h"
+#include "BricksPrimitive.h"
 
-UDrawBricks::UDrawBricks(const FObjectInitializer& ObjInit) : Super(ObjInit)
+UBricksPrimitive::UBricksPrimitive(const FObjectInitializer& ObjInit)
+    : Super(ObjInit)
 {
-    FriendlyName = "Draw Bricks";
-    FriendlyCategory = "Shapes";
+    FriendlyName = "Bricks";
+    FriendlyCategory = "Primitives";
     FriendlyDescription = "Generates a tileable brick wall.";
     SetCategoryAndDescription();
 
@@ -17,5 +18,5 @@ UDrawBricks::UDrawBricks(const FObjectInitializer& ObjInit) : Super(ObjInit)
 
     NodeOutputType = CMOT_Float1;
     SetHLSLFilePath(
-        "/Source/ExtendedShaders/Private/HLSL/Shapes/DrawBricks.hlsl");
+        "/Source/ExtendedShaders/Private/HLSL/Primitives/BricksPrimitive.hlsl");
 }

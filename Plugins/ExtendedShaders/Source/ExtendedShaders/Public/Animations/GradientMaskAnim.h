@@ -5,7 +5,7 @@
 
 #include "CoreMinimal.h"
 #include "Utils/CustomHLSLExpression.h"
-#include "AnimatedTransitionMask.generated.h"
+#include "GradientMaskAnim.generated.h"
 
 /**
  * Smoothly moves black and white mask left to right with no gradient.
@@ -15,16 +15,15 @@
 class FMaterialCompiler;
 
 UCLASS(
-    meta = (DisplayName = "Animated Transition Mask", Category = "Masks",
+    meta = (DisplayName = "Gradient Mask", Category = "Animations",
         Tooltip =
             "Smoothly moves a black - and-white mask from left to right with no gradient."))
-class EXTENDEDSHADERS_API UAnimatedTransitionMask
-    : public UCustomHLSLExpression
+class EXTENDEDSHADERS_API UGradientMaskAnim : public UCustomHLSLExpression
 {
     GENERATED_BODY()
 
 public:
-    UAnimatedTransitionMask(const FObjectInitializer& ObjInit);
+    UGradientMaskAnim(const FObjectInitializer& ObjInit);
 
     UPROPERTY()
     FExpressionInput UV;

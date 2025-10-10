@@ -5,18 +5,18 @@
 
 #include "CoreMinimal.h"
 #include "Utils/CustomHLSLExpression.h"
-#include "DrawBricks.generated.h"
+#include "BricksPrimitive.generated.h"
 
 class FMaterialCompiler;
 
-UCLASS(meta = (DisplayName = "Draw Bricks", Category = "Shapes",
+UCLASS(meta = (DisplayName = "Bricks", Category = "Primitives",
            ToolTip = "Generates a tileable brick wall."))
-class EXTENDEDSHADERS_API UDrawBricks : public UCustomHLSLExpression
+class EXTENDEDSHADERS_API UBricksPrimitive : public UCustomHLSLExpression
 {
     GENERATED_BODY()
 
 public:
-    UDrawBricks(const FObjectInitializer& ObjInit);
+    UBricksPrimitive(const FObjectInitializer& ObjInit);
 
     UPROPERTY()
     FExpressionInput UV;

@@ -5,20 +5,20 @@
 
 #include "CoreMinimal.h"
 #include "Utils/CustomHLSLExpression.h"
-#include "DrawCircle.generated.h"
+#include "CirclePrimitive.generated.h"
 
 class FMaterialCompiler;
 
 UCLASS(
-    meta = (DisplayName = "Draw Circle", Category = "Shapes",
+    meta = (DisplayName = "Circle", Category = "Primitives",
         ToolTip =
             "Draws a circle, size and position value can be animated externally."))
-class EXTENDEDSHADERS_API UDrawCircle : public UCustomHLSLExpression
+class EXTENDEDSHADERS_API UCirclePrimitive : public UCustomHLSLExpression
 {
     GENERATED_BODY()
 
 public:
-    UDrawCircle(const FObjectInitializer& ObjInit);
+    UCirclePrimitive(const FObjectInitializer& ObjInit);
 
     UPROPERTY()
     FExpressionInput UV;

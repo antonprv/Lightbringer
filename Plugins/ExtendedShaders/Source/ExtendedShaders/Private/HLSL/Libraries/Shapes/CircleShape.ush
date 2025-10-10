@@ -1,5 +1,3 @@
-#pragma once
-
 struct CircleShape
 {
     float Draw(float2 Position, float2 UV, float Size)

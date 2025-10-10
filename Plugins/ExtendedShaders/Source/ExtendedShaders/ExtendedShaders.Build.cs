@@ -14,10 +14,10 @@ public class ExtendedShaders : ModuleRules
             new string[] {
                 "ExtendedShaders/Private",
                 "ExtendedShaders/Private/HLSL",
-                "ExtendedShaders/Private/HLSL/Masks",
-                "ExtendedShaders/Private/HLSL/Shapes",
+                "ExtendedShaders/Private/HLSL/Animations",
+                "ExtendedShaders/Private/HLSL/Primitives",
                 "ExtendedShaders/Private/HLSL/Libraries",
-                "ExtendedShaders/Private/HLSL/Libraries/Functions"
+                "ExtendedShaders/Private/HLSL/Libraries/Shapes"
             }
             );
 

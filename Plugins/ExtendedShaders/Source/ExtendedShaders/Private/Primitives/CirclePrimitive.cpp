@@ -1,12 +1,13 @@
 // You can use this project non-commercially for educational purposes, any
 // commercial use, derivative commercial use is strictly prohibited
 
-#include "DrawCircle.h"
+#include "CirclePrimitive.h"
 
-UDrawCircle::UDrawCircle(const FObjectInitializer& ObjInit) : Super(ObjInit)
+UCirclePrimitive::UCirclePrimitive(const FObjectInitializer& ObjInit)
+    : Super(ObjInit)
 {
-    FriendlyName = "Draw Circle";
-    FriendlyCategory = "Shapes";
+    FriendlyName = "Circle";
+    FriendlyCategory = "Primitives";
     FriendlyDescription =
         "Draws a circle, size and position value can be animated externally.";
     SetCategoryAndDescription();
@@ -19,5 +20,5 @@ UDrawCircle::UDrawCircle(const FObjectInitializer& ObjInit) : Super(ObjInit)
 
     NodeOutputType = CMOT_Float1;
     SetHLSLFilePath(
-        "/Source/ExtendedShaders/Private/HLSL/Shapes/DrawCircle.hlsl");
+        "/Source/ExtendedShaders/Private/HLSL/Primitives/CirclePrimitive.hlsl");
 }

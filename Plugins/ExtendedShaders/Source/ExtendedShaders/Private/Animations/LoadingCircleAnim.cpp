@@ -1,14 +1,13 @@
 // You can use this project non-commercially for educational purposes, any
 // commercial use, derivative commercial use is strictly prohibited
 
-#include "AnimatedLoadingCircle.h"
+#include "LoadingCircleAnim.h"
 
-UAnimatedLoadingCircle::UAnimatedLoadingCircle(
-    const FObjectInitializer& ObjInit)
+ULoadingCircleAnim::ULoadingCircleAnim(const FObjectInitializer& ObjInit)
     : Super(ObjInit)
 {
-    FriendlyName = "Animated Loading Circle";
-    FriendlyCategory = "Masks";
+    FriendlyName = "Loading Circle";
+    FriendlyCategory = "Animations";
     FriendlyDescription = "Windows-style circle loading animation.";
     SetCategoryAndDescription();
 
@@ -27,5 +26,5 @@ UAnimatedLoadingCircle::UAnimatedLoadingCircle(
 
     NodeOutputType = CMOT_Float1;
     SetHLSLFilePath(
-        "/Source/ExtendedShaders/Private/HLSL/Masks/AnimLoadingCircle.hlsl");
+        "/Source/ExtendedShaders/Private/HLSL/Animations/LoadingCircleAnim.hlsl");
 }
