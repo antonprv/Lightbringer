@@ -9,7 +9,7 @@ UCirclePrimitive::UCirclePrimitive(const FObjectInitializer& ObjInit)
     FriendlyName = "Circle";
     FriendlyCategory = "Primitives";
     FriendlyDescription =
-        "Draws a circle, size and position value can be animated externally.";
+        "Draws a 2D Circle, size, position and tiling can be animated externally.";
     SetCategoryAndDescription();
 
     NodeInputs.Add("UV", &UV);

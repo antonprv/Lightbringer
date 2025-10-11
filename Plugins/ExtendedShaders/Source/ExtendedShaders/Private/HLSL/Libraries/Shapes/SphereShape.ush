@@ -1,0 +1,53 @@
+#pragma once
+
+#include "/Libraries/Graphics/RayMarching.ush"
+
+struct SphereDrawParams
+{
+    float3 RayOrigin;
+    float3 RayStep;
+    int NumSteps;
+    float OverlapDetectionThreshold;
+};
+
+class SphereShape : IBaseShape
+{
+    static const float4 TransparentBackground = float4(0, 0, 0, 0);
+    
+    float Radius;
+    float3 Position;
+    float4 Color;
+    
+    SphereDrawParams DrawParams;
+    
+    float CalcDistance(float3 RayOrigin, float3 CenterPosition, float Radius)
+    {
+        return length(RayOrigin - CenterPosition) - Radius;
+    }
+    
+    float GetDistance()
+    {
+        return CalcDistance(DrawParams.RayOrigin, Position, Radius);
+    }
+    
+    void UpdateOrigin()
+    {
+        DrawParams.RayOrigin += DrawParams.RayStep;
+    }
+    
+    float4 Draw()
+    {
+        bool HasHit = RayMarcher::DrawShape3D(
+            this,
+            DrawParams.NumSteps,
+            DrawParams.OverlapDetectionThreshold
+        );
+        
+        if (HasHit)
+        {
+            return Color;
+        }
+        
+        return TransparentBackground;
+    }
+};

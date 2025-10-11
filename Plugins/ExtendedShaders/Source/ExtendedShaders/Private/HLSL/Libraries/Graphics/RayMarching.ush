@@ -1,0 +1,24 @@
+#pragma once
+
+#include "/Libraries/Shapes/BaseShape.ush"
+
+class RayMarcher
+{
+    // Just decides whether to draw or not to draw pixel
+    static bool DrawShape3D(IBaseShape Shape, int NumSteps, float OverlapDetectionThreshold)
+    {   
+        for (int i = 0; i < NumSteps; ++i)
+        {
+            float Distance = Shape.GetDistance();
+            
+            if (Distance < OverlapDetectionThreshold)
+            {
+                return true;
+            }
+
+            Shape.UpdateOrigin();
+        }
+        
+        return false;
+    }
+};
