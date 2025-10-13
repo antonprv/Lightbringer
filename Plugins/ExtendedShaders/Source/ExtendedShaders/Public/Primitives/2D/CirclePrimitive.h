@@ -8,7 +8,7 @@
 #include "CirclePrimitive.generated.h"
 
 UCLASS(
-    meta = (DisplayName = "Circle", Category = "Primitives",
+    meta = (DisplayName = "Circle", Category = "2D Primitives",
         ToolTip =
             "Draws a 2D Circle, size, position and tiling can be animated externally."))
 class EXTENDEDSHADERS_API UCirclePrimitive : public UCustomHLSLExpression

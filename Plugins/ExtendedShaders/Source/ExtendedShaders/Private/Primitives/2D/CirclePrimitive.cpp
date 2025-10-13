@@ -7,7 +7,7 @@ UCirclePrimitive::UCirclePrimitive(const FObjectInitializer& ObjInit)
     : Super(ObjInit)
 {
     FriendlyName = "Circle";
-    FriendlyCategory = "Primitives";
+    FriendlyCategory = "2D Primitives";
     FriendlyDescription =
         "Draws a 2D Circle, size, position and tiling can be animated externally.";
     SetCategoryAndDescription();
@@ -20,5 +20,5 @@ UCirclePrimitive::UCirclePrimitive(const FObjectInitializer& ObjInit)
 
     NodeOutputType = CMOT_Float1;
     SetHLSLFilePath(
-        "/Source/ExtendedShaders/Private/HLSL/Primitives/CirclePrimitive.hlsl");
+        "/Source/ExtendedShaders/Private/HLSL/Primitives/2D/CirclePrimitive.hlsl");
 }

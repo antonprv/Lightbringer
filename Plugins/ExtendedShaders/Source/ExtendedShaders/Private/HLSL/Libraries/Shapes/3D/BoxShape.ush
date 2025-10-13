@@ -1,0 +1,108 @@
+#pragma once
+
+#include "/Libraries/Graphics/RayMarching.ush"
+
+class UBoxShape : IBaseShape
+{
+    static const float4 TransparentBackground = float4(0, 0, 0, 0);
+
+    float BevelRadius;
+    float4 Color;
+    
+    FPBRParams PBRParams;
+    
+    FTransform Transform;
+    FDrawParams DrawParams;
+        
+    float CalcDistance(float3 RayOrigin)
+    {
+        float3 LocalPosition = RayOrigin - Transform.Location;
+        LocalPosition = URayMarcher::RotateByEulerFast(LocalPosition, Transform.Rotation, true);
+        LocalPosition = abs(LocalPosition) - Transform.Scale;
+
+        return length(max(LocalPosition, 0)) + min(max(LocalPosition.x, max(LocalPosition.y, LocalPosition.z)), 0) - BevelRadius;
+    }
+    
+    float GetDistance()
+    {
+        return CalcDistance(DrawParams.ViewRayOrigin);
+    }
+    
+    void UpdateViewRayOrigin()
+    {
+        DrawParams.ViewRayOrigin += DrawParams.RayStep * max(DrawParams.StepSize, 0);
+    }
+    
+    float3 GetSurfaceNormal()
+    {
+        float3 LocalNormal = DrawParams.ViewRayOrigin - Transform.Location;
+
+        float Epsilon = KINDA_SMALL_NUMBER;
+        
+        float DirectionX = CalcDistance(LocalNormal + float3(Epsilon, 0, 0))
+             - CalcDistance(LocalNormal - float3(Epsilon, 0, 0));
+        float DirectionY = CalcDistance(LocalNormal + float3(0, Epsilon, 0))
+             - CalcDistance(LocalNormal - float3(0, Epsilon, 0));
+        float DirectionZ = CalcDistance(LocalNormal + float3(0, 0, Epsilon))
+             - CalcDistance(LocalNormal - float3(0, 0, Epsilon));
+        
+        return normalize(float3(DirectionX, DirectionY, DirectionZ));
+    }
+    
+    float3 GetSurfaceReflection()
+    {
+        return reflect(PBRParams.LightDirection, GetSurfaceNormal());
+    }
+
+    float3 GetRimLight()
+    {
+        float RimFactor = dot(GetSurfaceNormal(), PBRParams.ViewDirection);
+        RimFactor = float(1) - saturate(RimFactor);
+        RimFactor = pow(RimFactor, PBRParams.RimContrast);
+        
+        return PBRParams.RimColor * RimFactor * PBRParams.RimStrength;
+    }
+    
+    float3 GetSpecular()
+    {
+        float3 Specular = dot(GetSurfaceReflection(), -PBRParams.ViewDirection);
+        Specular = pow(max(Specular, 0), PBRParams.SpecularSoftness);
+        
+        return Specular * PBRParams.SpecularColor;
+    }
+        
+    float3 GetForwardPass()
+    {
+        float3 Diffuse = dot(GetSurfaceNormal(), PBRParams.LightDirection);
+
+        float3 ShadowContrast = max(PBRParams.ShadowContrast, 1);
+        
+        float3 Base = max(Diffuse * ShadowContrast, PBRParams.AmbientLight);
+        
+        return Base + GetRimLight() + GetSpecular();
+    }
+        
+    float4 Draw()
+    {
+        bool HasHit = URayMarcher::DrawShape3D(
+            this,
+            DrawParams.NumSteps,
+            DrawParams.OverlapDetectionThreshold
+        );
+        
+        if (HasHit)
+        {
+            float3 FowrardPass = GetForwardPass();
+            float4 ReturnColor = float4(
+                Color.x * FowrardPass.x,
+                Color.y * FowrardPass.y,
+                Color.z * FowrardPass.z,
+                Color.w
+            );
+            
+            return ReturnColor;
+        }
+        
+        return TransparentBackground;
+    }
+};

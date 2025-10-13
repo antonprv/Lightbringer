@@ -7,7 +7,7 @@ UBricksPrimitive::UBricksPrimitive(const FObjectInitializer& ObjInit)
     : Super(ObjInit)
 {
     FriendlyName = "Bricks";
-    FriendlyCategory = "Primitives";
+    FriendlyCategory = "2D Primitives";
     FriendlyDescription = "Generates a tileable brick wall.";
     SetCategoryAndDescription();
 
@@ -18,5 +18,5 @@ UBricksPrimitive::UBricksPrimitive(const FObjectInitializer& ObjInit)
 
     NodeOutputType = CMOT_Float1;
     SetHLSLFilePath(
-        "/Source/ExtendedShaders/Private/HLSL/Primitives/BricksPrimitive.hlsl");
+        "/Source/ExtendedShaders/Private/HLSL/Primitives/2D/BricksPrimitive.hlsl");
 }

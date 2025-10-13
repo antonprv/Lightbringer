@@ -1,0 +1,121 @@
+#pragma once
+
+#include "/Libraries/Graphics/RayMarching.ush"
+
+class UCyllinderShape : IBaseShape
+{
+    static const float4 TransparentBackground = float4(0, 0, 0, 0);
+    
+    float Radius;
+    float HalfHeight;
+    float BevelRadius;
+
+    float4 Color;
+    
+    FTransform Transform;
+    FPBRParams PBRParams;
+    FDrawParams DrawParams;
+        
+    float CalcDistance(float3 RayOrigin)
+    {
+        float3 LocalPosition = RayOrigin - Transform.Location;
+        LocalPosition = URayMarcher::RotateByEulerFast(LocalPosition, Transform.Rotation, true);
+
+        LocalPosition /= Transform.Scale;
+
+        float2 Distance = float2(length(LocalPosition.xz) - Radius, abs(LocalPosition.y) - HalfHeight);
+
+        return length(max(Distance, 0)) + min(max(Distance.x, Distance.y), 0) - BevelRadius;
+    }
+
+    
+    float GetDistance()
+    {
+        return CalcDistance(DrawParams.ViewRayOrigin);
+    }
+    
+    void UpdateViewRayOrigin()
+    {
+        DrawParams.ViewRayOrigin += DrawParams.RayStep * max(DrawParams.StepSize, 0);
+    }
+    
+    // Approximates surface normal using finite differences in world space.
+    // CalcDistance operates in world space, so all offset samples are in world coordinates.
+    float3 GetSurfaceNormal()
+    {
+        float3 WorldPosition = DrawParams.ViewRayOrigin;
+        float StepOffset = KINDA_SMALL_NUMBER;
+
+        // Sample distance field along each axis
+        float DeltaX = CalcDistance(WorldPosition + float3(StepOffset, 0.0f, 0.0f)) -
+                   CalcDistance(WorldPosition - float3(StepOffset, 0.0f, 0.0f));
+
+        float DeltaY = CalcDistance(WorldPosition + float3(0.0f, StepOffset, 0.0f)) -
+                   CalcDistance(WorldPosition - float3(0.0f, StepOffset, 0.0f));
+
+        float DeltaZ = CalcDistance(WorldPosition + float3(0.0f, 0.0f, StepOffset)) -
+                   CalcDistance(WorldPosition - float3(0.0f, 0.0f, StepOffset));
+
+        // Construct and normalize the gradient vector
+        float3 Gradient = float3(DeltaX, DeltaY, DeltaZ);
+        return normalize(Gradient);
+    }
+
+    
+    float3 GetSurfaceReflection()
+    {
+        return reflect(PBRParams.LightDirection, GetSurfaceNormal());
+    }
+
+    float3 GetRimLight()
+    {
+        float RimFactor = dot(GetSurfaceNormal(), PBRParams.ViewDirection);
+        RimFactor = float(1) - saturate(RimFactor);
+        RimFactor = pow(RimFactor, PBRParams.RimContrast);
+        
+        return PBRParams.RimColor * RimFactor * PBRParams.RimStrength;
+    }
+    
+    float3 GetSpecular()
+    {
+        float3 Specular = dot(GetSurfaceReflection(), -PBRParams.ViewDirection);
+        Specular = pow(max(Specular, 0), PBRParams.SpecularSoftness);
+        
+        return Specular * PBRParams.SpecularColor;
+    }
+        
+    float3 GetForwardPass()
+    {
+        float3 Diffuse = dot(GetSurfaceNormal(), PBRParams.LightDirection);
+
+        float3 ShadowContrast = max(PBRParams.ShadowContrast, 1);
+        
+        float3 Base = max(Diffuse * ShadowContrast, PBRParams.AmbientLight);
+        
+        return Base + GetRimLight() + GetSpecular();
+    }
+        
+    float4 Draw()
+    {
+        bool HasHit = URayMarcher::DrawShape3D(
+            this,
+            DrawParams.NumSteps,
+            DrawParams.OverlapDetectionThreshold
+        );
+        
+        if (HasHit)
+        {
+            float3 FowrardPass = GetForwardPass();
+            float4 ReturnColor = float4(
+                Color.x * FowrardPass.x,
+                Color.y * FowrardPass.y,
+                Color.z * FowrardPass.z,
+                Color.w
+            );
+            
+            return ReturnColor;
+        }
+        
+        return TransparentBackground;
+    }
+};

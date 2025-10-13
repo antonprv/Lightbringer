@@ -9,7 +9,7 @@
 
 class FMaterialCompiler;
 
-UCLASS(meta = (DisplayName = "Bricks", Category = "Primitives",
+UCLASS(meta = (DisplayName = "Bricks", Category = "2D Primitives",
            ToolTip = "Generates a tileable brick wall."))
 class EXTENDEDSHADERS_API UBricksPrimitive : public UCustomHLSLExpression
 {

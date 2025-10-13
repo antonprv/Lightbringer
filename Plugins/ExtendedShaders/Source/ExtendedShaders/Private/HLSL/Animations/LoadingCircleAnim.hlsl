@@ -1,4 +1,4 @@
-#include "/Libraries/Shapes/CircleShape.ush"
+#include "/Libraries/Shapes/2D/CircleShape.ush"
 
 // inputs: NumSides, NumRepeats, bIs3DMovement, Time, Speed, Center, Radius, UV, Size
 
