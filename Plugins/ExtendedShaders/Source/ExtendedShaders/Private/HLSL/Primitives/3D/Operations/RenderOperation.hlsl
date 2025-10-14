@@ -1,22 +1,24 @@
-#include "/Libraries/Shapes/3D/CyllinderShape.ush"
+// You can use this project non-commercially for educational purposes, any
+// commercial use, derivative commercial use is strictly prohibited
 
-// Inputs: bIsWorldSpace, WorldPosition, ObjectPosition
-// CameraVector, StepSize, NumRaySteps, CenterPosition,
-// Location, Rotation, Transform,
-// HalfHeight, BevelRadius, Rotation
+#include "/Libraries/Shapes/3D/Operands/RenderOperand.ush"
+
+// Inputs:WorldPosition, ObjectPosition
+// CameraVector, StepSize, NumRaySteps,
 // OverlapDetectionThreshold
 // Color, LightDirection, AmbientLight, ShadowContrast, 
 // RimStrength, RimContrast, RimColor,
-// SpecularSoftness, SpecularColor
+// SpecularSoftness, SpecularColor,
+// Part
 
-float3 CyllinderPosition = WorldPosition - ObjectPosition;
+float3 RenderOpPosition = WorldPosition - ObjectPosition;
 
-// Render parameters
-UCyllinderShape Cyllinder;
+// Visual parameters
+URenderOperand RenderOp;
 FDrawParams DrawParams;
 FPBRParams PBRParams;
 
-DrawParams.ViewRayOrigin = 1 - (CameraVector - CyllinderPosition);
+DrawParams.ViewRayOrigin = 1 - (CameraVector - RenderOpPosition);
 DrawParams.RayStep = CameraVector * -1;
 DrawParams.StepSize = StepSize;
 DrawParams.NumSteps = NumRaySteps;
@@ -35,23 +37,21 @@ PBRParams.RimColor = RimColor;
 PBRParams.SpecularSoftness = SpecularSoftness;
 PBRParams.SpecularColor = SpecularColor;
 
-Cyllinder.Color = Color;
+RenderOp.Color = Color;
 
-Cyllinder.Radius = Radius;
-Cyllinder.HalfHeight = HalfHeight;
-Cyllinder.BevelRadius = BevelRadius;
+RenderOp.DrawParams = DrawParams;
+RenderOp.PBRParams = PBRParams;
 
-Cyllinder.DrawParams = DrawParams;
-Cyllinder.PBRParams = PBRParams;
+RenderOp.InPart = Part;
 
-// Transform parameters
 FTransform Transform;
 
 Transform.Location = Location;
 Transform.Rotation = Rotation;
 Transform.Scale = Scale;
 
-Cyllinder.Transform = Transform;
+RenderOp.FTransform = Transform;
+RenderOp.
 
 // Draw call
-return Cyllinder.Draw();
+return RenderOp.Draw();

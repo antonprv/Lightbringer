@@ -8,7 +8,7 @@
 #include "GraphicsPresetManager.generated.h"
 
 UENUM()
-enum class EGraphicsPreset : uint8
+enum class EGameGraphicsPreset : uint8
 {
     Low,
     Default,
@@ -32,28 +32,27 @@ class UGraphicsPresetManager : public UObject
 public:
     static UGraphicsPresetManager* Get();
 
-    void ApplyQualitySettings(const EGraphicsPreset& Preset);
+    void ApplyQualitySettings(const EGameGraphicsPreset& Preset);
     void ApplyLowQualitySettings()
     {
-        return ApplyQualitySettings(EGraphicsPreset::Low);
+        return ApplyQualitySettings(EGameGraphicsPreset::Low);
     };
     void ApplyDefaultQualitySettings()
     {
-        return ApplyQualitySettings(EGraphicsPreset::Default);
+        return ApplyQualitySettings(EGameGraphicsPreset::Default);
     };
 
     UFUNCTION(BlueprintCallable)
     bool IsAtLowQuality() const
     {
-        return CurrentPreset == EGraphicsPreset::Low;
+        return CurrentPreset == EGameGraphicsPreset::Low;
     }
 
 private:
-    EGraphicsPreset CurrentPreset = EGraphicsPreset::Default;
+    EGameGraphicsPreset CurrentPreset = EGameGraphicsPreset::Default;
 
     int32 DefaultScaling{100};
     void SetScreenScaling(const EScreenScalingPreset& ScreenPercentage);
     void SetDefaultScalability();
     void SetLowScalability();
-    void SetMaxFPS(const int32& MaxFPS);
 };

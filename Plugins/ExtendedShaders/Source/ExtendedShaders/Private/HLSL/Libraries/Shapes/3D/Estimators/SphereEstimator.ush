@@ -1,0 +1,31 @@
+// You can use this project non-commercially for educational purposes, any
+// commercial use, derivative commercial use is strictly prohibited
+
+#pragma once
+
+#include "/Libraries/Shapes/3D/Estimators/BaseEstimator.ush"
+#include "/Libraries/Shapes/3D/RotationManager.ush"
+
+class USphereEstimator : IEstimator
+{
+    static const float4 TransparentBackground = float4(0, 0, 0, 0);
+
+    float GetType()
+    {
+        return SphereType;
+    }
+    
+    static float CalcDistance(float3 RayOrigin, FTransform Transform, float Radius)
+    {
+        float3 LocalPosition = RayOrigin - Transform.Location;
+        LocalPosition = URotationManager::RotateByWorldEuler(LocalPosition, Transform.Rotation);
+
+        float3 ScaledPosition = LocalPosition / (Transform.Scale * Radius);
+
+        float LengthPrimary = length(ScaledPosition);
+        float LengthSecondary = length(ScaledPosition / (Transform.Scale * Radius));
+        float Distance = LengthPrimary * (LengthPrimary - 1.0f) / LengthSecondary;
+
+        return Distance * min(Transform.Scale.x, min(Transform.Scale.y, Transform.Scale.z)) * Radius;
+    }
+};

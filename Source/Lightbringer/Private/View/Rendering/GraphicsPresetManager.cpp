@@ -21,24 +21,22 @@ UGraphicsPresetManager* UGraphicsPresetManager::Get()
 }
 
 void UGraphicsPresetManager::ApplyQualitySettings(
-    const EGraphicsPreset& Preset)
+    const EGameGraphicsPreset& Preset)
 {
     switch (Preset)
     {
-        case EGraphicsPreset::Low:
+        case EGameGraphicsPreset::Low:
         {
             SetLowScalability();
-            SetMaxFPS(120);
             SetScreenScaling(EScreenScalingPreset::Half);
-            CurrentPreset = EGraphicsPreset::Low;
+            CurrentPreset = EGameGraphicsPreset::Low;
             break;
         }
-        case EGraphicsPreset::Default:
+        case EGameGraphicsPreset::Default:
         {
             SetDefaultScalability();
-            SetMaxFPS(120);
             SetScreenScaling(EScreenScalingPreset::Full);
-            CurrentPreset = EGraphicsPreset::Default;
+            CurrentPreset = EGameGraphicsPreset::Default;
             break;
         }
         default: break;
@@ -66,7 +64,7 @@ void UGraphicsPresetManager::SetDefaultScalability()
             Settings->ScalabilityQuality.AntiAliasingQuality = 0;
             Settings->ScalabilityQuality.EffectsQuality = 0;
             Settings->ScalabilityQuality.PostProcessQuality = 1;
-            Settings->ScalabilityQuality.ShadowQuality = 2;
+            Settings->ScalabilityQuality.ShadowQuality = 0;
             Settings->ScalabilityQuality.TextureQuality = 0;
             Settings->ScalabilityQuality.ViewDistanceQuality = 1;
 
@@ -99,20 +97,5 @@ void UGraphicsPresetManager::SetLowScalability()
             Settings->ApplySettings(false);
             Settings->SaveSettings();
         }
-    }
-}
-
-void UGraphicsPresetManager::SetMaxFPS(const int32& MaxFPS)
-{
-    if (GEngine)
-    {
-        UGameUserSettings* UserSettings = GEngine->GetGameUserSettings();
-        if (UserSettings)
-        {
-            UserSettings->SetFrameRateLimit(MaxFPS);
-            UserSettings->ApplySettings(true);
-        }
-
-        GEngine->SetMaxFPS(MaxFPS);  // "Just in case" call
     }
 }

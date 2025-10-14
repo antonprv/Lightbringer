@@ -56,8 +56,8 @@ public:
 
     bool IsDead()
     {
-        return FMath::IsNearlyZero(CurrentHealth) ||
-               FMath::IsNegativeFloat(CurrentHealth);
+        return FMath::IsNearlyZero(CurrentHealth, UE_KINDA_SMALL_NUMBER) ||
+               CurrentHealth <= 0.f;
     };
 
     bool IsAtFullHealth()

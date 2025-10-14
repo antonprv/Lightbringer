@@ -1,5 +1,6 @@
 // Copyright 1998-2019 Epic Games, Inc. All Rights Reserved.
 
+using System.IO;
 using UnrealBuildTool;
 
 public class FakeShadow : ModuleRules
@@ -9,6 +10,18 @@ public class FakeShadow : ModuleRules
         PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
 
         PublicIncludePaths.Add(ModuleDirectory);
+
+        PublicIncludePaths.AddRange(new string[]
+        {
+            Path.Combine(ModuleDirectory, "Public"),
+            Path.Combine(ModuleDirectory, "Public", "Components")
+        });
+
+        PrivateIncludePaths.AddRange(new string[]
+        {
+            Path.Combine(ModuleDirectory, "Private"),
+            Path.Combine(ModuleDirectory, "Private", "Components")
+        });
 
         PublicIncludePaths.AddRange(
             new string[] {

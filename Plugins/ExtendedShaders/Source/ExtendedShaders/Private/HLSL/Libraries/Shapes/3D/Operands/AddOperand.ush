@@ -1,0 +1,66 @@
+// You can use this project non-commercially for educational purposes, any
+// commercial use, derivative commercial use is strictly prohibited
+
+#pragma once
+
+#include "/Libraries/Shapes/3D/Estimators/BaseEstimator.ush"
+#include "/Libraries/Graphics/RayMarching.ush"
+
+class UAddOperand : IEstimator
+{
+    float BevelRadius;
+    float ChamferRadius;
+    float DetectionRadius; // Controls the area where fillet or chamfer applies
+
+    float ShapeADistance;
+    float ShapeBDistance;
+
+    FTransform Transform;
+
+    float3 WorldPosition;
+
+    float CalcDistance()
+    {
+        // Transform the world position into local space
+        float3 LocalPosition = WorldPosition - Transform.Location;
+        LocalPosition = URayMarcher::RotateByWorldEuler(LocalPosition, Transform.Rotation);
+        LocalPosition /= max(Transform.Scale, KINDA_SMALL_NUMBER); // Prevent division by zero
+
+        float MinShapeDistance = min(ShapeADistance, ShapeBDistance);
+
+        // --- Fillet (bevel) blending ---
+        if (BevelRadius > 0.0)
+        {
+            float DistanceDifference = ShapeBDistance - ShapeADistance;
+            float BlendFactor = saturate(0.5 - 0.5 * DistanceDifference / BevelRadius);
+            float IntersectionMask = step(abs(DistanceDifference), DetectionRadius);
+
+            float BlendedDistance = lerp(
+                ShapeBDistance,
+                ShapeADistance,
+                BlendFactor
+            ) - BevelRadius * BlendFactor * (1.0 - BlendFactor);
+
+            return lerp(MinShapeDistance, BlendedDistance, IntersectionMask);
+        }
+
+        // --- Chamfer blending ---
+        if (ChamferRadius > 0.0)
+        {
+            float DistanceDifference = abs(ShapeADistance - ShapeBDistance);
+            float OverlapFactor = (DetectionRadius - DistanceDifference) / DetectionRadius;
+            float IntersectionMask = saturate(OverlapFactor);
+
+            float BlendedDistance = (ShapeADistance + ShapeBDistance - ChamferRadius) * 0.5;
+
+            return lerp(MinShapeDistance, BlendedDistance, IntersectionMask);
+        }
+
+        return MinShapeDistance;
+    }
+
+    float GetDistance()
+    {
+        return CalcDistance();
+    }
+};

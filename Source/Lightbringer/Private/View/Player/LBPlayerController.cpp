@@ -154,11 +154,11 @@ void ALBPlayerController::ProcessReleased(FName ActionName)
 /*
  * Additional pawn callback functions
  */
-void ALBPlayerController::OnPawnDeath(APawn* Pawn)
+void ALBPlayerController::OnPawnDeath(APawn* PlayerPawn)
 {
     if (!GetPawn()) return;
 
-    if (GetPawn() == Pawn)
+    if (GetPawn() == PlayerPawn)
     {
         if (UECStateSubsystem* ControllerState =
                 UECStateSubsystem::Get(GetWorld()))

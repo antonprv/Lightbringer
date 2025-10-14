@@ -1,0 +1,66 @@
+// You can use this project non-commercially for educational purposes, any
+// commercial use, derivative commercial use is strictly prohibited
+
+#pragma once
+
+#include "/Libraries/Shapes/3D/Estimators/BaseEstimator.ush"
+#include "/Libraries/Graphics/RayMarching.ush"
+
+class USubtractOperand : IEstimator
+{
+    float BevelRadius;
+    float ChamferRadius;
+    float DetectionRadius; // Controls the area where fillet or chamfer applies
+
+    float ShapeADistance;
+    float ShapeBDistance;
+
+    FTransform Transform;
+
+    float3 WorldPosition; // Input world-space position for distance evaluation
+
+    float CalcDistance()
+    {
+        // Transform the world position into local space
+        float3 LocalPosition = WorldPosition - Transform.Location;
+        LocalPosition = URayMarcher::RotateByWorldEuler(LocalPosition, Transform.Rotation);
+        LocalPosition /= max(Transform.Scale, KINDA_SMALL_NUMBER); // Prevent division by zero
+
+        float SubtractedDistance = max(-ShapeBDistance, ShapeADistance);
+
+        // --- Fillet (bevel) blending ---
+        if (BevelRadius > 0.0)
+        {
+            float DistanceSum = ShapeBDistance + ShapeADistance;
+            float BlendFactor = saturate(0.5 + 0.5 * DistanceSum / BevelRadius);
+            float IntersectionMask = step(abs(DistanceSum), DetectionRadius);
+
+            float BlendedDistance = lerp(
+                -ShapeBDistance,
+                ShapeADistance,
+                BlendFactor
+            ) + BevelRadius * BlendFactor * (1.0 - BlendFactor);
+
+            return lerp(SubtractedDistance, BlendedDistance, IntersectionMask);
+        }
+
+        // --- Chamfer blending ---
+        if (ChamferRadius > 0.0)
+        {
+            float DistanceSum = ShapeADistance + ShapeBDistance;
+            float OverlapFactor = (DetectionRadius - abs(DistanceSum)) / DetectionRadius;
+            float IntersectionMask = saturate(OverlapFactor);
+
+            float BlendedDistance = (ShapeADistance - ShapeBDistance + ChamferRadius) * 0.5;
+
+            return lerp(SubtractedDistance, BlendedDistance, IntersectionMask);
+        }
+
+        return SubtractedDistance;
+    }
+
+    float GetDistance()
+    {
+        return CalcDistance();
+    }
+};

@@ -1,0 +1,93 @@
+// You can use this project non-commercially for educational purposes, any
+// commercial use, derivative commercial use is strictly prohibited
+
+#pragma once
+
+#define KINDA_SMALL_NUMBER 0.001
+
+struct FTransform
+{
+    float3 Location;
+    float3 Rotation;
+    float3 Scale;
+};
+
+class URotationManager
+{
+    // Rotate vector by Euler angles (Pitch=X, Yaw=Y, Roll=Z) in degrees.
+    // bInverse: apply inverse rotation (approximate) using small number compensation.
+    static float3 RotateByLocalEuler(float3 Vector, float3 RotationDegrees, bool bInverse)
+    {
+        // Convert degrees to radians
+        float3 RotRad = radians(RotationDegrees);
+
+        float SinPitch = sin(RotRad.x) + KINDA_SMALL_NUMBER;
+        float CosPitch = cos(RotRad.x) + KINDA_SMALL_NUMBER;
+        float SinYaw = sin(RotRad.y) + KINDA_SMALL_NUMBER;
+        float CosYaw = cos(RotRad.y) + KINDA_SMALL_NUMBER;
+        float SinRoll = sin(RotRad.z) + KINDA_SMALL_NUMBER;
+        float CosRoll = cos(RotRad.z) + KINDA_SMALL_NUMBER;
+
+        // Optionally invert rotation
+        if (bInverse)
+        {
+            SinPitch = -SinPitch;
+            SinYaw = -SinYaw;
+            SinRoll = -SinRoll;
+        }
+
+        // Apply rotation in Yaw → Pitch → Roll order (YXZ)
+        float3 Rotated;
+    
+        // Yaw (around Y)
+        float3 AfterYaw;
+        AfterYaw.x = Vector.x * CosYaw + Vector.z * SinYaw;
+        AfterYaw.y = Vector.y;
+        AfterYaw.z = -Vector.x * SinYaw + Vector.z * CosYaw;
+
+        // Pitch (around X)
+        float3 AfterPitch;
+        AfterPitch.x = AfterYaw.x;
+        AfterPitch.y = AfterYaw.y * CosPitch - AfterYaw.z * SinPitch;
+        AfterPitch.z = AfterYaw.y * SinPitch + AfterYaw.z * CosPitch;
+
+        // Roll (around Z)
+        Rotated.x = AfterPitch.x * CosRoll - AfterPitch.y * SinRoll;
+        Rotated.y = AfterPitch.x * SinRoll + AfterPitch.y * CosRoll;
+        Rotated.z = AfterPitch.z;
+
+        return Rotated;
+    }
+    
+    static float3 RotateByWorldEuler(float3 WorldVector, float3 WorldRotation)
+    {
+        float3 RotationRadians = radians(WorldRotation);
+
+        float SinPitch = sin(RotationRadians.x) + KINDA_SMALL_NUMBER;
+        float CosPitch = cos(RotationRadians.x) + KINDA_SMALL_NUMBER;
+        float SinYaw = sin(RotationRadians.y) + KINDA_SMALL_NUMBER;
+        float CosYaw = cos(RotationRadians.y) + KINDA_SMALL_NUMBER;
+        float SinRoll = sin(RotationRadians.z) + KINDA_SMALL_NUMBER;
+        float CosRoll = cos(RotationRadians.z) + KINDA_SMALL_NUMBER;
+
+        // Apply Yaw (Y)
+        float3 AfterYaw;
+        AfterYaw.x = WorldVector.x * CosYaw + WorldVector.z * SinYaw;
+        AfterYaw.y = WorldVector.y;
+        AfterYaw.z = -WorldVector.x * SinYaw + WorldVector.z * CosYaw;
+
+        // Apply Pitch (X)
+        float3 AfterPitch;
+        AfterPitch.x = AfterYaw.x;
+        AfterPitch.y = AfterYaw.y * CosPitch - AfterYaw.z * SinPitch;
+        AfterPitch.z = AfterYaw.y * SinPitch + AfterYaw.z * CosPitch;
+
+        // Apply Roll (Z)
+        float3 Rotated;
+        Rotated.x = AfterPitch.x * CosRoll - AfterPitch.y * SinRoll;
+        Rotated.y = AfterPitch.x * SinRoll + AfterPitch.y * CosRoll;
+        Rotated.z = AfterPitch.z;
+
+        return Rotated;
+    }
+};

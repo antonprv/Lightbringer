@@ -67,6 +67,8 @@ void APhysicsTest::NotifyHit(UPrimitiveComponent* MyComp, AActor* Other,
 
     GetWorldTimerManager().SetTimer(
         ColorTimer, this, &APhysicsTest::ResetColor, 0.01f);
+
+    StaticMesh->AddImpulse(HitNormal);
 }
 
 void APhysicsTest::ResetColor()

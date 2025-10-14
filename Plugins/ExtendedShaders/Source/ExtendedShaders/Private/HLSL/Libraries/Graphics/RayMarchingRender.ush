@@ -1,0 +1,49 @@
+// You can use this project non-commercially for educational purposes, any
+// commercial use, derivative commercial use is strictly prohibited
+
+#pragma once
+
+#include "/Libraries/Shapes/3D/BaseShape.ush"
+
+#define KINDA_SMALL_NUMBER 0.001
+
+struct FPBRParams
+{
+    float3 LightDirection;
+    float3 AmbientLight;
+    float ShadowContrast;
+    
+    float3 ViewDirection;
+    float RimStrength;
+    float RimContrast;
+    float3 RimColor;
+    
+    float3 WorldPosition;
+    float SpecularSoftness;
+    float3 SpecularColor;
+};
+
+class URayMarcher
+{
+    // Just decides whether to draw or not to draw pixel
+    static bool DrawShape3D(
+        IBaseShape Shape,
+        int NumSteps,
+        float OverlapDetectionThreshold
+    )
+    {
+        for (int i = 0; i < NumSteps; ++i)
+        {
+            float Distance = Shape.GetDistance();
+            
+            if (Distance < OverlapDetectionThreshold)
+            {
+                return true;
+            }
+
+            Shape.UpdateViewRayOrigin();
+        }
+        
+        return false;
+    }
+};

@@ -1,26 +1,39 @@
 // Copyright 1998-2019 Epic Games, Inc. All Rights Reserved.
 
+using System.IO;
 using UnrealBuildTool;
 
 public class ExtendedShaders : ModuleRules
 {
     public ExtendedShaders(ReadOnlyTargetRules Target) : base(Target)
     {
-        PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
+        PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
         PublicIncludePaths.Add(ModuleDirectory);
 
-        PrivateIncludePaths.AddRange(
-            new string[] {
-                "ExtendedShaders/Private",
-                "ExtendedShaders/Private/HLSL",
-                "ExtendedShaders/Private/HLSL/Animations",
-                "ExtendedShaders/Private/HLSL/Primitives",
-                "ExtendedShaders/Private/HLSL/Libraries",
-                "ExtendedShaders/Private/HLSL/Libraries/Shapes"
-            }
-            );
+        // Correct include paths (relative to ModuleDirectory)
+        PublicIncludePaths.AddRange(new string[]
+        {
+            Path.Combine(ModuleDirectory, "Public"),
+            Path.Combine(ModuleDirectory, "Public", "Animations"),
+            Path.Combine(ModuleDirectory, "Public", "Primitives"),
+            Path.Combine(ModuleDirectory, "Public", "Primitives", "2D"),
+            Path.Combine(ModuleDirectory, "Public", "Primitives", "3D"),
+            Path.Combine(ModuleDirectory, "Public", "Primitives", "3D", "Operations"),
+            Path.Combine(ModuleDirectory, "Public", "Primitives", "3D", "Parts"),
+            Path.Combine(ModuleDirectory, "Public", "Utils")
+        });
 
+        PrivateIncludePaths.AddRange(new string[]
+        {
+            Path.Combine(ModuleDirectory, "Private"),
+            Path.Combine(ModuleDirectory, "Private", "HLSL"),
+            Path.Combine(ModuleDirectory, "Private", "HLSL", "Animations"),
+            Path.Combine(ModuleDirectory, "Private", "HLSL", "Primitives"),
+            Path.Combine(ModuleDirectory, "Private", "HLSL", "Libraries"),
+            Path.Combine(ModuleDirectory, "Private", "HLSL", "Libraries", "Shapes"),
+            Path.Combine(ModuleDirectory, "Private", "HLSL", "Libraries", "Graphics")
+        });
 
         PublicDependencyModuleNames.AddRange(
             new string[]

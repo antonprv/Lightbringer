@@ -1,0 +1,15 @@
+// You can use this project non-commercially for educational purposes, any
+// commercial use, derivative commercial use is strictly prohibited
+
+#pragma once
+
+// A collection of interfaces for various shapes and shape properties
+
+#define SphereType float(0)
+#define BoxType float(1)
+#define CyllinderType float(2)
+
+interface IEstimator
+{
+    float GetType();
+};

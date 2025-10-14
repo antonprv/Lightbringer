@@ -1,0 +1,33 @@
+// You can use this project non-commercially for educational purposes, any
+// commercial use, derivative commercial use is strictly prohibited
+
+#pragma once
+
+#include "/Libraries/Shapes/3D/Estimators/BaseEstimator.ush"
+
+class UCyllinderEstimator : IEstimator
+{
+    float Radius;
+    float HalfHeight;
+    float BevelRadius;
+
+    float3 RayOrigin
+    FTransform Transform;
+
+    float CalcDistance()
+    {
+        float3 LocalPosition = RayOrigin - Transform.Location;
+        LocalPosition = URayMarcher::RotateByWorldEuler(LocalPosition, Transform.Rotation);
+
+        LocalPosition /= Transform.Scale;
+
+        float2 Distance = float2(length(LocalPosition.xz) - Radius, abs(LocalPosition.y) - HalfHeight);
+
+        return length(max(Distance, 0)) + min(max(Distance.x, Distance.y), 0) - BevelRadius;
+    }
+
+    float GetDistance()
+    {
+        return CalcDistance();
+    }
+};

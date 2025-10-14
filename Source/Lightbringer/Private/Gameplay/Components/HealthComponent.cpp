@@ -11,6 +11,7 @@
 #include "GameFramework/Character.h"
 #include "TimerManager.h"
 #include "Engine/World.h"
+#include "Engine/DamageEvents.h"
 #include "ComponentsDelegateMediator.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogUHealthComponent, Log, Log)

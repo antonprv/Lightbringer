@@ -165,7 +165,7 @@ void UInputManager::__Internal_BindAxis(APlayerController* PlayerController,
             const ESimpleInputAxisType AxisType = AxisBindingInfo.Axis;
             const float Scale = AxisBindingInfo.Scale;
 
-            if (Key.IsFloatAxis())
+            if (Key.IsAxis1D())
             {
                 auto& AxisKeyBinding =
                     InputComponent->AxisKeyBindings.Add_GetRef(

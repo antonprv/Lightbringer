@@ -33,6 +33,8 @@ protected:
     // Called when the game starts
     virtual void BeginPlay() override;
 
+    virtual void OnRegister() override;
+
 private:
     static const FVector ShadowRendererDefaultLocation;
     static const FRotator ShadowRendererDefaultRotation;

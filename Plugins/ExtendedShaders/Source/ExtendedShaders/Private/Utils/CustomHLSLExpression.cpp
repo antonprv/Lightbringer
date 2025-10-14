@@ -8,7 +8,7 @@
 #include "MaterialExpressionIO.h"
 
 #include "Misc/FileHelper.h"
-#include "IPluginManager.h"
+#include "Interfaces/IPluginManager.h"
 #include "UObject/UnrealType.h"
 
 #include "Utils/ShaderCodeUtils.h"
@@ -145,7 +145,7 @@ int32 UCustomHLSLExpression::Compile(FMaterialCompiler* C, int32 OutputIndex)
         ++InputNumber;
     }
 
-    return C->CustomExpression(TempCustom, CompiledInputs);
+    return C->CustomExpression(TempCustom, int32(0), CompiledInputs);
 }
 
 #endif

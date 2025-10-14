@@ -1,21 +1,24 @@
 // You can use this project non-commercially for educational purposes, any
 // commercial use, derivative commercial use is strictly prohibited
 
-#include "SpherePrimitive.h"
+#include "RenderOperation.h"
 
-USpherePrimitive::USpherePrimitive(const FObjectInitializer& ObjInit)
+URenderOperation::URenderOperation(const FObjectInitializer& ObjInit)
     : Super(ObjInit)
 {
-    FriendlyName = "Sphere";
-    FriendlyCategory = "3D Primitives";
-    FriendlyDescription = "Draws a 3D sphere usign ray marching";
+    FriendlyName = "Render Operation";
+    FriendlyCategory = "3D Primitives Operations";
+    FriendlyDescription =
+        "Renders out individual 3D Parts or other operation's result";
     SetCategoryAndDescription();
 
-    // Inputs: bIsWorldSpace, WorldPosition, ObjectPosition
-    // CameraVector, StepSize, NumRaySteps, CenterPosition, Radius,
-    // OverlapDetectionThreshold Color, LightDirection, AmbientLight,
-    // ShadowContrast, RimStrength, RimContrast, RimColor,
-    // SpecularAmount, SpecularColor
+    // Inputs:WorldPosition, ObjectPosition
+    // CameraVector, StepSize, NumRaySteps,
+    // OverlapDetectionThreshold
+    // Color, LightDirection, AmbientLight, ShadowContrast,
+    // RimStrength, RimContrast, RimColor,
+    // SpecularSoftness, SpecularColor,
+    // Part
 
     NodeInputs.Add("WorldPosition", &WorldPosition);
     NodeInputs.Add("ObjectPosition", &ObjectPosition);
@@ -25,14 +28,7 @@ USpherePrimitive::USpherePrimitive(const FObjectInitializer& ObjInit)
     NodeInputs.Add("NumRaySteps", &NumRaySteps);
     NodeInputs.Add("OverlapDetectionThreshold", &OverlapDetectionThreshold);
 
-    NodeInputs.Add("Location", &Location);
-    NodeInputs.Add("Rotation", &Rotation);
-    NodeInputs.Add("Scale", &Scale);
-
-    NodeInputs.Add("Radius", &Radius);
-
     NodeInputs.Add("Color", &Color);
-
     NodeInputs.Add("LightDirection", &LightDirection);
     NodeInputs.Add("AmbientLight", &AmbientLight);
     NodeInputs.Add("ShadowContrast", &ShadowContrast);
@@ -44,7 +40,9 @@ USpherePrimitive::USpherePrimitive(const FObjectInitializer& ObjInit)
     NodeInputs.Add("SpecularSoftness", &SpecularSoftness);
     NodeInputs.Add("SpecularColor", &SpecularColor);
 
+    NodeInputs.Add("Part", &Part);
+
     NodeOutputType = CMOT_Float4;
     SetHLSLFilePath(
-        "/Source/ExtendedShaders/Private/HLSL/Primitives/3D/SpherePrimitive.hlsl");
+        "/Source/ExtendedShaders/Private/HLSL/Primitives/3D/Operations/RenderOperation.hlsl");
 }

@@ -49,6 +49,6 @@ private:
     UPROPERTY()
     UPlayerDelegateMediator* DelegateMediator{nullptr};
 
-    void OnPawnDeath(APawn* Pawn);
+    void OnPawnDeath(APawn* PlayerPawn);
     void OnPawnDestruction(AActor* DestroyedPawnActor);
 };

@@ -1,37 +1,45 @@
+// You can use this project non-commercially for educational purposes, any
+// commercial use, derivative commercial use is strictly prohibited
+
 #pragma once
 
-#include "/Libraries/Graphics/RayMarching.ush"
+#include "/Libraries/Graphics/RayMarchingRender.ush"
 
-class UCyllinderShape : IBaseShape
+#include "/Libraries/Shapes/3D/TransformManager.ush"
+
+#include "/Libraries/Shapes/3D/Estimators/SphereEstimator.ush"
+#include "/Libraries/Shapes/3D/Estimators/BoxEstimator.ush"
+#include "/Libraries/Shapes/3D/Estimators/CyllinderEstimator.ush"
+
+class URenderOperand : IBaseShape
 {
-    static const float4 TransparentBackground = float4(0, 0, 0, 0);
-    
-    float Radius;
-    float HalfHeight;
-    float BevelRadius;
-
     float4 Color;
     
-    FTransform Transform;
     FPBRParams PBRParams;
     FDrawParams DrawParams;
         
-    float CalcDistance(float3 RayOrigin)
-    {
-        float3 LocalPosition = RayOrigin - Transform.Location;
-        LocalPosition = URayMarcher::RotateByEulerFast(LocalPosition, Transform.Rotation, true);
-
-        LocalPosition /= Transform.Scale;
-
-        float2 Distance = float2(length(LocalPosition.xz) - Radius, abs(LocalPosition.y) - HalfHeight);
-
-        return length(max(Distance, 0)) + min(max(Distance.x, Distance.y), 0) - BevelRadius;
-    }
-
+    float InPart;
+    
+    FTransform Transform;
+    
+    float Radius;
     
     float GetDistance()
     {
-        return CalcDistance(DrawParams.ViewRayOrigin);
+        if (InPart == SphereType)
+        {
+            return USphereEstimator::CalcDistance(DrawParams.ViewRayOrigin, Transform, Radius);
+        }
+        else if (InPart == BoxType)
+        {
+            return UBoxEstimator::GetDistance(DrawParams.ViewRayOrigin);
+        }
+        else if (InPart == CyllinderType)
+        {
+            return UCyllinderEstimator::GetDistance(DrawParams.ViewRayOrigin);
+        }
+     
+        return 0;
     }
     
     void UpdateViewRayOrigin()
@@ -39,28 +47,27 @@ class UCyllinderShape : IBaseShape
         DrawParams.ViewRayOrigin += DrawParams.RayStep * max(DrawParams.StepSize, 0);
     }
     
-    // Approximates surface normal using finite differences in world space.
-    // CalcDistance operates in world space, so all offset samples are in world coordinates.
+    float GetDistanceAtOffset(float3 Offset)
+    {
+        // Purely additive perturbation for numerical gradient
+        return InPart + dot(Offset, 1.0);
+    }
+    
     float3 GetSurfaceNormal()
     {
-        float3 WorldPosition = DrawParams.ViewRayOrigin;
-        float StepOffset = KINDA_SMALL_NUMBER;
+        float NormalEpsilon = KINDA_SMALL_NUMBER;
+        
+        // Central difference approximation of gradient
+        float DistanceX = GetDistanceAtOffset(float3(NormalEpsilon, 0.0, 0.0)) -
+                            GetDistanceAtOffset(float3(-NormalEpsilon, 0.0, 0.0));
+        float DistanceY = GetDistanceAtOffset(float3(0.0, NormalEpsilon, 0.0)) -
+                            GetDistanceAtOffset(float3(0.0, -NormalEpsilon, 0.0));
+        float DistanceZ = GetDistanceAtOffset(float3(0.0, 0.0, NormalEpsilon)) -
+                            GetDistanceAtOffset(float3(0.0, 0.0, -NormalEpsilon));
 
-        // Sample distance field along each axis
-        float DeltaX = CalcDistance(WorldPosition + float3(StepOffset, 0.0f, 0.0f)) -
-                   CalcDistance(WorldPosition - float3(StepOffset, 0.0f, 0.0f));
-
-        float DeltaY = CalcDistance(WorldPosition + float3(0.0f, StepOffset, 0.0f)) -
-                   CalcDistance(WorldPosition - float3(0.0f, StepOffset, 0.0f));
-
-        float DeltaZ = CalcDistance(WorldPosition + float3(0.0f, 0.0f, StepOffset)) -
-                   CalcDistance(WorldPosition - float3(0.0f, 0.0f, StepOffset));
-
-        // Construct and normalize the gradient vector
-        float3 Gradient = float3(DeltaX, DeltaY, DeltaZ);
+        float3 Gradient = float3(DistanceX, DistanceY, DistanceZ);
         return normalize(Gradient);
     }
-
     
     float3 GetSurfaceReflection()
     {
@@ -116,6 +123,6 @@ class UCyllinderShape : IBaseShape
             return ReturnColor;
         }
         
-        return TransparentBackground;
+        return TRANSPARENT_BG;
     }
 };

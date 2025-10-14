@@ -33,8 +33,6 @@ UFakeShadowComponent::UFakeShadowComponent()
 
     DecalSize = DefaultDecalSize;
     SetRelativeRotation(FRotator(-90.f, 0.f, 0.f));
-
-    CreateShadowRenderer();
 }
 
 void UFakeShadowComponent::BeginPlay()
@@ -47,11 +45,19 @@ void UFakeShadowComponent::BeginPlay()
     ShadowRenderer->ShowOnlyComponents.Add(CharacterOwner->GetMesh());
 }
 
+void UFakeShadowComponent::OnRegister()
+{
+    Super::OnRegister();
+
+    CreateShadowRenderer();
+}
+
 void UFakeShadowComponent::CreateShadowRenderer()
 {
-    ShadowRenderer =
-        CreateDefaultSubobject<USceneCaptureComponent2D>("Shadow Renderer");
+    ShadowRenderer = NewObject<USceneCaptureComponent2D>(this,
+        USceneCaptureComponent2D::StaticClass(), NAME_None, RF_Transient);
     ShadowRenderer->SetupAttachment(this);
+    ShadowRenderer->RegisterComponent();
     ShadowRenderer->SetRelativeLocationAndRotation(
         ShadowRendererDefaultLocation, ShadowRendererDefaultRotation);
     ShadowRenderer->bCaptureEveryFrame = true;
@@ -63,13 +69,14 @@ void UFakeShadowComponent::CreateShadowRenderer()
     ShadowRenderer->OrthoWidth = 500.f;
 
 #if WITH_EDITORONLY_DATA
-    CameraArrow = CreateEditorOnlyDefaultSubobject<UArrowComponent>(
-        TEXT("Camera Arrow"));
+    CameraArrow = NewObject<UArrowComponent>(
+        this, UArrowComponent::StaticClass(), NAME_None, RF_Transient);
+    CameraArrow->SetupAttachment(ShadowRenderer);
+    CameraArrow->RegisterComponent();
     if (CameraArrow)
     {
         CameraArrow->ArrowColor = FColor(150, 200, 255);
         CameraArrow->bTreatAsASprite = true;
-        CameraArrow->SetupAttachment(ShadowRenderer);
         CameraArrow->bIsScreenSizeScaled = true;
         CameraArrow->SetHiddenInGame(false);
     }

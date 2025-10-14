@@ -1,7 +1,8 @@
 // You can use this project non-commercially for educational purposes, any commercial use, derivative commercial use is strictly prohibited
 
-using UnrealBuildTool;
 using System.Collections.Generic;
+using UnrealBuildTool;
+using static UnrealBuildTool.ModuleRules;
 
 public class LightbringerEditorTarget : TargetRules
 {
@@ -9,6 +10,15 @@ public class LightbringerEditorTarget : TargetRules
 	{
 		Type = TargetType.Editor;
 
-		ExtraModuleNames.AddRange( new string[] { "Lightbringer" } );
+        DefaultBuildSettings = BuildSettingsVersion.V4;
+
+        bLegacyPublicIncludePaths = true;
+        ShadowVariableWarningLevel = WarningLevel.Warning;
+        bLegacyParentIncludePaths = true;
+        CppStandard = CppStandardVersion.Default;
+
+        IncludeOrderVersion = EngineIncludeOrderVersion.Unreal5_3;
+
+        ExtraModuleNames.AddRange( new string[] { "Lightbringer" } );
 	}
 }

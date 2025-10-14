@@ -2,7 +2,7 @@
 // commercial use, derivative commercial use is strictly prohibited
 
 #include "Components/WeaponComponent.h"
-#include "LBWeaponBase.h"
+#include "Actors/LBWeaponBase.h"
 
 #include "Components/SkeletalMeshComponent.h"
 #include "GameFramework/Character.h"
@@ -49,6 +49,20 @@ void UWeaponComponent::SpawnWeapon()
 
     if (WeaponActor->SkeletalMesh && CharacterOwner->GetMesh())
     {
+        if (!WeaponActor || !WeaponActor->SkeletalMesh)
+        {
+            UE_LOG(LogUWeaponComponent, Error,
+                TEXT("WeaponActor or SkeletalMesh is null"));
+            return;
+        }
+
+        if (!CharacterOwner || !CharacterOwner->GetMesh())
+        {
+            UE_LOG(LogUWeaponComponent, Error,
+                TEXT("CharacterOwner or its mesh is null"));
+            return;
+        }
+
         WeaponActor->SkeletalMesh->AttachToComponent(CharacterOwner->GetMesh(),
             FAttachmentTransformRules::SnapToTargetNotIncludingScale,
             TEXT("WeaponSocket"));

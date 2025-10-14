@@ -19,7 +19,8 @@ DEFINE_LOG_CATEGORY_STATIC(LogATestPawn, Log, Log);
 // Sets default values
 ATestPawn::ATestPawn()
 {
-    PrimaryActorTick.bCanEverTick = false;
+    PrimaryActorTick.bCanEverTick = true;
+    PrimaryActorTick.TickGroup = TG_DuringPhysics;
 
     // Components
     StaticMeshComponent =
@@ -44,8 +45,8 @@ void ATestPawn::BeginPlay()
     Super::BeginPlay();
 
     StaticMeshComponent->SetConstraintMode(EDOFMode::XYPlane);
-    StaticMeshComponent->SetLinearDamping(10.f);
-    StaticMeshComponent->SetAngularDamping(10.f);
+    StaticMeshComponent->SetLinearDamping(1.f);
+    StaticMeshComponent->SetAngularDamping(1.f);
     StaticMeshComponent->SetCollisionResponseToAllChannels(ECR_Block);
 }
 
@@ -98,8 +99,10 @@ void ATestPawn::MoveFowrard(float Value)
     if (!bIsPossessed) return;
 
     VelocityVector.X = Value;
+
     AddActorLocalOffset(
         VelocityVector * Velocity * GetWorld()->GetDeltaSeconds(), true);
+
     if (Value != 0)
     {
         UE_LOG(LogATestPawn, Display, TEXT("MoveFowrard value: %f"), Value)
@@ -111,8 +114,10 @@ void ATestPawn::MoveRight(float Value)
     if (!bIsPossessed) return;
 
     VelocityVector.Y = Value;
+
     AddActorLocalOffset(
         VelocityVector * Velocity * GetWorld()->GetDeltaSeconds(), true);
+
     if (Value != 0)
     {
         UE_LOG(LogATestPawn, Display, TEXT("MoveRight value: %f"), Value)

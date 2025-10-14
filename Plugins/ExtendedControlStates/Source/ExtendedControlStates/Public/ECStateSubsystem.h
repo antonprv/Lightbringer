@@ -35,8 +35,8 @@ public:
     static UECStateSubsystem* Get(UWorld* World);
 
     UFUNCTION(BlueprintCallable, Category = "Extended Controller States")
-    void BeginSpectating(
-        AController* Controller, TSubclassOf<ASpectatorPawn> SpectatorPawn);
+    void BeginSpectating(AController* Controller,
+        TSubclassOf<ASpectatorPawn> SpectatorPawnClass);
 
     UFUNCTION(BlueprintCallable, Category = "Extended Controller States")
     void RespawnInWorld(AGameModeBase* GameMode, AController* Controller);
@@ -53,7 +53,7 @@ public:
     bool IsPlaying() { return CurrentState == ESpectatingState::Playing; }
 
 private:
-    ASpectatorPawn* SpectatorPawn;
+    ASpectatorPawn* CustomSpectatorPawn;
 
     ESpectatingState CurrentState{ESpectatingState::Default};
 };
