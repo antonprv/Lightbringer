@@ -37,13 +37,22 @@ void UCustomHLSLExpression::UpdateNodeOutputs()
     if (NodeAdditionalOutputs.Num() == 0) return;
 
     bShowOutputNameOnPin = true;
-    Outputs[0].OutputName = FirstOutputName;
+
+    SetFirstOuputName(FirstOutputName);
 
     for (TPair<FName, TEnumAsByte<ECustomMaterialOutputType>> Output :
         NodeAdditionalOutputs)
     {
         Outputs.Add(FExpressionOutput(Output.Key));
     }
+}
+
+void UCustomHLSLExpression::SetFirstOuputName(FName OutputName)
+{
+    if (OutputName.IsNone()) return;
+
+    bShowOutputNameOnPin = true;
+    Outputs[0].OutputName = OutputName;
 }
 
 void UCustomHLSLExpression::SetManualHLSL(const FString& HLSLCodeString)
