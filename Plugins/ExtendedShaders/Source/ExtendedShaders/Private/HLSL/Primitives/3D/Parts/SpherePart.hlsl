@@ -3,5 +3,7 @@
 
 #include "/Libraries/Shapes/3D/Estimators/SphereEstimator.ush"
 
+USphereEstimator Sphere;
+
 // Draw call
 return Sphere.GetType();

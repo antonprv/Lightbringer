@@ -8,6 +8,8 @@
 
 #if WITH_EDITOR
 #include "Materials/MaterialExpressionCustom.h"
+#else
+enum ECustomMaterialOutputType : int;
 #endif
 
 #include "CustomHLSLExpression.generated.h"
@@ -18,7 +20,6 @@
  */
 
 class FMaterialCompiler;
-enum ECustomMaterialOutputType;
 struct FExpressionInput;
 
 UCLASS()
@@ -35,9 +36,13 @@ public:
     FString FriendlyName;
     FString FriendlyCategory;
 
-    TEnumAsByte<enum ECustomMaterialOutputType> NodeOutputType;
+    FName FirstOutputName{""};
+
+    TEnumAsByte<ECustomMaterialOutputType> NodeOutputType;
 
     TMap<FName, FExpressionInput*> NodeInputs;
+
+    TMap<FName, TEnumAsByte<ECustomMaterialOutputType>> NodeAdditionalOutputs;
 
     void SetHLSLFilePath(const FString& HLSLFilePathString);
 
@@ -45,6 +50,7 @@ public:
     void SetManualHLSL(const FString& HLSLCodeString);
 
     void SetCategoryAndDescription();
+    void UpdateNodeOutputs();
 
 protected:
 #if WITH_EDITOR

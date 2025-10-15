@@ -26,6 +26,11 @@ UBoxPart::UBoxPart(const FObjectInitializer& ObjInit) : Super(ObjInit)
     NodeInputs.Add("BevelRadius", &BevelRadius);
 
     NodeOutputType = CMOT_Float1;
+
+    NodeAdditionalOutputs.Add("SomeOutput", CMOT_Float3);
+
+    UpdateNodeOutputs();
+
     SetHLSLFilePath(
         "/Source/ExtendedShaders/Private/HLSL/Primitives/3D/Parts/BoxPart.hlsl");
 }

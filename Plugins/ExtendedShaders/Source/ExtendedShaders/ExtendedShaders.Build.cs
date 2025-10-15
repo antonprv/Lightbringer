@@ -39,8 +39,11 @@ public class ExtendedShaders : ModuleRules
             new string[]
             {
                 "Core",
+                "CoreUObject",
+                "Engine",
                 "RenderCore",
-                "Projects"
+                "Projects",
+                "RHI"
             }
             );
 
@@ -48,8 +51,6 @@ public class ExtendedShaders : ModuleRules
         PrivateDependencyModuleNames.AddRange(
             new string[]
             {
-                "CoreUObject",
-                "Engine",
                 "Slate",
                 "SlateCore"
             }

@@ -8,8 +8,3 @@
 #define SphereType float(0)
 #define BoxType float(1)
 #define CyllinderType float(2)
-
-interface IEstimator
-{
-    float GetType();
-};

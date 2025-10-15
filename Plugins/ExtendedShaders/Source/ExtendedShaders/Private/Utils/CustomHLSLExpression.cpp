@@ -20,6 +20,7 @@ UCustomHLSLExpression::UCustomHLSLExpression(const FObjectInitializer& ObjInit)
     : Super(ObjInit)
 {
     FriendlyName = TEXT("CustomHLSL Node");
+    FirstOutputName = "return";
 }
 
 void UCustomHLSLExpression::SetCategoryAndDescription()
@@ -29,6 +30,20 @@ void UCustomHLSLExpression::SetCategoryAndDescription()
 #if WITH_EDITOR
     Desc = FriendlyDescription;
 #endif
+}
+
+void UCustomHLSLExpression::UpdateNodeOutputs()
+{
+    if (NodeAdditionalOutputs.Num() == 0) return;
+
+    bShowOutputNameOnPin = true;
+    Outputs[0].OutputName = FirstOutputName;
+
+    for (TPair<FName, TEnumAsByte<ECustomMaterialOutputType>> Output :
+        NodeAdditionalOutputs)
+    {
+        Outputs.Add(FExpressionOutput(Output.Key));
+    }
 }
 
 void UCustomHLSLExpression::SetManualHLSL(const FString& HLSLCodeString)
@@ -107,7 +122,7 @@ int32 UCustomHLSLExpression::Compile(FMaterialCompiler* C, int32 OutputIndex)
     TempCustom->Description =
         FString::Printf(TEXT("WRAPPED: %s"), *FriendlyName);
 
-    TempCustom->Inputs.Empty();
+    TempCustom->Inputs.Reset();
 
     TArray<int32> CompiledInputs{};
 
@@ -145,7 +160,21 @@ int32 UCustomHLSLExpression::Compile(FMaterialCompiler* C, int32 OutputIndex)
         ++InputNumber;
     }
 
-    return C->CustomExpression(TempCustom, int32(0), CompiledInputs);
-}
+    if (NodeAdditionalOutputs.Num() > 0)
+    {
+        TempCustom->AdditionalOutputs.Reset();
 
+        for (TPair<FName, TEnumAsByte<ECustomMaterialOutputType>> Output :
+            NodeAdditionalOutputs)
+        {
+            FCustomOutput CustomOutput;
+            CustomOutput.OutputType = Output.Value;
+            CustomOutput.OutputName = Output.Key;
+
+            TempCustom->AdditionalOutputs.Add(CustomOutput);
+        }
+    }
+
+    return C->CustomExpression(TempCustom, OutputIndex, CompiledInputs);
+}
 #endif

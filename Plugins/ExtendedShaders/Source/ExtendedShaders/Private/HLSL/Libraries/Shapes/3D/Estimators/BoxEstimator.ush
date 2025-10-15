@@ -4,8 +4,9 @@
 #pragma once
 
 #include "/Libraries/Shapes/3D/Estimators/BaseEstimator.ush"
+#include "/Libraries/Shapes/3D/TransformManager.ush"
 
-class UBoxEstimator : IEstimator
+class UBoxEstimator
 {
     float BevelRadius;
     
@@ -14,14 +15,15 @@ class UBoxEstimator : IEstimator
         
     float CalcDistance()
     {
-       float3 LocalPosition = RayOrigin - Transform.Location;
-        LocalPosition = URayMarcher::RotateByWorldEuler(LocalPosition, Transform.Rotation);
+        float3 LocalPosition = RayOrigin - Transform.Location;
+        LocalPosition = URotationManager::RotateByWorldEuler(LocalPosition, Transform.Rotation);
         LocalPosition = abs(LocalPosition) - Transform.Scale;
 
         return length(
-            max(LocalPosition, 0)) + 
+            max(LocalPosition, 0)) +
             min(max(LocalPosition.x, max(LocalPosition.y, LocalPosition.z)), 0
-            ) -BevelRadius;
+            ) - BevelRadius;
+    }
     
     float GetDistance()
     {
