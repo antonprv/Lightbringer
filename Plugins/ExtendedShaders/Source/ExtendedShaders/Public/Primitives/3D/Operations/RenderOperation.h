@@ -21,13 +21,19 @@ class EXTENDEDSHADERS_API URenderOperation : public UCustomHLSLExpression
 public:
     URenderOperation(const FObjectInitializer& ObjInit);
 
-    // Inputs:WorldPosition, ObjectPosition
-    // CameraVector, StepSize, NumRaySteps,
-    // OverlapDetectionThreshold
-    // Color, LightDirection, AmbientLight, ShadowContrast,
-    // RimStrength, RimContrast, RimColor,
-    // SpecularSoftness, SpecularColor,
-    // Part
+    // Inputs:  Part
+    //          WorldPosition, ObjectPosition
+    //          CameraVector,
+    //          Radius
+    //          Location, Rotation, Scale
+    //          StepSize, NumRaySteps,
+    //          OverlapDetectionThreshold
+    //          Color, LightDirection, AmbientLight, ShadowContrast,
+    //          RimStrength, RimContrast, RimColor,
+    //          SpecularSoftness, SpecularColor,
+
+    UPROPERTY()
+    FExpressionInput Part;
 
     UPROPERTY()
     FExpressionInput WorldPosition;
@@ -35,6 +41,17 @@ public:
     FExpressionInput ObjectPosition;
     UPROPERTY()
     FExpressionInput CameraVector;
+
+    UPROPERTY()
+    FExpressionInput Radius;
+
+    UPROPERTY()
+    FExpressionInput Location;
+    UPROPERTY()
+    FExpressionInput Rotation;
+    UPROPERTY()
+    FExpressionInput Scale;
+
     UPROPERTY()
     FExpressionInput StepSize;
     UPROPERTY()
@@ -63,7 +80,4 @@ public:
     FExpressionInput SpecularSoftness;
     UPROPERTY()
     FExpressionInput SpecularColor;
-
-    UPROPERTY()
-    FExpressionInput Part;
 };

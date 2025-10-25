@@ -8,8 +8,10 @@
 #include "/Libraries/Shapes/3D/TransformManager.ush"
 
 #include "/Libraries/Shapes/3D/Estimators/SphereEstimator.ush"
-#include "/Libraries/Shapes/3D/Estimators/BoxEstimator.ush"
-#include "/Libraries/Shapes/3D/Estimators/CyllinderEstimator.ush"
+//#include "/Libraries/Shapes/3D/Estimators/BoxEstimator.ush"
+//#include "/Libraries/Shapes/3D/Estimators/CyllinderEstimator.ush"
+
+#include "/Libraries/Shapes/3D/BaseShape.ush"
 
 class URenderOperand : IBaseShape
 {
@@ -30,15 +32,15 @@ class URenderOperand : IBaseShape
         {
             return USphereEstimator::CalcDistance(DrawParams.ViewRayOrigin, Transform, Radius);
         }
-        else if (InPart == BoxType)
-        {
-            return UBoxEstimator::GetDistance(DrawParams.ViewRayOrigin);
-        }
-        else if (InPart == CyllinderType)
-        {
-            return UCyllinderEstimator::GetDistance(DrawParams.ViewRayOrigin);
-        }
-     
+        //else if (InPart == BoxType)
+        //{
+        //    return UBoxEstimator::GetDistance(DrawParams.ViewRayOrigin);
+        //}
+        //else if (InPart == CyllinderType)
+        //{
+        //    return UCyllinderEstimator::GetDistance(DrawParams.ViewRayOrigin);
+        //}
+        
         return 0;
     }
     

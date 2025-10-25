@@ -184,6 +184,8 @@ int32 UCustomHLSLExpression::Compile(FMaterialCompiler* C, int32 OutputIndex)
         }
     }
 
+    TempCustom->IncludeFilePaths = HLSLIncludes;
+
     return C->CustomExpression(TempCustom, OutputIndex, CompiledInputs);
 }
 #endif

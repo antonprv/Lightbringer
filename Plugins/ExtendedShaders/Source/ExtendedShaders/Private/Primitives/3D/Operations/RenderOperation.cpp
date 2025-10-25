@@ -12,18 +12,29 @@ URenderOperation::URenderOperation(const FObjectInitializer& ObjInit)
         "Renders out individual 3D Parts or other operation's result";
     SetCategoryAndDescription();
 
-    // Inputs:WorldPosition, ObjectPosition
-    // CameraVector, StepSize, NumRaySteps,
-    // OverlapDetectionThreshold
-    // Color, LightDirection, AmbientLight, ShadowContrast,
-    // RimStrength, RimContrast, RimColor,
-    // SpecularSoftness, SpecularColor,
-    // Part
+    // Inputs:  Part
+    //          WorldPosition, ObjectPosition
+    //          CameraVector,
+    //          Radius
+    //          Location, Rotation, Scale
+    //          StepSize, NumRaySteps,
+    //          OverlapDetectionThreshold
+    //          Color, LightDirection, AmbientLight, ShadowContrast,
+    //          RimStrength, RimContrast, RimColor,
+    //          SpecularSoftness, SpecularColor,
+
+    NodeInputs.Add("Part", &Part);
 
     NodeInputs.Add("WorldPosition", &WorldPosition);
     NodeInputs.Add("ObjectPosition", &ObjectPosition);
-
     NodeInputs.Add("CameraVector", &CameraVector);
+
+    NodeInputs.Add("Radius", &Radius);
+
+    NodeInputs.Add("Location", &Location);
+    NodeInputs.Add("Rotation", &Rotation);
+    NodeInputs.Add("Scale", &Scale);
+
     NodeInputs.Add("StepSize", &StepSize);
     NodeInputs.Add("NumRaySteps", &NumRaySteps);
     NodeInputs.Add("OverlapDetectionThreshold", &OverlapDetectionThreshold);
@@ -40,9 +51,8 @@ URenderOperation::URenderOperation(const FObjectInitializer& ObjInit)
     NodeInputs.Add("SpecularSoftness", &SpecularSoftness);
     NodeInputs.Add("SpecularColor", &SpecularColor);
 
-    NodeInputs.Add("Part", &Part);
-
     NodeOutputType = CMOT_Float4;
     SetHLSLFilePath(
         "/Source/ExtendedShaders/Private/HLSL/Primitives/3D/Operations/RenderOperation.hlsl");
+    HLSLIncludes.Add("/Libraries/Shapes/3D/Operands/RenderOperand.ush");
 }

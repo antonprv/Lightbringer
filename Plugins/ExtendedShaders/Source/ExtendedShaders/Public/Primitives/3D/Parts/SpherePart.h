@@ -20,4 +20,30 @@ class EXTENDEDSHADERS_API USpherePart : public UCustomHLSLExpression
 
 public:
     USpherePart(const FObjectInitializer& ObjInit);
+
+    // Inputs:  WorldPosition, ObjectPosition, CameraVector
+    //          Radius
+    //          Location, Rotation, Scale
+
+    // Outputs  OutWorldPosition, OutObjectPosition, OutCameraVector
+    //          OutRadius
+    //          OutLocation, OutRotation, OutScale
+    //          Part
+
+    UPROPERTY()
+    FExpressionInput WorldPosition;
+    UPROPERTY()
+    FExpressionInput ObjectPosition;
+    UPROPERTY()
+    FExpressionInput CameraVector;
+
+    UPROPERTY()
+    FExpressionInput Radius;
+
+    UPROPERTY()
+    FExpressionInput Location;
+    UPROPERTY()
+    FExpressionInput Rotation;
+    UPROPERTY()
+    FExpressionInput Scale;
 };

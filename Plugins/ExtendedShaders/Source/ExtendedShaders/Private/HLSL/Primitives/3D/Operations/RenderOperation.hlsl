@@ -1,15 +1,18 @@
 // You can use this project non-commercially for educational purposes, any
 // commercial use, derivative commercial use is strictly prohibited
 
-#include "/Libraries/Shapes/3D/Operands/RenderOperand.ush"
+// #include "/Libraries/Shapes/3D/Operands/RenderOperand.ush"
 
-// Inputs:WorldPosition, ObjectPosition
-// CameraVector, StepSize, NumRaySteps,
-// OverlapDetectionThreshold
-// Color, LightDirection, AmbientLight, ShadowContrast, 
-// RimStrength, RimContrast, RimColor,
-// SpecularSoftness, SpecularColor,
-// Part
+// Inputs:  Part
+//          WorldPosition, ObjectPosition
+//          CameraVector,
+//          Radius
+//          Location, Rotation, Scale
+//          StepSize, NumRaySteps,
+//          OverlapDetectionThreshold
+//          Color, LightDirection, AmbientLight, ShadowContrast, 
+//          RimStrength, RimContrast, RimColor,
+//          SpecularSoftness, SpecularColor,
 
 float3 RenderOpPosition = WorldPosition - ObjectPosition;
 
@@ -50,8 +53,8 @@ Transform.Location = Location;
 Transform.Rotation = Rotation;
 Transform.Scale = Scale;
 
-RenderOp.FTransform = Transform;
-RenderOp.
+RenderOp.Transform = Transform;
+RenderOp.Radius = Radius;
 
 // Draw call
 return RenderOp.Draw();

@@ -44,6 +44,8 @@ public:
 
     TMap<FName, TEnumAsByte<ECustomMaterialOutputType>> NodeAdditionalOutputs;
 
+    TArray<FString> HLSLIncludes;
+
     void SetHLSLFilePath(const FString& HLSLFilePathString);
 
     // You can still write code manually and send it here
@@ -51,6 +53,7 @@ public:
 
     void SetCategoryAndDescription();
     void UpdateNodeOutputs();
+    void SetFirstOuputName(FName OutputName);
 
 protected:
 #if WITH_EDITOR
