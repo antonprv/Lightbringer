@@ -8,13 +8,7 @@
 
 class USphereEstimator
 {
-<<<<<<< Updated upstream
-    static const float4 TransparentBackground = float4(0, 0, 0, 0);
-
-    float GetType()
-=======
     static float GetType()
->>>>>>> Stashed changes
     {
         return SPHERE_TYPE;
     }
@@ -32,13 +26,6 @@ class USphereEstimator
 
         return Distance * min(Transform.Scale.x, min(Transform.Scale.y, Transform.Scale.z)) * Radius;
     }
-<<<<<<< Updated upstream
-    
-    float GetDistance()
-    {
-        return CalcDistance(RayOrigin, Transform, Radius);
-    }
-=======
         
     static float3 GetSurfaceNormal(float3 RayOrigin, FTransform Transform, float Radius)
     {
@@ -58,5 +45,4 @@ class USphereEstimator
         return normalize(Gradient);
     }
     
->>>>>>> Stashed changes
 };

@@ -1,11 +1,11 @@
 // You can use this project non-commercially for educational purposes, any
 // commercial use, derivative commercial use is strictly prohibited
 
-#include "LBPlayerCharacter.h"
-#include "PlayerDelegateMediator.h"
-#include "ComponentsDelegateMediator.h"
+#include "View/Player/LBPlayerCharacter.h"
+#include "View/Player/PlayerDelegateMediator.h"
+#include "Gameplay/Subsystems/ComponentsDelegateMediator.h"
 
-#include "LBWeaponBase.h"
+#include "View/Actors/LBWeaponBase.h"
 
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -13,10 +13,10 @@
 #include "GameFramework/Controller.h"
 #include "GameFramework/PlayerController.h"
 
-#include "Components/LBCharacterMovementComponent.h"
-#include "Components/HealthComponent.h"
-#include "Components/WeaponComponent.h"
-#include "Components/AnimationComponent.h"
+#include "Gameplay/Components/LBCharacterMovementComponent.h"
+#include "Gameplay/Components/HealthComponent.h"
+#include "Gameplay/Components/WeaponComponent.h"
+#include "View/Components/AnimationComponent.h"
 #include "Components/FakeShadowComponent.h"
 #include "Components/SceneCaptureComponent2D.h"
 #include "Components/SkeletalMeshComponent.h"

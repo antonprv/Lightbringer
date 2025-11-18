@@ -1,7 +1,7 @@
 // You can use this project non-commercially for educational purposes, any
 // commercial use, derivative commercial use is strictly prohibited
 
-#include "BlobShadowComponent.h"
+#include "Components/BlobShadowComponent.h"
 
 #include "GameFramework/Actor.h"
 #include "GameFramework/Character.h"

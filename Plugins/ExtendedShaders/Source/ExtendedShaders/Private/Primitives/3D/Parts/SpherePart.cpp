@@ -1,7 +1,7 @@
 // You can use this project non-commercially for educational purposes, any
 // commercial use, derivative commercial use is strictly prohibited
 
-#include "SpherePart.h"
+#include "Primitives/3D/Parts/SpherePart.h"
 
 USpherePart::USpherePart(const FObjectInitializer& ObjInit) : Super(ObjInit)
 {
@@ -16,8 +16,6 @@ USpherePart::USpherePart(const FObjectInitializer& ObjInit) : Super(ObjInit)
     //          Location, Rotation, Scale
 
     // Outputs  OutWorldPosition, OutObjectPosition, OutCameraVector
-    //          OutRadius
-    //          OutLocation, OutRotation, OutScale
     //          Part
     //          OutLocation, OutRotation, OutScale
     //          OutRadius

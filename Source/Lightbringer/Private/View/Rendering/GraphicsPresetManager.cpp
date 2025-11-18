@@ -1,10 +1,14 @@
 // You can use this project non-commercially for educational purposes, any
 // commercial use, derivative commercial use is strictly prohibited
 
-#include "GraphicsPresetManager.h"
+#include "View/Rendering/GraphicsPresetManager.h"
 #include "Engine/Engine.h"
 #include "Engine/GameViewportClient.h"
 #include "GameFramework/GameUserSettings.h"
+
+#include "GPUCheck/Public/GPUCheckModule.h"
+
+DEFINE_LOG_CATEGORY_STATIC(LogUGraphicsPresetManager, Log, Log)
 
 UGraphicsPresetManager* UGraphicsPresetManager::Get()
 {
@@ -29,17 +33,73 @@ void UGraphicsPresetManager::ApplyQualitySettings(
         {
             SetLowScalability();
             SetScreenScaling(EScreenScalingPreset::Half);
-            CurrentPreset = EGameGraphicsPreset::Low;
             break;
         }
         case EGameGraphicsPreset::Default:
         {
             SetDefaultScalability();
             SetScreenScaling(EScreenScalingPreset::Full);
-            CurrentPreset = EGameGraphicsPreset::Default;
             break;
         }
         default: break;
+    }
+
+    ApplyOptimizations();
+    CurrentPreset = Preset;
+}
+
+void UGraphicsPresetManager::StartVRAMTrackingTask(const float& TickTime)
+{
+    if (GEngine && GEngine->GetWorld())
+    {
+        GEngine->GetWorld()->GetTimerManager().ClearTimer(
+            VRAMCheckTimerHandle);
+
+        GEngine->GetWorld()->GetTimerManager().SetTimer(VRAMCheckTimerHandle,
+            this, &UGraphicsPresetManager::UpdateVRAMUsage, TickTime, true);
+    }
+}
+
+void UGraphicsPresetManager::UpdateVRAMUsage()
+{
+    int32 TotalVRAM = FGPUCheckModule::GetTotalVRAM();
+    int32 UsedVRAM = FGPUCheckModule::GetUsedVRAM();
+
+    if (TotalVRAM <= 0) return;  // fallback is handled in GPUCheckModule
+
+    // Calculate free VRAM
+    int32 FreeVRAM = TotalVRAM - UsedVRAM;
+
+    // If free VRAM drops below threshold, reduce pool percentage
+    if (FreeVRAM < MinComfortableVRAM)
+    {
+        StreamingPoolPercentage = FMath::Clamp(StreamingPoolPercentage - 0.05f,
+            0.3f, DefaultStreamingPoolPercentage);
+        AdjustStreamingPool();
+    }
+    else if (FreeVRAM > MinComfortableVRAM * 2 &&
+             StreamingPoolPercentage < 1.0f)
+    {
+        // Gradually restore pool if enough VRAM
+        StreamingPoolPercentage = FMath::Clamp(StreamingPoolPercentage + 0.02f,
+            0.3f, DefaultStreamingPoolPercentage);
+        AdjustStreamingPool();
+    }
+}
+
+void UGraphicsPresetManager::AdjustStreamingPool()
+{
+    PoolSize = FGPUCheckModule::GetTotalVRAM() * StreamingPoolPercentage;
+
+    // Set pool
+    static IConsoleVariable* CVarPoolSize =
+        IConsoleManager::Get().FindConsoleVariable(
+            TEXT("r.Streaming.PoolSize"));
+    if (CVarPoolSize)
+    {
+        CVarPoolSize->Set(PoolSize);
+        UE_LOG(LogUGraphicsPresetManager, Display,
+            TEXT("Set CVar: r.Streaming.PoolSize = %d"), PoolSize)
     }
 }
 
@@ -49,9 +109,15 @@ void UGraphicsPresetManager::SetScreenScaling(
     if (GEngine && GEngine->GameViewport)
     {
         // Set the screen percentage (resolution fraction) via console variable
-        FString Command =
-            FString::Printf(TEXT("r.ScreenPercentage %d"), ScreenPercentage);
-        GEngine->GameViewport->Exec(nullptr, *Command, *GLog);
+        static IConsoleVariable* CVarScreenPercentage =
+            IConsoleManager::Get().FindConsoleVariable(
+                TEXT("r.ScreenPercentage"));
+        if (CVarScreenPercentage)
+        {
+            CVarScreenPercentage->Set(static_cast<int32>(ScreenPercentage));
+            UE_LOG(LogUGraphicsPresetManager, Display,
+                TEXT("Set CVar: r.ScreenPercentage = %d"), ScreenPercentage)
+        }
     }
 }
 
@@ -74,6 +140,10 @@ void UGraphicsPresetManager::SetDefaultScalability()
             Settings->ApplySettings(false);
             Settings->SaveSettings();
         }
+
+        // If we select this, we probably have a powerful GPU
+        // so this is more like an emergency check.
+        StartVRAMTrackingTask(RareVRAMChecking);
     }
 }
 
@@ -97,5 +167,42 @@ void UGraphicsPresetManager::SetLowScalability()
             Settings->ApplySettings(false);
             Settings->SaveSettings();
         }
+
+        // If we select this, we probably have a weak GPU, 
+        // so we periodically check for VRAM overflow.
+        StartVRAMTrackingTask(OftenVRAMChecking);
+    }
+}
+
+void UGraphicsPresetManager::ApplyOptimizations()
+{
+    AdjustStreamingPool();
+
+    static IConsoleVariable* CVarEarlyZPass =
+        IConsoleManager::Get().FindConsoleVariable(TEXT("r.EarlyZPass"));
+    if (CVarEarlyZPass)
+    {
+        CVarEarlyZPass->Set(2);
+        UE_LOG(LogUGraphicsPresetManager, Display,
+            TEXT("Set CVar: r.EarlyZPass = %d"), 2)
+    }
+
+    static IConsoleVariable* CVarClearScreenMethod =
+        IConsoleManager::Get().FindConsoleVariable(TEXT("r.ClearSceneMethod"));
+    if (CVarClearScreenMethod)
+    {
+        CVarClearScreenMethod->Set(0);
+        UE_LOG(LogUGraphicsPresetManager, Display,
+            TEXT("Set CVar: r.ClearSceneMethod = %d"), 0)
+    }
+
+    static IConsoleVariable* CVarShadowParallelCull =
+        IConsoleManager::Get().FindConsoleVariable(
+            TEXT("r.Shadow.ParallelCull"));
+    if (CVarShadowParallelCull)
+    {
+        CVarShadowParallelCull->Set(0);
+        UE_LOG(LogUGraphicsPresetManager, Display,
+            TEXT("Set CVar: r.Shadow.ParallelCull = %d"), 0)
     }
 }

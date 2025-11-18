@@ -1,9 +1,9 @@
 // You can use this project non-commercially for educational purposes, any
 // commercial use, derivative commercial use is strictly prohibited
 
-#include "LBGameInstance.h"
-#include "QualitySettingsSubsystem.h"
-#include "GraphicsPresetManager.h"
+#include "Gameplay/Game/LBGameInstance.h"
+#include "View/Subsystems/QualitySettingsSubsystem.h"
+#include "View/Rendering/GraphicsPresetManager.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LightBringerGameInstanceLog, All, All)
 
@@ -36,7 +36,7 @@ void ULBGameInstance::ApplyGraphicsSettingsAfterWorld(
             UQualitySettingsSubsystem::Get(World))
     {
         QualitySettingsSubsystem->GetGraphicsPresetManager()
-            ->ApplyLowQualitySettings();
+            ->ApplyDefaultQualitySettings();
     }
     else
     {

@@ -9,34 +9,6 @@ public class FakeShadow : ModuleRules
     {
         PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
 
-        PublicIncludePaths.Add(ModuleDirectory);
-
-        PublicIncludePaths.AddRange(new string[]
-        {
-            Path.Combine(ModuleDirectory, "Public"),
-            Path.Combine(ModuleDirectory, "Public", "Components")
-        });
-
-        PrivateIncludePaths.AddRange(new string[]
-        {
-            Path.Combine(ModuleDirectory, "Private"),
-            Path.Combine(ModuleDirectory, "Private", "Components")
-        });
-
-        PublicIncludePaths.AddRange(
-            new string[] {
-				// ... add public include paths required here ...
-			}
-            );
-
-
-        PrivateIncludePaths.AddRange(
-            new string[] {
-				// ... add other private include paths required here ...
-			}
-            );
-
-
         PublicDependencyModuleNames.AddRange(
             new string[]
             {

@@ -1,8 +1,8 @@
 // You can use this project non-commercially for educational purposes, any
 // commercial use, derivative commercial use is strictly prohibited
 
-#include "Components/WeaponComponent.h"
-#include "Actors/LBWeaponBase.h"
+#include "Gameplay/Components/WeaponComponent.h"
+#include "View/Actors/LBWeaponBase.h"
 
 #include "Components/SkeletalMeshComponent.h"
 #include "GameFramework/Character.h"

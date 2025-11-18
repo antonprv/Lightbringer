@@ -1,7 +1,7 @@
 // You can use this project non-commercially for educational purposes, any
 // commercial use, derivative commercial use is strictly prohibited
 
-#include "FakeShadowComponent.h"
+#include "Components/FakeShadowComponent.h"
 
 #include "GameFramework/Actor.h"
 #include "GameFramework/Character.h"
@@ -42,14 +42,18 @@ void UFakeShadowComponent::BeginPlay()
     CharacterOwner = Cast<ACharacter>(GetOwner());
     check(CharacterOwner);
 
-    ShadowRenderer->ShowOnlyComponents.Add(CharacterOwner->GetMesh());
+    CreateShadowRenderer();
+
+    if (ShadowRenderer && CharacterOwner->GetMesh())
+    {
+        ShadowRenderer->ShowOnlyComponents.Empty();
+        ShadowRenderer->ShowOnlyComponents.Add(CharacterOwner->GetMesh());
+    }
 }
 
 void UFakeShadowComponent::OnRegister()
 {
     Super::OnRegister();
-
-    CreateShadowRenderer();
 }
 
 void UFakeShadowComponent::CreateShadowRenderer()
@@ -89,12 +93,12 @@ void UFakeShadowComponent::AssignMaterials()
 {
     FakeShadowMaterial = LoadObject<UMaterialInterface>(nullptr,
         TEXT(
-            "MaterialInstanceConstant'/FakeShadow/Assets/Decals/Shadow/MI_DecalRenderTarget.MI_DecalRenderTarget'"));
+            "/Script/Engine.MaterialInstanceConstant'/FakeShadow/Assets/Decals/Shadow/MI_DecalRenderTarget.MI_DecalRenderTarget'"));
     SetDecalMaterial(FakeShadowMaterial);
 
     FakeShadowTexture = LoadObject<UTextureRenderTarget2D>(nullptr,
         TEXT(
-            "TextureRenderTarget2D'/FakeShadow/Assets/Decals/Shadow/Textures/ShadowRenderTarget.ShadowRenderTarget'"));
+            "/Script/Engine.TextureRenderTarget2D'/FakeShadow/Assets/Decals/Shadow/Textures/ShadowRenderTarget.ShadowRenderTarget'"));
 
     ShadowRenderer->TextureTarget = FakeShadowTexture;
 }

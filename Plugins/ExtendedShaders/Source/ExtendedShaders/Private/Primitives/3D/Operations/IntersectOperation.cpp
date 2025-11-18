@@ -1,7 +1,7 @@
 // You can use this project non-commercially for educational purposes, any
 // commercial use, derivative commercial use is strictly prohibited
 
-#include "IntersectOperation.h"
+#include "Primitives/3D/Operations/IntersectOperation.h"
 
 UIntersectOperation::UIntersectOperation(const FObjectInitializer& ObjInit)
     : Super(ObjInit)

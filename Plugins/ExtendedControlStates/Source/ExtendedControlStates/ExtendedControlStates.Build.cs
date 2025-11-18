@@ -9,18 +9,6 @@ public class ExtendedControlStates : ModuleRules
     {
         PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
-        PublicIncludePaths.Add(ModuleDirectory);
-
-        PublicIncludePaths.AddRange(new string[]
-        {
-            Path.Combine(ModuleDirectory, "Public")
-        });
-
-        PrivateIncludePaths.AddRange(new string[]
-        {
-            Path.Combine(ModuleDirectory, "Private")
-        });
-
         PublicIncludePaths.AddRange(
             new string[] {
 				// ... add public include paths required here ...

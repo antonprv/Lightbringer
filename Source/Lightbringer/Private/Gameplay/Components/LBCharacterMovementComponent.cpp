@@ -1,7 +1,7 @@
 // You can use this project non-commercially for educational purposes, any
 // commercial use, derivative commercial use is strictly prohibited
 
-#include "LBCharacterMovementComponent.h"
+#include "Gameplay/Components/LBCharacterMovementComponent.h"
 
 #include "GameFramework/Character.h"
 #include "GameFramework/Controller.h"

@@ -57,6 +57,8 @@ DXGI_QUERY_VIDEO_MEMORY_INFO FGPUCheckModule::GetVideoMemoryInfo()
     return VideoMemoryInfo;
 }
 
+
 #undef LOCTEXT_NAMESPACE
 
 IMPLEMENT_MODULE(FGPUCheckModule, GPUCheck);
+

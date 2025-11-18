@@ -1,8 +1,8 @@
 // You can use this project non-commercially for educational purposes, any
 // commercial use, derivative commercial use is strictly prohibited
 
-#include "LBSpectatorPawn.h"
-#include "PlayerDelegateMediator.h"
+#include "View/Player/LBSpectatorPawn.h"
+#include "View/Player/PlayerDelegateMediator.h"
 
 #include "Engine/World.h"
 

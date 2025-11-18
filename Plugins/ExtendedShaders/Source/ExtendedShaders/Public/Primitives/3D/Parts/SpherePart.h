@@ -26,8 +26,6 @@ public:
     //          Location, Rotation, Scale
 
     // Outputs  OutWorldPosition, OutObjectPosition, OutCameraVector
-    //          OutRadius
-    //          OutLocation, OutRotation, OutScale
     //          Part
     //          OutLocation, OutRotation, OutScale
     //          OutRadius

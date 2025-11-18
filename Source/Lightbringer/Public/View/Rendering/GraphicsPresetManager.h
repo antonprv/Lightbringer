@@ -51,8 +51,25 @@ public:
 private:
     EGameGraphicsPreset CurrentPreset = EGameGraphicsPreset::Default;
 
+    FTimerHandle VRAMCheckTimerHandle;
+
     int32 DefaultScaling{100};
+
+    int32 PoolSize;
+    // start at 55% of VRAM for streaming
+    float DefaultStreamingPoolPercentage{0.55f};
+    float StreamingPoolPercentage{0.55f};
+    float MinComfortableVRAM{1536.0f};
+
+    void StartVRAMTrackingTask(const float& TickTime);
+    void UpdateVRAMUsage();
+    void AdjustStreamingPool();
+
     void SetScreenScaling(const EScreenScalingPreset& ScreenPercentage);
     void SetDefaultScalability();
     void SetLowScalability();
+    void ApplyOptimizations();
+
+    static constexpr float RareVRAMChecking = 15.f;
+    static constexpr float OftenVRAMChecking = 5.f;
 };

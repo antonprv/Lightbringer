@@ -1,7 +1,7 @@
 // You can use this project non-commercially for educational purposes, any
 // commercial use, derivative commercial use is strictly prohibited
 
-#include "BoxPart.h"
+#include "Primitives/3D/Parts/BoxPart.h"
 
 UBoxPart::UBoxPart(const FObjectInitializer& ObjInit) : Super(ObjInit)
 {
@@ -11,23 +11,16 @@ UBoxPart::UBoxPart(const FObjectInitializer& ObjInit) : Super(ObjInit)
         "Box 3D Part, add RenderOperation to view it, add/intersect/subtract for boolean modelling";
     SetCategoryAndDescription();
 
-<<<<<<< Updated upstream
-    // Inputs:WorldPosition, ObjectPosition, CameraVector
-    // Location, Rotation, Scale
-    // BevelRadius
-    == == ==
-        =
-            // Inputs:  WorldPosition, ObjectPosition, CameraVector
-            //          Location, Rotation, Scale
-            //          BevelRadius
-            // Outputs: OutWorldPosition, OutObjectPosition, OutCameraVector
-            //          OutBevelRadius
-            //          OutLocation, OutRotation, OutScale
+    // Inputs:  WorldPosition, ObjectPosition, CameraVector
+    //          Location, Rotation, Scale
+    //          BevelRadius
+    // Outputs: OutWorldPosition, OutObjectPosition, OutCameraVector
+    //          OutBevelRadius
+    //          OutLocation, OutRotation, OutScale
 
-        // All inputs are just passed further and exist for convenience
->>>>>>> Stashed changes
+    // All inputs are just passed further and exist for convenience
 
-        NodeInputs.Add("WorldPosition", &WorldPosition);
+    NodeInputs.Add("WorldPosition", &WorldPosition);
     NodeInputs.Add("ObjectPosition", &ObjectPosition);
     NodeInputs.Add("CameraVector", &CameraVector);
 
@@ -38,8 +31,11 @@ UBoxPart::UBoxPart(const FObjectInitializer& ObjInit) : Super(ObjInit)
     NodeInputs.Add("BevelRadius", &BevelRadius);
 
     NodeOutputType = CMOT_Float1;
+    FirstOutputName = "Part type";
 
-    NodeAdditionalOutputs.Add("SomeOutput", CMOT_Float3);
+    NodeAdditionalOutputs.Add("OutWorldPosition", CMOT_Float3);
+    NodeAdditionalOutputs.Add("OutObjectPosition", CMOT_Float3);
+    NodeAdditionalOutputs.Add("OutCameraVector", CMOT_Float3);
 
     NodeAdditionalOutputs.Add("OutBevelRadius", CMOT_Float1);
 
@@ -51,4 +47,5 @@ UBoxPart::UBoxPart(const FObjectInitializer& ObjInit) : Super(ObjInit)
 
     SetHLSLFilePath(
         "/Source/ExtendedShaders/Private/HLSL/Primitives/3D/Parts/BoxPart.hlsl");
+    HLSLIncludes.Add("/Libraries/Shapes/3D/Estimators/BoxEstimator.ush");
 }

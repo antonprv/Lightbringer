@@ -3,25 +3,11 @@
 
 #pragma once
 
-<<<<<<< Updated upstream
-#include "/Libraries/Shapes/3D/Estimators/BaseEstimator.ush"
-=======
 #include "/Libraries/Shapes/3D/Estimators/EstimatorParams.ush"
 #include "/Libraries/Shapes/3D/TransformManager.ush"
->>>>>>> Stashed changes
 
-class UCyllinderEstimator : IEstimator
+class UCyllinderEstimator
 {
-<<<<<<< Updated upstream
-    float Radius;
-    float HalfHeight;
-    float BevelRadius;
-
-    float3 RayOrigin
-    FTransform Transform;
-
-    float CalcDistance()
-=======
     static float GetType()
     {
         return CYLLINDER_TYPE;
@@ -29,10 +15,9 @@ class UCyllinderEstimator : IEstimator
     
     static float CalcDistance(float3 RayOrigin,
         FTransform Transform, float Radius, float HalfHeight, float BevelRadius)
->>>>>>> Stashed changes
     {
         float3 LocalPosition = RayOrigin - Transform.Location;
-        LocalPosition = URayMarcher::RotateByWorldEuler(LocalPosition, Transform.Rotation);
+        LocalPosition = URotationManager::RotateByWorldEuler(LocalPosition, Transform.Rotation);
 
         LocalPosition /= Transform.Scale;
 
@@ -41,11 +26,6 @@ class UCyllinderEstimator : IEstimator
         return length(max(Distance, 0)) + min(max(Distance.x, Distance.y), 0) - BevelRadius;
     }
 
-<<<<<<< Updated upstream
-    float GetDistance()
-    {
-        return CalcDistance();
-=======
     static float3 GetSurfaceNormal(float3 RayOrigin,
         FTransform Transform, float Radius, float HalfHeight, float BevelRadius)
     {
@@ -71,6 +51,5 @@ class UCyllinderEstimator : IEstimator
         // Construct and normalize the gradient vector
         float3 Gradient = float3(DeltaX, DeltaY, DeltaZ);
         return normalize(Gradient);
->>>>>>> Stashed changes
     }
 };

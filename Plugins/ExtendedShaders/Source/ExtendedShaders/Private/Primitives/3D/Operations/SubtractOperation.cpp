@@ -1,7 +1,7 @@
 // You can use this project non-commercially for educational purposes, any
 // commercial use, derivative commercial use is strictly prohibited
 
-#include "SubtractOperation.h"
+#include "Primitives/3D/Operations/SubtractOperation.h"
 
 USubtractOperation::USubtractOperation(const FObjectInitializer& ObjInit)
     : Super(ObjInit)

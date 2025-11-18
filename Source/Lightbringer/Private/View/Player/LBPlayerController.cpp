@@ -1,17 +1,17 @@
 // You can use this project non-commercially for educational purposes, any
 // commercial use, derivative commercial use is strictly prohibited
 
-#include "LBPlayerController.h"
+#include "View/Player/LBPlayerController.h"
 
-#include "LBSpectatorPawn.h"
+#include "View/Player/LBSpectatorPawn.h"
 
-#include "PlayerDelegateMediator.h"
+#include "View/Player/PlayerDelegateMediator.h"
 #include "ECStateSubsystem.h"
 
 #include "SimpleInputSubsystem.h"
 #include "InputManager.h"
 
-#include "Interfaces/PlayerControllable.h"
+#include "View/Player/Interfaces/PlayerControllable.h"
 #include "GameFramework/Pawn.h"
 #include "Engine/World.h"
 

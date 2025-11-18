@@ -1,7 +1,7 @@
 // You can use this project non-commercially for educational purposes, any
 // commercial use, derivative commercial use is strictly prohibited
 
-#include "CustomHLSLExpression.h"
+#include "Utils/CustomHLSLExpression.h"
 
 #if WITH_EDITOR
 #include "MaterialCompiler.h"

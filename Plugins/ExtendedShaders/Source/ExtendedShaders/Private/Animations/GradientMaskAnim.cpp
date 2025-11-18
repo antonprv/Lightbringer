@@ -1,7 +1,7 @@
 // You can use this project non-commercially for educational purposes, any
 // commercial use, derivative commercial use is strictly prohibited
 
-#include "GradientMaskAnim.h"
+#include "Animations/GradientMaskAnim.h"
 
 UGradientMaskAnim::UGradientMaskAnim(const FObjectInitializer& ObjInit)
     : Super(ObjInit)

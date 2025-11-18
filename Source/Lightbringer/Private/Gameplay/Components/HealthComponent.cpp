@@ -1,10 +1,7 @@
 // You can use this project non-commercially for educational purposes, any
 // commercial use, derivative commercial use is strictly prohibited
 
-#include "Components/HealthComponent.h"
-#include "LBHealthRegenProfile.h"
-#include "LBActorDamageParams.h"
-#include "LBPlayerCharacter.h"
+#include "Gameplay/Components/HealthComponent.h"
 
 #include "GameFramework/DamageType.h"
 #include "GameFramework/Actor.h"
@@ -12,7 +9,11 @@
 #include "TimerManager.h"
 #include "Engine/World.h"
 #include "Engine/DamageEvents.h"
-#include "ComponentsDelegateMediator.h"
+
+#include "Data/LBHealthRegenProfile.h"
+#include "Data/LBActorDamageParams.h"
+#include "View/Player/LBPlayerCharacter.h"
+#include "Gameplay/Subsystems/ComponentsDelegateMediator.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogUHealthComponent, Log, Log)
 
@@ -145,7 +146,7 @@ void UHealthComponent::StartRegen()
         true);
 
     UE_LOG(LogUHealthComponent, Display,
-        TEXT("Initialized health regeneration, current curve time: %d"),
+        TEXT("Initialized health regeneration, current curve time: %f"),
         CurveTime);
 }
 
@@ -207,5 +208,5 @@ void UHealthComponent::StopRegen()
     CurveTime = 0.f;
 
     UE_LOG(LogUHealthComponent, Display,
-        TEXT("Stopped regenerating health. Set curve time to: %d"), CurveTime);
+        TEXT("Stopped regenerating health. Set curve time to: %f"), CurveTime);
 }

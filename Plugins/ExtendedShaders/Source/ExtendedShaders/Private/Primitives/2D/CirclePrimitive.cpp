@@ -1,7 +1,7 @@
 // You can use this project non-commercially for educational purposes, any
 // commercial use, derivative commercial use is strictly prohibited
 
-#include "CirclePrimitive.h"
+#include "Primitives/2D/CirclePrimitive.h"
 
 UCirclePrimitive::UCirclePrimitive(const FObjectInitializer& ObjInit)
     : Super(ObjInit)

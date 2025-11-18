@@ -6,18 +6,13 @@
 // Inputs:  Part
 //          WorldPosition, ObjectPosition
 //          CameraVector,
-//          Radius
-//          Location, Rotation, Scale
 //          StepSize, NumRaySteps,
 //          OverlapDetectionThreshold
 //          Color, LightDirection, AmbientLight, ShadowContrast, 
 //          RimStrength, RimContrast, RimColor,
 //          SpecularSoftness, SpecularColor,
-<<<<<<< Updated upstream
-=======
 //          Radius, BevelRadius, HalfHeight
 //          Location, Rotation, Scale
->>>>>>> Stashed changes
 
 float3 RenderOpPosition = WorldPosition - ObjectPosition;
 
@@ -52,14 +47,9 @@ RenderOp.PBRParams = PBRParams;
 
 RenderOp.InPart = Part;
 
-FTransform Transform;
-
-Transform.Location = Location;
-Transform.Rotation = Rotation;
-Transform.Scale = Scale;
-
-RenderOp.Transform = Transform;
 RenderOp.Radius = Radius;
+RenderOp.BevelRadius = BevelRadius;
+RenderOp.HalfHeight = HalfHeight;
 
 FTransform Transform;
 Transform.Location = Location;

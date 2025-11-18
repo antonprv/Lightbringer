@@ -1,7 +1,7 @@
 // You can use this project non-commercially for educational purposes, any
 // commercial use, derivative commercial use is strictly prohibited
 
-#include "BricksPrimitive.h"
+#include "Primitives/2D/BricksPrimitive.h"
 
 UBricksPrimitive::UBricksPrimitive(const FObjectInitializer& ObjInit)
     : Super(ObjInit)

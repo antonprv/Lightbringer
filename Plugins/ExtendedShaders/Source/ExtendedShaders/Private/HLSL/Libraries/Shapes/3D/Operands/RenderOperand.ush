@@ -8,8 +8,8 @@
 #include "/Libraries/Shapes/3D/TransformManager.ush"
 
 #include "/Libraries/Shapes/3D/Estimators/SphereEstimator.ush"
-//#include "/Libraries/Shapes/3D/Estimators/BoxEstimator.ush"
-//#include "/Libraries/Shapes/3D/Estimators/CyllinderEstimator.ush"
+#include "/Libraries/Shapes/3D/Estimators/BoxEstimator.ush"
+#include "/Libraries/Shapes/3D/Estimators/CyllinderEstimator.ush"
 
 #include "/Libraries/Shapes/3D/Operands/SubtractOperand.ush"
 
@@ -25,26 +25,9 @@ class URenderOperand : IBaseShape
     float InPart;
     
     FTransform Transform;
-    
-    float Radius;
-<<<<<<< Updated upstream
-    
-    float GetDistance()
-    {
-        if (InPart == SphereType)
-        {
-            return USphereEstimator::CalcDistance(DrawParams.ViewRayOrigin, Transform, Radius);
-        }
-        //else if (InPart == BoxType)
-        //{
-        //    return UBoxEstimator::GetDistance(DrawParams.ViewRayOrigin);
-        //}
-        //else if (InPart == CyllinderType)
-        //{
-        //    return UCyllinderEstimator::GetDistance(DrawParams.ViewRayOrigin);
-        //}
         
-=======
+    // Common shape parameters
+    float Radius;
     float BevelRadius;
     float HalfHeight;
     
@@ -86,7 +69,6 @@ class URenderOperand : IBaseShape
                 return 
             }
         }
->>>>>>> Stashed changes
         return 0;
     }
     
@@ -101,10 +83,10 @@ class URenderOperand : IBaseShape
         return InPart + dot(Offset, 1.0);
     }
     
-    float3 GetSurfaceNormal()
+    float3 GetCommonSurfaceNormal()
     {
         float NormalEpsilon = KINDA_SMALL_NUMBER;
-        
+                
         // Central difference approximation of gradient
         float DistanceX = GetDistanceAtOffset(float3(NormalEpsilon, 0.0, 0.0)) -
                             GetDistanceAtOffset(float3(-NormalEpsilon, 0.0, 0.0));
@@ -116,8 +98,6 @@ class URenderOperand : IBaseShape
         float3 Gradient = float3(DistanceX, DistanceY, DistanceZ);
         return normalize(Gradient);
     }
-<<<<<<< Updated upstream
-=======
         
     float3 GetSurfaceNormal()
     {
@@ -152,7 +132,6 @@ class URenderOperand : IBaseShape
         
         return GetCommonSurfaceNormal();
     }
->>>>>>> Stashed changes
     
     float3 GetSurfaceReflection()
     {

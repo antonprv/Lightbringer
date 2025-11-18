@@ -10,14 +10,15 @@ public class LightbringerEditorTarget : TargetRules
 	{
 		Type = TargetType.Editor;
 
-        DefaultBuildSettings = BuildSettingsVersion.V4;
+        DefaultBuildSettings = BuildSettingsVersion.V6;
 
         bLegacyPublicIncludePaths = true;
-        ShadowVariableWarningLevel = WarningLevel.Warning;
+        bOverrideBuildEnvironment = true;
+        CppCompileWarningSettings.ShadowVariableWarningLevel = WarningLevel.Warning;
         bLegacyParentIncludePaths = true;
         CppStandard = CppStandardVersion.Default;
 
-        IncludeOrderVersion = EngineIncludeOrderVersion.Unreal5_3;
+        IncludeOrderVersion = EngineIncludeOrderVersion.Latest;
 
         ExtraModuleNames.AddRange( new string[] { "Lightbringer" } );
 	}
