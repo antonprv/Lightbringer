@@ -21,11 +21,5 @@ interface IBaseShape
     
     float GetDistance();
     
-    float3 GetSurfaceNormal();
-    float3 GetSurfaceReflection();
-    float3 GetForwardPass();
-    float3 GetRimLight();
-    float3 GetSpecular();
-    
     float4 Draw();
 };

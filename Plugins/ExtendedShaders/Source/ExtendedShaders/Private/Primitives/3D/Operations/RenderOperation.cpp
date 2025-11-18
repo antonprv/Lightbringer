@@ -22,15 +22,25 @@ URenderOperation::URenderOperation(const FObjectInitializer& ObjInit)
     //          Color, LightDirection, AmbientLight, ShadowContrast,
     //          RimStrength, RimContrast, RimColor,
     //          SpecularSoftness, SpecularColor,
+<<<<<<< Updated upstream
+    == == == =
+                 //          Radius, BevelRadius, HalfHeight
+                 //          Location, Rotation, Scale
+>>>>>>> Stashed changes
 
-    NodeInputs.Add("Part", &Part);
+        NodeInputs.Add("Part", &Part);
 
     NodeInputs.Add("WorldPosition", &WorldPosition);
     NodeInputs.Add("ObjectPosition", &ObjectPosition);
     NodeInputs.Add("CameraVector", &CameraVector);
 
     NodeInputs.Add("Radius", &Radius);
+<<<<<<< Updated upstream
 
+    == == == = NodeInputs.Add("BevelRadius", &BevelRadius);
+    NodeInputs.Add("HalfHeight", &HalfHeight);
+    
+>>>>>>> Stashed changes
     NodeInputs.Add("Location", &Location);
     NodeInputs.Add("Rotation", &Rotation);
     NodeInputs.Add("Scale", &Scale);

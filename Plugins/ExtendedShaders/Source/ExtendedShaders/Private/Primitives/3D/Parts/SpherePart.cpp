@@ -19,6 +19,10 @@ USpherePart::USpherePart(const FObjectInitializer& ObjInit) : Super(ObjInit)
     //          OutRadius
     //          OutLocation, OutRotation, OutScale
     //          Part
+    //          OutLocation, OutRotation, OutScale
+    //          OutRadius
+
+    // All inputs are just passed further and exist for convenience
 
     NodeInputs.Add("WorldPosition", &WorldPosition);
     NodeInputs.Add("ObjectPosition", &ObjectPosition);

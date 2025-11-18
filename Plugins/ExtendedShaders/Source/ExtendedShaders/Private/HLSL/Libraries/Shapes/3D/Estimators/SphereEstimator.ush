@@ -3,24 +3,22 @@
 
 #pragma once
 
-#include "/Libraries/Shapes/3D/Estimators/BaseEstimator.ush"
+#include "/Libraries/Shapes/3D/Estimators/EstimatorParams.ush"
 #include "/Libraries/Shapes/3D/TransformManager.ush"
 
 class USphereEstimator
 {
+<<<<<<< Updated upstream
     static const float4 TransparentBackground = float4(0, 0, 0, 0);
 
     float GetType()
+=======
+    static float GetType()
+>>>>>>> Stashed changes
     {
-        return SphereType;
+        return SPHERE_TYPE;
     }
 
-    float3 RayOrigin;
-    
-    float Radius;
-    
-    FTransform Transform;
-    
     static float CalcDistance(float3 RayOrigin, FTransform Transform, float Radius)
     {
         float3 LocalPosition = RayOrigin - Transform.Location;
@@ -34,9 +32,31 @@ class USphereEstimator
 
         return Distance * min(Transform.Scale.x, min(Transform.Scale.y, Transform.Scale.z)) * Radius;
     }
+<<<<<<< Updated upstream
     
     float GetDistance()
     {
         return CalcDistance(RayOrigin, Transform, Radius);
     }
+=======
+        
+    static float3 GetSurfaceNormal(float3 RayOrigin, FTransform Transform, float Radius)
+    {
+        const float Epsilon = KINDA_SMALL_NUMBER;
+
+        float3 OffsetX = float3(Epsilon, 0, 0);
+        float3 OffsetY = float3(0, Epsilon, 0);
+        float3 OffsetZ = float3(0, 0, Epsilon);
+
+        float DistanceCenter = USphereEstimator::CalcDistance(RayOrigin, Transform, Radius);
+        float3 Gradient = float3(
+        USphereEstimator::CalcDistance(RayOrigin + OffsetX, Transform, Radius) - DistanceCenter,
+        USphereEstimator::CalcDistance(RayOrigin + OffsetY, Transform, Radius) - DistanceCenter,
+        USphereEstimator::CalcDistance(RayOrigin + OffsetZ, Transform, Radius) - DistanceCenter
+        );
+
+        return normalize(Gradient);
+    }
+    
+>>>>>>> Stashed changes
 };

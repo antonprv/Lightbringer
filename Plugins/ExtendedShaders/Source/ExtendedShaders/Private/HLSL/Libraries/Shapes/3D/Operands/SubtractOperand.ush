@@ -3,64 +3,148 @@
 
 #pragma once
 
-#include "/Libraries/Shapes/3D/Estimators/BaseEstimator.ush"
-#include "/Libraries/Graphics/RayMarching.ush"
+#include "/Libraries/Shapes/3D/BaseShape.ush"
+#include "/Libraries/Shapes/3D/Estimators/EstimatorParams.ush"
+#include "/Libraries/Shapes/3D/TransformManager.ush"
 
-class USubtractOperand : IEstimator
+#include "/Libraries/Shapes/3D/Estimators/SphereEstimator.ush"
+#include "/Libraries/Shapes/3D/Estimators/BoxEstimator.ush"
+#include "/Libraries/Shapes/3D/Estimators/CyllinderEstimator.ush"
+
+class USubtractOperand
 {
-    float BevelRadius;
-    float ChamferRadius;
-    float DetectionRadius; // Controls the area where fillet or chamfer applies
-
+    FDrawParams DrawParams;
+    
+    float InPartA;
+    float InPartB;
+    
     float ShapeADistance;
     float ShapeBDistance;
+    
+    FTransform TransformA;
 
-    FTransform Transform;
+    float RadiusA;
+    float BevelRadiusA;
+    float HalfHeightA;
+    
+    FTransform TransformB;
 
-    float3 WorldPosition; // Input world-space position for distance evaluation
+    float RadiusB;
+    float BevelRadiusB;
+    float HalfHeightB;
 
-    float CalcDistance()
+    float SubtractBevelRadius;
+    FTransform SubtractTransform;
+    
+    float GetType()
     {
+        return SUBTRACT_TYPE;
+    }
+    
+    float GetDistanceA()
+    {
+        switch (InPartA)
+        {
+            case SPHERE_TYPE:
+            {
+                    return USphereEstimator::CalcDistance(
+                    DrawParams.ViewRayOrigin,
+                    TransformA,
+                    RadiusA);
+                }
+            
+            case BOX_TYPE:
+            {
+                    return UBoxEstimator::CalcDistance(
+                    DrawParams.ViewRayOrigin,
+                    TransformA,
+                    BevelRadiusA);
+                }
+            
+            case CYLLINDER_TYPE:
+            {
+                    return UCyllinderEstimator::CalcDistance(
+                    DrawParams.ViewRayOrigin,
+                    TransformA,
+                    RadiusA,
+                    HalfHeightA,
+                    BevelRadiusA);
+                }
+        }
+        return 0;
+    }
+    
+    float GetDistanceB()
+    {
+        switch (InPartA)
+        {
+            case SPHERE_TYPE:
+            {
+                    return USphereEstimator::CalcDistance(
+                    DrawParams.ViewRayOrigin,
+                    TransformA,
+                    RadiusA);
+                }
+            
+            case BOX_TYPE:
+            {
+                    return UBoxEstimator::CalcDistance(
+                    DrawParams.ViewRayOrigin,
+                    TransformA,
+                    BevelRadiusA);
+                }
+            
+            case CYLLINDER_TYPE:
+            {
+                    return UCyllinderEstimator::CalcDistance(
+                    DrawParams.ViewRayOrigin,
+                    TransformA,
+                    RadiusA,
+                    HalfHeightA,
+                    BevelRadiusA);
+                }
+        }
+        return 0;
+    }
+    
+    float CalcDistance(float3 RayOrigin)
+    {
+        ShapeADistance = GetDistanceA();
+        ShapeBDistance = GetDistanceB();
+        
         // Transform the world position into local space
-        float3 LocalPosition = WorldPosition - Transform.Location;
-        LocalPosition = URayMarcher::RotateByWorldEuler(LocalPosition, Transform.Rotation);
-        LocalPosition /= max(Transform.Scale, KINDA_SMALL_NUMBER); // Prevent division by zero
+        float3 LocalPosition = RayOrigin - SubtractTransform.Location;
+        LocalPosition = URotationManager::RotateByWorldEuler(LocalPosition, SubtractTransform.Rotation);
+        LocalPosition /= max(SubtractTransform.Scale, KINDA_SMALL_NUMBER); // Prevent division by zero
 
         float SubtractedDistance = max(-ShapeBDistance, ShapeADistance);
 
         // --- Fillet (bevel) blending ---
-        if (BevelRadius > 0.0)
+        if (SubtractBevelRadius > 0.0)
         {
             float DistanceSum = ShapeBDistance + ShapeADistance;
-            float BlendFactor = saturate(0.5 + 0.5 * DistanceSum / BevelRadius);
-            float IntersectionMask = step(abs(DistanceSum), DetectionRadius);
+            float BlendFactor = saturate(0.5 + 0.5 * DistanceSum / SubtractBevelRadius);
+            float IntersectionMask = step(abs(DistanceSum), SubtractBevelRadius);
 
             float BlendedDistance = lerp(
                 -ShapeBDistance,
                 ShapeADistance,
                 BlendFactor
-            ) + BevelRadius * BlendFactor * (1.0 - BlendFactor);
-
-            return lerp(SubtractedDistance, BlendedDistance, IntersectionMask);
-        }
-
-        // --- Chamfer blending ---
-        if (ChamferRadius > 0.0)
-        {
-            float DistanceSum = ShapeADistance + ShapeBDistance;
-            float OverlapFactor = (DetectionRadius - abs(DistanceSum)) / DetectionRadius;
-            float IntersectionMask = saturate(OverlapFactor);
-
-            float BlendedDistance = (ShapeADistance - ShapeBDistance + ChamferRadius) * 0.5;
+            ) + SubtractBevelRadius * BlendFactor * (1.0 - BlendFactor);
 
             return lerp(SubtractedDistance, BlendedDistance, IntersectionMask);
         }
 
         return SubtractedDistance;
     }
-
+    
+    void UpdateViewRayOrigin()
+    {
+        DrawParams.ViewRayOrigin += DrawParams.RayStep * max(DrawParams.StepSize, 0);
+    }
+    
     float GetDistance()
     {
-        return CalcDistance();
+        return CalcDistance(DrawParams.ViewRayOrigin);
     }
 };

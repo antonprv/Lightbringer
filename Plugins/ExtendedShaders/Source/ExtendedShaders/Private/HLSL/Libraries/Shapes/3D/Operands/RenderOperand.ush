@@ -11,6 +11,8 @@
 //#include "/Libraries/Shapes/3D/Estimators/BoxEstimator.ush"
 //#include "/Libraries/Shapes/3D/Estimators/CyllinderEstimator.ush"
 
+#include "/Libraries/Shapes/3D/Operands/SubtractOperand.ush"
+
 #include "/Libraries/Shapes/3D/BaseShape.ush"
 
 class URenderOperand : IBaseShape
@@ -25,6 +27,7 @@ class URenderOperand : IBaseShape
     FTransform Transform;
     
     float Radius;
+<<<<<<< Updated upstream
     
     float GetDistance()
     {
@@ -41,6 +44,49 @@ class URenderOperand : IBaseShape
         //    return UCyllinderEstimator::GetDistance(DrawParams.ViewRayOrigin);
         //}
         
+=======
+    float BevelRadius;
+    float HalfHeight;
+    
+    float GetDistance()
+    {
+        switch (InPart)
+        {
+            case SPHERE_TYPE:
+            {
+                    return USphereEstimator::CalcDistance(
+                    DrawParams.ViewRayOrigin,
+                    Transform,
+                    Radius);
+                }
+            
+            case BOX_TYPE:
+            {
+                    return UBoxEstimator::CalcDistance(
+                    DrawParams.ViewRayOrigin,
+                    Transform,
+                    BevelRadius);
+                }
+            
+            case CYLLINDER_TYPE:
+            {
+                    return UCyllinderEstimator::CalcDistance(
+                    DrawParams.ViewRayOrigin,
+                    Transform,
+                    Radius,
+                    HalfHeight,
+                    BevelRadius);
+                }
+            
+            case SUBTRACT_TYPE:
+            {
+                USubtractOperand SubtractOP;
+                SubtractOP.SubtractTransform = Transform;
+                SubtractOP.DrawParams = DrawParams;
+                return 
+            }
+        }
+>>>>>>> Stashed changes
         return 0;
     }
     
@@ -70,6 +116,43 @@ class URenderOperand : IBaseShape
         float3 Gradient = float3(DistanceX, DistanceY, DistanceZ);
         return normalize(Gradient);
     }
+<<<<<<< Updated upstream
+=======
+        
+    float3 GetSurfaceNormal()
+    {
+        switch (InPart)
+        {
+            case SPHERE_TYPE:
+            {
+                    return USphereEstimator::GetSurfaceNormal(
+                    DrawParams.ViewRayOrigin,
+                    Transform,
+                    Radius);
+                }
+            
+            case BOX_TYPE:
+            {
+                    return UBoxEstimator::GetSurfaceNormal(
+                    DrawParams.ViewRayOrigin,
+                    Transform,
+                    BevelRadius);
+                }
+            
+            case CYLLINDER_TYPE:
+            {
+                    return UCyllinderEstimator::GetSurfaceNormal(
+                    DrawParams.ViewRayOrigin,
+                    Transform,
+                    Radius,
+                    HalfHeight,
+                    BevelRadius);
+                }
+        }
+        
+        return GetCommonSurfaceNormal();
+    }
+>>>>>>> Stashed changes
     
     float3 GetSurfaceReflection()
     {

@@ -11,34 +11,30 @@
 //          OutRadius
 //          OutLocation, OutRotation, OutScale
 //          Part
+//          OutLocation, OutRotation, OutScale
+//          OutRadius
 
-// Inputs:
-float3 SpherePosition = WorldPosition - ObjectPosition;
-
-USphereEstimator Sphere;
-
-Sphere.RayOrigin = 1 - (CameraVector - SpherePosition);
-
-Sphere.Radius = Radius;
-
-FTransform Transform;
-
-Transform.Location = Location;
-Transform.Rotation = Rotation;
-Transform.Scale = Scale;
-
-Sphere.Transform = Transform;
+// All inputs are just passed further and exist for convenience
 
 // Additional outputs
 OutWorldPosition = WorldPosition;
 OutObjectPosition = ObjectPosition;
 OutCameraVector = CameraVector;
 
+<<<<<<< Updated upstream
 OutRadius = Radius;
 
 OutLocation = Location;
 OutRotation = Rotation;
 OutScale = Scale;
 
+=======
+OutLocation = Location;
+OutRotation = OutRotation;
+OutScale = Scale;
+
+OutRadius = Radius;
+
+>>>>>>> Stashed changes
 // Type output
-return Sphere.GetType();
+return USphereEstimator::GetType();

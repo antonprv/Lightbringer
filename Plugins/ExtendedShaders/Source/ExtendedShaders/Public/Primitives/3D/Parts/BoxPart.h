@@ -21,12 +21,23 @@ class EXTENDEDSHADERS_API UBoxPart : public UCustomHLSLExpression
 public:
     UBoxPart(const FObjectInitializer& ObjInit);
 
+<<<<<<< Updated upstream
     // Inputs:WorldPosition, ObjectPosition, CameraVector
     // Location, Rotation, Scale
     // BevelRadius
+    == == ==
+        =
+            // Inputs:  WorldPosition, ObjectPosition, CameraVector
+            //          Location, Rotation, Scale
+            //          BevelRadius
+            // Outputs: OutWorldPosition, OutObjectPosition, OutCameraVector
+            //          OutBevelRadius
+            //          OutLocation, OutRotation, OutScale
 
-    UPROPERTY()
-    FExpressionInput WorldPosition;
+        // All inputs are just passed further and exist for convenience
+>>>>>>> Stashed changes
+
+        UPROPERTY() FExpressionInput WorldPosition;
     UPROPERTY()
     FExpressionInput ObjectPosition;
     UPROPERTY()

@@ -29,6 +29,10 @@ public:
     //          OutRadius
     //          OutLocation, OutRotation, OutScale
     //          Part
+    //          OutLocation, OutRotation, OutScale
+    //          OutRadius
+
+    // All inputs are just passed further and exist for convenience
 
     UPROPERTY()
     FExpressionInput WorldPosition;

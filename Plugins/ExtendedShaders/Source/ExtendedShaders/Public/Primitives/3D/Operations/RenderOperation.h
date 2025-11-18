@@ -31,9 +31,13 @@ public:
     //          Color, LightDirection, AmbientLight, ShadowContrast,
     //          RimStrength, RimContrast, RimColor,
     //          SpecularSoftness, SpecularColor,
+<<<<<<< Updated upstream
+    == == == =
+                 //          Radius, BevelRadius, HalfHeight
+                 //          Location, Rotation, Scale
+>>>>>>> Stashed changes
 
-    UPROPERTY()
-    FExpressionInput Part;
+        UPROPERTY() FExpressionInput Part;
 
     UPROPERTY()
     FExpressionInput WorldPosition;
@@ -44,6 +48,11 @@ public:
 
     UPROPERTY()
     FExpressionInput Radius;
+<<<<<<< Updated upstream
+    == == == = UPROPERTY() FExpressionInput BevelRadius;
+    UPROPERTY()
+    FExpressionInput HalfHeight;
+>>>>>>> Stashed changes
 
     UPROPERTY()
     FExpressionInput Location;

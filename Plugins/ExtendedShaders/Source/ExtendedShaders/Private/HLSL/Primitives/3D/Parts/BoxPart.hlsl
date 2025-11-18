@@ -3,6 +3,7 @@
 
 #include "/Libraries/Shapes/3D/Estimators/BoxEstimator.ush"
 
+<<<<<<< Updated upstream
 // Inputs:WorldPosition, ObjectPosition, CameraVector
 // Location, Rotation, Scale
 // BevelRadius
@@ -25,8 +26,29 @@ Transform.Scale = Scale;
 
 Box.Transform =
 Transform;
+=======
+// Inputs:  WorldPosition, ObjectPosition, CameraVector
+//          Location, Rotation, Scale
+//          BevelRadius
+// Outputs: OutWorldPosition, OutObjectPosition, OutCameraVector
+//          OutBevelRadius
+//          OutLocation, OutRotation, OutScale
+
+// All inputs are just passed further and exist for convenience
+>>>>>>> Stashed changes
 
 SomeOutput = float3(1, 0, 0);
 
+<<<<<<< Updated upstream
 // Draw call
 return Box.GetDistance();
+=======
+OutBevelRadius = BevelRadius;
+
+OutLocation = Location;
+OutRotation = Rotation;
+OutScale = Scale;
+
+// Send type
+return UBoxEstimator::GetType();
+>>>>>>> Stashed changes

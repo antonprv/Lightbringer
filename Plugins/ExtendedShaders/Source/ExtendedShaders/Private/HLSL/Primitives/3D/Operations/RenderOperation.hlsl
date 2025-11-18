@@ -13,6 +13,11 @@
 //          Color, LightDirection, AmbientLight, ShadowContrast, 
 //          RimStrength, RimContrast, RimColor,
 //          SpecularSoftness, SpecularColor,
+<<<<<<< Updated upstream
+=======
+//          Radius, BevelRadius, HalfHeight
+//          Location, Rotation, Scale
+>>>>>>> Stashed changes
 
 float3 RenderOpPosition = WorldPosition - ObjectPosition;
 
@@ -55,6 +60,13 @@ Transform.Scale = Scale;
 
 RenderOp.Transform = Transform;
 RenderOp.Radius = Radius;
+
+FTransform Transform;
+Transform.Location = Location;
+Transform.Rotation = Rotation;
+Transform.Scale = Scale;
+
+RenderOp.Transform = Transform;
 
 // Draw call
 return RenderOp.Draw();

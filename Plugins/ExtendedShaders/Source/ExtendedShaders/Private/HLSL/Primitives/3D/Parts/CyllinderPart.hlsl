@@ -3,6 +3,7 @@
 
 #include "/Libraries/Shapes/CompoundShapes/Estimators/CyllinderEstimator.ush"
 
+<<<<<<< Updated upstream
 // Inputs: WorldPosition, ObjectPosition, CameraVector
 // Location, Rotation, Scale,
 // HalfHeight, BevelRadius, Radius
@@ -31,3 +32,29 @@ Cyllinder.Transform = Transform;
 
 // Draw call
 return Cyllinder.GetDistance();
+=======
+// Inputs:  WorldPosition, ObjectPosition, CameraVector
+//          Location, Rotation, Scale,
+//          HalfHeight, BevelRadius, Radius
+// Outputs: OutWorldPosition, OutObjectPosition, OutCameraVector
+//          OutHalfHeight, OutBevelRadius, OutRadius
+//          OutLocation, OutRotation, OutScale
+
+// All inputs are just passed further and exist for convenience
+
+// Node Outputs:
+OutWorldPosition = WorldPosition;
+OutObjectPosition = ObjectPosition;
+OutCameraVector = CameraVector;
+
+OutHalfHeight = HalfHeight;
+OutBevelRadius = BevelRadius;
+OutRadius = Radius;
+
+OutLocation = Location;
+OutRotation = Rotation;
+OutScale = Scale;
+
+// Send type
+return UCyllinderEstimator::GetType();
+>>>>>>> Stashed changes
