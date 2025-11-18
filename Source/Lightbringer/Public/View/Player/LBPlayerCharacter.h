@@ -18,7 +18,6 @@ class ALBWeaponBase;
 class UHealthComponent;
 class UWeaponComponent;
 class UAnimationComponent;
-class UFakeShadowComponent;
 
 class UCameraComponent;
 class USpringArmComponent;
@@ -54,9 +53,6 @@ public:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly,
         Category = "Components | View | Animation")
     UAnimationComponent* AnimationComponent{nullptr};
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly,
-        Category = "Components | View | Shadow")
-    UFakeShadowComponent* FakeShadowComponent{nullptr};
 
     // Unreal Components
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly,

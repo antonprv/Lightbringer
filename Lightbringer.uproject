@@ -121,6 +121,14 @@
 		{
 			"Name": "PCGFastGeoInterop",
 			"Enabled": true
+		},
+		{
+			"Name": "VisualStudioTools",
+			"Enabled": true
+		},
+		{
+			"Name": "VertexLightingPlugin",
+			"Enabled": true
 		}
 	],
 	"TargetPlatforms": [

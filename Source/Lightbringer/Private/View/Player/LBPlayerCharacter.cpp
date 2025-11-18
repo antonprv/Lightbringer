@@ -74,10 +74,6 @@ ALBPlayerCharacter::ALBPlayerCharacter(const FObjectInitializer& ObjInit)
 
     TextRenderComponent->bOwnerNoSee = true;
 
-    FakeShadowComponent =
-        CreateDefaultSubobject<UFakeShadowComponent>("Fake Shadow");
-    FakeShadowComponent->SetupAttachment(GetRootComponent());
-
     WeaponComponent =
         CreateDefaultSubobject<UWeaponComponent>("Weapon Component");
 
@@ -95,15 +91,10 @@ void ALBPlayerCharacter::BeginPlay()
     check(HealthComponent);
     check(TextRenderComponent);
     check(GetCharacterMovement());
-    check(FakeShadowComponent);
 
     ComponentsDelegateMediator = UComponentsDelegateMediator::Get(GetWorld());
     MovementHandlerComponent =
         Cast<ULBCharacterMovementComponent>(GetCharacterMovement());
-
-    FakeShadowComponent->ShadowRenderer->ShowOnlyComponents.Add(
-        WeaponComponent->WeaponActor->SkeletalMesh);
-    FakeShadowComponent->SetRelativeLocation(FVector(0.f, 0.f, -527.f));
 
     check(MovementHandlerComponent);
     check(ComponentsDelegateMediator);

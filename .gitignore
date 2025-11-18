@@ -91,7 +91,11 @@ Content/*
 Package/*
 Saved/*
 Staging/*
+
+// Third-party plugins built from source
 Plugins/vc-ue-extensions
+Plugins/VisualStudioTools
+
 enc_temp_folder/*
 ParagonMurdock/*
 ParagonWraith/*
