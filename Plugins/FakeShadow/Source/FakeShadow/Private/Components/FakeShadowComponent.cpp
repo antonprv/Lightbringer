@@ -15,6 +15,8 @@
 #include "Engine/TextureRenderTarget2D.h"
 #include "Engine/Texture2D.h"
 
+#include "Kismet/KismetRenderingLibrary.h"
+
 #if WITH_EDITORONLY_DATA
 #include "Components/ArrowComponent.h"
 #endif
@@ -29,7 +31,7 @@ const FVector UFakeShadowComponent::DefaultDecalSize{540.f, 300.f, 300.f};
 
 UFakeShadowComponent::UFakeShadowComponent()
 {
-    PrimaryComponentTick.bCanEverTick = false;
+    PrimaryComponentTick.bCanEverTick = true;
 
     DecalSize = DefaultDecalSize;
     SetRelativeRotation(FRotator(-90.f, 0.f, 0.f));
@@ -42,18 +44,28 @@ void UFakeShadowComponent::BeginPlay()
     CharacterOwner = Cast<ACharacter>(GetOwner());
     check(CharacterOwner);
 
-    CreateShadowRenderer();
-
-    if (ShadowRenderer && CharacterOwner->GetMesh())
-    {
-        ShadowRenderer->ShowOnlyComponents.Empty();
-        ShadowRenderer->ShowOnlyComponents.Add(CharacterOwner->GetMesh());
-    }
+    ShadowRenderer->ShowOnlyComponents.Add(CharacterOwner->GetMesh());
 }
 
 void UFakeShadowComponent::OnRegister()
 {
     Super::OnRegister();
+
+    CreateShadowRenderer();
+}
+
+void UFakeShadowComponent::TickComponent(float DeltaTime, ELevelTick TickType,
+    FActorComponentTickFunction* ThisTickFunction)
+{
+    Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+    if (FakeShadowTexture)
+    {
+        UKismetRenderingLibrary::ClearRenderTarget2D(
+            this, FakeShadowTexture, FLinearColor::Transparent);
+    }
+
+    ShadowRenderer->CaptureScene();
 }
 
 void UFakeShadowComponent::CreateShadowRenderer()
@@ -64,11 +76,13 @@ void UFakeShadowComponent::CreateShadowRenderer()
     ShadowRenderer->RegisterComponent();
     ShadowRenderer->SetRelativeLocationAndRotation(
         ShadowRendererDefaultLocation, ShadowRendererDefaultRotation);
-    ShadowRenderer->bCaptureEveryFrame = true;
-    ShadowRenderer->bCaptureOnMovement = true;
+    ShadowRenderer->bCaptureEveryFrame = false;
+    ShadowRenderer->bCaptureOnMovement = false;
     ShadowRenderer->CaptureSource = ESceneCaptureSource::SCS_SceneColorHDR;
     ShadowRenderer->PrimitiveRenderMode =
         ESceneCapturePrimitiveRenderMode::PRM_UseShowOnlyList;
+    ShadowRenderer->ShowFlags.Game = false;
+    ShadowRenderer->ShowFlags.Lighting = false;
     ShadowRenderer->ProjectionType = ECameraProjectionMode::Orthographic;
     ShadowRenderer->OrthoWidth = 500.f;
 
@@ -94,6 +108,7 @@ void UFakeShadowComponent::AssignMaterials()
     FakeShadowMaterial = LoadObject<UMaterialInterface>(nullptr,
         TEXT(
             "/Script/Engine.MaterialInstanceConstant'/FakeShadow/Assets/Decals/Shadow/MI_DecalRenderTarget.MI_DecalRenderTarget'"));
+    check(FakeShadowMaterial);
     SetDecalMaterial(FakeShadowMaterial);
 
     FakeShadowTexture = LoadObject<UTextureRenderTarget2D>(nullptr,

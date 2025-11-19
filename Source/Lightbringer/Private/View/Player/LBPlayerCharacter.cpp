@@ -2,6 +2,16 @@
 // commercial use, derivative commercial use is strictly prohibited
 
 #include "View/Player/LBPlayerCharacter.h"
+
+#include "Components/SceneCaptureComponent2D.h"
+#include "Components/SkeletalMeshComponent.h"
+#include "Components/TextRenderComponent.h"
+
+#include "TimerManager.h"
+#include "Engine/World.h"
+
+#include "Components/FakeShadowComponent.h"
+
 #include "View/Player/PlayerDelegateMediator.h"
 #include "Gameplay/Subsystems/ComponentsDelegateMediator.h"
 
@@ -17,14 +27,7 @@
 #include "Gameplay/Components/HealthComponent.h"
 #include "Gameplay/Components/WeaponComponent.h"
 #include "View/Components/AnimationComponent.h"
-#include "Components/FakeShadowComponent.h"
-#include "Components/SceneCaptureComponent2D.h"
-#include "Components/SkeletalMeshComponent.h"
 
-#include "Components/TextRenderComponent.h"
-
-#include "TimerManager.h"
-#include "Engine/World.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogALBPlayerCharacter, Log, Log)
 
@@ -74,6 +77,10 @@ ALBPlayerCharacter::ALBPlayerCharacter(const FObjectInitializer& ObjInit)
 
     TextRenderComponent->bOwnerNoSee = true;
 
+    FakeShadowComponent =
+        CreateDefaultSubobject<UFakeShadowComponent>("Fake Shadow");
+    FakeShadowComponent->SetupAttachment(GetRootComponent());
+
     WeaponComponent =
         CreateDefaultSubobject<UWeaponComponent>("Weapon Component");
 
@@ -91,10 +98,15 @@ void ALBPlayerCharacter::BeginPlay()
     check(HealthComponent);
     check(TextRenderComponent);
     check(GetCharacterMovement());
+    check(FakeShadowComponent);
 
     ComponentsDelegateMediator = UComponentsDelegateMediator::Get(GetWorld());
     MovementHandlerComponent =
         Cast<ULBCharacterMovementComponent>(GetCharacterMovement());
+
+    FakeShadowComponent->ShadowRenderer->ShowOnlyComponents.Add(
+        WeaponComponent->WeaponActor->SkeletalMesh);
+    FakeShadowComponent->SetRelativeLocation(FVector(0.f, 0.f, -527.f));
 
     check(MovementHandlerComponent);
     check(ComponentsDelegateMediator);

@@ -15,6 +15,7 @@
 #include "GameFramework/Pawn.h"
 #include "Engine/World.h"
 
+#include "GameFramework/GameState.h"
 /*
  * Initial controller setup
  */
@@ -156,7 +157,7 @@ void ALBPlayerController::ProcessReleased(FName ActionName)
  */
 void ALBPlayerController::OnPawnDeath(APawn* PlayerPawn)
 {
-    if (!GetPawn()) return;
+    if (!GetPawn() || !GetWorld()) return;
 
     if (GetPawn() == PlayerPawn)
     {
@@ -171,11 +172,16 @@ void ALBPlayerController::OnPawnDeath(APawn* PlayerPawn)
 
 void ALBPlayerController::OnPawnDestruction(AActor* DestroyedPawnActor)
 {
-    if (!DestroyedPawnActor) return;
+    if (!DestroyedPawnActor || !GetWorld()) return;
 
     if (UECStateSubsystem* ControllerState =
             UECStateSubsystem::Get(GetWorld()))
     {
+        if (ControllerState->IsSpectating())
+        {
+            ControllerState->RespawnInWorld(this);
+        }
+
         ControllerState->BeginSpectating(
             this, ALBSpectatorPawn::StaticClass());
     }

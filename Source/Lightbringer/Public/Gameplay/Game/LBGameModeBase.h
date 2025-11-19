@@ -10,6 +10,9 @@
 /**
  *
  */
+
+class AController;
+
 UCLASS()
 class LIGHTBRINGER_API ALBGameModeBase : public AGameModeBase
 {
@@ -17,4 +20,13 @@ class LIGHTBRINGER_API ALBGameModeBase : public AGameModeBase
 
 public:
     ALBGameModeBase();
+
+protected:
+    virtual void StartPlay() override;
+
+    virtual void StartToLeaveMap() override;
+
+private:
+    UFUNCTION()
+    void HandleRespawnRequest(AController* Controller);
 };

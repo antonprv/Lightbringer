@@ -11,7 +11,8 @@
 		},
 		{
 			"Name": "GPUCheck",
-			"Type": "Runtime"
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
 		}
 	],
 	"Plugins": [
@@ -25,6 +26,10 @@
 		},
 		{
 			"Name": "ExtendedShaders",
+			"Enabled": true
+		},
+		{
+			"Name": "ExtendedControlStates",
 			"Enabled": true
 		},
 		{
@@ -103,10 +108,6 @@
 			"Enabled": false
 		},
 		{
-			"Name": "ExtendedControlStates",
-			"Enabled": true
-		},
-		{
 			"Name": "ChaosCloth",
 			"Enabled": false
 		},
@@ -124,11 +125,16 @@
 		},
 		{
 			"Name": "VisualStudioTools",
-			"Enabled": true
+			"Enabled": true,
+			"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/product/362651520df94e4fa65492dbcba44ae2",
+			"SupportedTargetPlatforms": [
+				"Win64"
+			]
 		},
 		{
 			"Name": "VertexLightingPlugin",
-			"Enabled": true
+			"Enabled": true,
+			"MarketplaceURL": "https://github.com/PixelIndieDev/Vertex-Lighting-Plugin-For-Unreal-Engine-5"
 		}
 	],
 	"TargetPlatforms": [

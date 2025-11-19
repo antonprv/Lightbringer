@@ -25,6 +25,9 @@ class UWorld;
 class ASpectatorPawn;
 class AController;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(
+    FOnRespawnRequestSignature, AController*, Controller);
+
 UCLASS()
 class EXTENDEDCONTROLSTATES_API UECStateSubsystem
     : public UGameInstanceSubsystem
@@ -34,13 +37,7 @@ class EXTENDEDCONTROLSTATES_API UECStateSubsystem
 public:
     static UECStateSubsystem* Get(UWorld* World);
 
-    UFUNCTION(BlueprintCallable, Category = "Extended Controller States")
-    void BeginSpectating(AController* Controller,
-        TSubclassOf<ASpectatorPawn> SpectatorPawnClass);
-
-    UFUNCTION(BlueprintCallable, Category = "Extended Controller States")
-    void RespawnInWorld(AGameModeBase* GameMode, AController* Controller);
-
+    // Control state fields
     UFUNCTION(BlueprintCallable, BlueprintPure,
         Category = "Extended Controller States")
     bool IsSpectating()
@@ -51,6 +48,17 @@ public:
     UFUNCTION(BlueprintCallable, BlueprintPure,
         Category = "Extended Controller States")
     bool IsPlaying() { return CurrentState == ESpectatingState::Playing; }
+
+    // Control state functions
+    UFUNCTION(BlueprintCallable, Category = "Extended Controller States")
+    void BeginSpectating(AController* Controller,
+        TSubclassOf<ASpectatorPawn> SpectatorPawnClass);
+
+    UFUNCTION(BlueprintCallable, Category = "Extended Controller States")
+    void RespawnInWorld(AController* Controller);
+
+    // Call to GameMode
+    FOnRespawnRequestSignature OnRespawnRequest;
 
 private:
     ASpectatorPawn* CustomSpectatorPawn;

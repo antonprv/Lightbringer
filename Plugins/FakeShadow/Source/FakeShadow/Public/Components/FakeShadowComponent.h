@@ -32,8 +32,10 @@ public:
 protected:
     // Called when the game starts
     virtual void BeginPlay() override;
-
     virtual void OnRegister() override;
+
+    virtual void TickComponent(float DeltaTime, ELevelTick TickType,
+        FActorComponentTickFunction* ThisTickFunction) override;
 
 private:
     static const FVector ShadowRendererDefaultLocation;

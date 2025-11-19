@@ -43,10 +43,9 @@ void UECStateSubsystem::BeginSpectating(
     CurrentState = ESpectatingState::Spectating;
 }
 
-void UECStateSubsystem::RespawnInWorld(
-    AGameModeBase* GameMode, AController* Controller)
+void UECStateSubsystem::RespawnInWorld(AController* Controller)
 {
-    if (!Controller || !GameMode || IsPlaying()) return;
+    if (!Controller || IsPlaying()) return;
 
     if (CustomSpectatorPawn)
     {
@@ -55,10 +54,7 @@ void UECStateSubsystem::RespawnInWorld(
         CustomSpectatorPawn = nullptr;
     }
 
-    if (GameMode)
-    {
-        GameMode->RestartPlayer(Controller);
-    }
+    OnRespawnRequest.Broadcast(Controller);
 
     CurrentState = ESpectatingState::Playing;
 }
