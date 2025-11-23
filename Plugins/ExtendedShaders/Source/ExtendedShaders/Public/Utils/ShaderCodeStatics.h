@@ -4,15 +4,21 @@
 #pragma once
 
 #include "CoreMinimal.h"
-
+#include "ShaderCodeTypes.h"
+#include "ShaderCodeStatics.generated.h"
 /**
  *
  */
-class FShaderCodeUtils
+
+class FMaterialCompiler;
+
+UCLASS()
+class EXTENDEDSHADERS_API UShaderCodeStatics : public UObject
 {
+    GENERATED_BODY()
+
 public:
-    FShaderCodeUtils();
-    ~FShaderCodeUtils();
+    UShaderCodeStatics(const FObjectInitializer& ObjInit);
 
 public:
     // Expects 1 parameter - input name
@@ -29,4 +35,14 @@ public:
 
     // HLSL float type name
     static constexpr TCHAR ScalarFloatName[] = TEXT("float");
+
+    static int32 CheckError(const EHLSLError& Error, FMaterialCompiler* C,
+        const FString& NodeName, const FInputErrorData& InputErrorData);
+
+    static int32 GetCompilationErrorMSG(FMaterialCompiler* C,
+        const FString& NodeName, const int32& InputIndex,
+        const FName& InputName);
+    static int32 GetMissingInputErrorMSG(FMaterialCompiler* C,
+        const FString& NodeName, const int32& InputIndex,
+        const FName& InputName);
 };

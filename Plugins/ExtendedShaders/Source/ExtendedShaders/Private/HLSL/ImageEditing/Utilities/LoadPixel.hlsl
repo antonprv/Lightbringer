@@ -1,8 +1,7 @@
 // You can use this project non-commercially for educational purposes, any
 // commercial use, derivative commercial use is strictly prohibited
 
-#include "Utils/ShaderCodeUtils.h"
+// Inputs:  InTexture2D, Index
+// Outputs: LoadedPixel2D
 
-FShaderCodeUtils::FShaderCodeUtils() {}
-
-FShaderCodeUtils::~FShaderCodeUtils() {}
+return InTexture2D.Load(int3(Index,0));

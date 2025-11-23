@@ -4,10 +4,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Materials/MaterialExpression.h"
 
 #if WITH_EDITOR
 #include "Materials/MaterialExpressionCustom.h"
+#include "Utils/ShaderCodeStatics.h"
 #else
 enum ECustomMaterialOutputType : int;
 #endif
@@ -21,6 +21,28 @@ enum ECustomMaterialOutputType : int;
 
 class FMaterialCompiler;
 struct FExpressionInput;
+
+UENUM()
+enum class ENodeInputType : uint8
+{
+    TextureObject
+};
+
+USTRUCT()
+struct FTypedInput
+{
+    GENERATED_USTRUCT_BODY()
+
+    FExpressionInput* ExpressionInput;
+    ENodeInputType Type;
+
+    FTypedInput() = default;
+
+    FTypedInput(FExpressionInput* InExpressionInput, ENodeInputType InType)
+        : ExpressionInput(InExpressionInput), Type(InType)
+    {
+    }
+};
 
 UCLASS()
 class EXTENDEDSHADERS_API UCustomHLSLExpression : public UMaterialExpression
@@ -38,16 +60,18 @@ public:
 
     FName FirstOutputName{""};
 
-    TEnumAsByte<ECustomMaterialOutputType> NodeOutputType;
+    void AddNodeInput(
+        const FName& InputName, FExpressionInput& ExpressionInput);
 
-    TMap<FName, FExpressionInput*> NodeInputs;
+    void AddNodeTypedInput(const FName& InputName,
+        FExpressionInput& ExpressionInput, const ENodeInputType& InputType);
+    void AddNodeTypedInput(
+        const FName& InputName, const FTypedInput& TypedInput);
 
-    TMap<FName, TEnumAsByte<ECustomMaterialOutputType>> NodeAdditionalOutputs;
-
-    TArray<FString> HLSLIncludes;
+    void AddNodeOutput(const FName& OutputName,
+        const TEnumAsByte<ECustomMaterialOutputType>& OutputType);
 
     void SetHLSLFilePath(const FString& HLSLFilePathString);
-
     // You can still write code manually and send it here
     void SetManualHLSL(const FString& HLSLCodeString);
 
@@ -56,6 +80,16 @@ public:
     void SetFirstOuputName(FName OutputName);
 
 protected:
+    TEnumAsByte<ECustomMaterialOutputType> NodeOutputType;
+
+    TMap<FName, FExpressionInput*> NodeInputs;
+
+    TMap<FName, FTypedInput> NodeTypedInputs;
+
+    TMap<FName, TEnumAsByte<ECustomMaterialOutputType>> NodeAdditionalOutputs;
+
+    TArray<FString> HLSLIncludes;
+
 #if WITH_EDITOR
     virtual void GetCaption(TArray<FString>& OutCaptions) const override;
     virtual FString GetDescription() const override;
@@ -66,4 +100,23 @@ protected:
 private:
     FString HLSLCode;
     FString HLSLFilePath;
+
+    EHLSLError LoadHLSLCode(FString& OutTempCode);
+
+    UMaterialExpressionCustom* CreateTempCustomNode(const FString& Code);
+
+    EHLSLError CompileInputs(FMaterialCompiler* C,
+        UMaterialExpressionCustom* TempCustom,
+        TArray<int32>& OutCompiledInputs, FInputErrorData& OutInputErrorData);
+
+    EHLSLError CompileTypedInputs(FMaterialCompiler* C,
+        const int32& OutputIndex, UMaterialExpressionCustom* TempCustom,
+        TArray<int32>& OutCompiledInputs, FInputErrorData& OutInputErrorData);
+
+    EHLSLError CompileTextureObject(FMaterialCompiler* C,
+        const int32& OutputIndex, UMaterialExpressionCustom* TempCustom,
+        TArray<int32>& OutCompiledInputs, FExpressionInput* TextureInput,
+        const FName& InputName);
+
+    void SetupAdditionalOutputs(UMaterialExpressionCustom* OutTempCustom);
 };

@@ -31,7 +31,7 @@ enum class ESimpleInputAxisType : uint8
 USTRUCT(BlueprintType)
 struct FSimpleInputBinding
 {
-    GENERATED_USTRUCT_BODY();
+    GENERATED_USTRUCT_BODY()
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     FKey KeyToPress;
@@ -43,7 +43,7 @@ struct FSimpleInputBinding
 USTRUCT(BlueprintType)
 struct FSimpleInputBindingArray
 {
-    GENERATED_USTRUCT_BODY();
+    GENERATED_USTRUCT_BODY()
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     TArray<FSimpleInputBinding> Bindings;
@@ -52,7 +52,7 @@ struct FSimpleInputBindingArray
 USTRUCT(BlueprintType)
 struct FSimpleInputBindingAxis
 {
-    GENERATED_USTRUCT_BODY();
+    GENERATED_USTRUCT_BODY()
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     FKey KeyToPress;
@@ -68,7 +68,7 @@ struct FSimpleInputBindingAxis
 USTRUCT(BlueprintType)
 struct FSimpleInputBindingAxisArray
 {
-    GENERATED_USTRUCT_BODY();
+    GENERATED_USTRUCT_BODY()
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     TArray<FSimpleInputBindingAxis> Bindings;

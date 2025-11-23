@@ -1,0 +1,43 @@
+// You can use this project non-commercially for educational purposes, any
+// commercial use, derivative commercial use is strictly prohibited
+
+#pragma once
+
+#include "/Libraries/Shapes/3D/Estimators/EstimatorParams.ush"
+#include "/Libraries/Shapes/3D/TransformManager.ush"
+
+class UBoxEstimator
+{
+    static float GetType()
+    {
+        return BOX_TYPE;
+    }
+    
+    static float CalcDistance(float3 RayOrigin, FTransform Transform, float BevelRadius)
+    {
+        float3 LocalPosition = RayOrigin - Transform.Location;
+        LocalPosition = URotationManager::RotateByWorldEuler(LocalPosition, Transform.Rotation);
+        LocalPosition = abs(LocalPosition) - Transform.Scale;
+
+        return length(
+            max(LocalPosition, 0)) +
+            min(max(LocalPosition.x, max(LocalPosition.y, LocalPosition.z)), 0
+            ) - BevelRadius;
+    }
+            
+    static float3 GetSurfaceNormal(float3 RayOrigin, FTransform Transform, float BevelRadius)
+    {
+        float3 LocalNormal = RayOrigin - Transform.Location;
+
+        float Epsilon = KINDA_SMALL_NUMBER;
+        
+        float DirectionX = CalcDistance(LocalNormal + float3(Epsilon, 0, 0), Transform, BevelRadius)
+             - CalcDistance(LocalNormal - float3(Epsilon, 0, 0), Transform, BevelRadius);
+        float DirectionY = CalcDistance(LocalNormal + float3(0, Epsilon, 0), Transform, BevelRadius)
+             - CalcDistance(LocalNormal - float3(0, Epsilon, 0), Transform, BevelRadius);
+        float DirectionZ = CalcDistance(LocalNormal + float3(0, 0, Epsilon), Transform, BevelRadius)
+             - CalcDistance(LocalNormal - float3(0, 0, Epsilon), Transform, BevelRadius);
+        
+        return normalize(float3(DirectionX, DirectionY, DirectionZ));
+    }
+};
