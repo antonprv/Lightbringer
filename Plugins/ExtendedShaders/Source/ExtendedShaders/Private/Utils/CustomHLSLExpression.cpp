@@ -7,8 +7,6 @@
 #include "MaterialCompiler.h"
 #include "MaterialExpressionIO.h"
 
-#include "Materials/MaterialExpressionTextureObjectParameter.h"
-
 #include "Misc/FileHelper.h"
 #include "Interfaces/IPluginManager.h"
 #include "UObject/UnrealType.h"
@@ -30,22 +28,15 @@ void UCustomHLSLExpression::AddNodeInput(
     NodeInputs.Add(InputName, &ExpressionInput);
 }
 
-void UCustomHLSLExpression::AddNodeTypedInput(const FName& InputName,
-    FExpressionInput& ExpressionInput, const ENodeInputType& InputType)
-{
-    NodeTypedInputs.Add(InputName, FTypedInput(&ExpressionInput, InputType));
-}
-
-void UCustomHLSLExpression::AddNodeTypedInput(
-    const FName& InputName, const FTypedInput& TypedInput)
-{
-    NodeTypedInputs.Add(InputName, TypedInput);
-}
-
 void UCustomHLSLExpression::AddNodeOutput(const FName& OutputName,
     const TEnumAsByte<ECustomMaterialOutputType>& OutputType)
 {
     NodeAdditionalOutputs.Add(OutputName, OutputType);
+}
+
+void UCustomHLSLExpression::AddHLSLIncludePath(const FString& IncludePath) 
+{
+    HLSLIncludes.Add(IncludePath);
 }
 
 void UCustomHLSLExpression::SetCategoryAndDescription()
@@ -87,7 +78,7 @@ void UCustomHLSLExpression::SetManualHLSL(const FString& HLSLCodeString)
 {
     if (HLSLCodeString.IsEmpty())
     {
-        UE_LOG(LogUCustomHLSLExpression, Fatal,
+        UE_LOG(LogUCustomHLSLExpression, Error,
             TEXT("SetManualHLSL received an empty string"))
         return;
     }
@@ -97,11 +88,17 @@ void UCustomHLSLExpression::SetManualHLSL(const FString& HLSLCodeString)
     }
 }
 
+void UCustomHLSLExpression::SetNodeOutputType(
+    TEnumAsByte<ECustomMaterialOutputType> Type)
+{
+    NodeOutputType = Type;
+}
+
 void UCustomHLSLExpression::SetHLSLFilePath(const FString& HLSLFilePathString)
 {
     if (HLSLFilePathString.IsEmpty())
     {
-        UE_LOG(LogUCustomHLSLExpression, Fatal,
+        UE_LOG(LogUCustomHLSLExpression, Error,
             TEXT("SetHLSLFilePath received an empty string"))
         return;
     }
@@ -130,39 +127,23 @@ FString UCustomHLSLExpression::GetDescription() const
 int32 UCustomHLSLExpression::Compile(FMaterialCompiler* C, int32 OutputIndex)
 {
     FString TempCode;
-    EHLSLError Error;
 
-    Error = LoadHLSLCode(TempCode);
-    if (Error == EHLSLError::NoHLSLCodeError)
+    ErrorData.Error = LoadHLSLCode(TempCode);
+    ErrorData.HLSLFilePath = HLSLFilePath;
+    if (ErrorData.Error != EHLSLError::Default)
     {
-        return C->Errorf(TEXT("No HLSL code specified"));
-    }
-    else if (Error == EHLSLError::FailedToLoadFileError)
-    {
-        return C->Errorf(TEXT("Failed to load HLSL file: %s"), *HLSLFilePath);
+        return UShaderCodeStatics::CheckError(C, FriendlyName, ErrorData);
     }
 
     UMaterialExpressionCustom* TempCustom = CreateTempCustomNode(TempCode);
-
-    TArray<int32> CompiledInputs;
-    FInputErrorData InputErrorData;
-
-    Error = CompileInputs(C, TempCustom, CompiledInputs, InputErrorData);
-    if (Error != EHLSLError::Default)
-    {
-        return UShaderCodeStatics::CheckError(
-            Error, C, FriendlyName, InputErrorData);
-    }
-
-    Error = CompileTypedInputs(
-        C, OutputIndex, TempCustom, CompiledInputs, InputErrorData);
-    if (Error != EHLSLError::Default)
-    {
-        return UShaderCodeStatics::CheckError(
-            Error, C, FriendlyName, InputErrorData);
-    }
-
     SetupAdditionalOutputs(TempCustom);
+    TArray<int32> CompiledInputs;
+    ErrorData.Error =
+        CompileInputs(C, TempCustom, CompiledInputs, ErrorData.InputErrorData);
+    if (ErrorData.Error != EHLSLError::Default)
+    {
+        return UShaderCodeStatics::CheckError(C, FriendlyName, ErrorData);
+    }
 
     return C->CustomExpression(TempCustom, OutputIndex, CompiledInputs);
 }
@@ -223,10 +204,6 @@ EHLSLError UCustomHLSLExpression::CompileInputs(FMaterialCompiler* C,
         return EHLSLError::Default;
     }
 
-    TPair<TArray<int32>, EHLSLError> Pair;
-
-    TArray<int32> CompiledInputs;
-
     // Count inputs for more detailed error message
     OutInputErrorData.InputIndex = 1;
 
@@ -234,7 +211,7 @@ EHLSLError UCustomHLSLExpression::CompileInputs(FMaterialCompiler* C,
     {
         if (Input.Key.IsNone())
         {
-            CompiledInputs.Add(INDEX_NONE);
+            OutCompiledInputs.Add(INDEX_NONE);
             continue;
         }
 
@@ -252,98 +229,13 @@ EHLSLError UCustomHLSLExpression::CompileInputs(FMaterialCompiler* C,
         }
 
         FCustomInput CustomInput;
-        CustomInput.Input = *Input.Value;
         CustomInput.InputName = Input.Key;
+        CustomInput.Input = *Input.Value;
 
         TempCustom->Inputs.Add(CustomInput);
-        CompiledInputs.Add(InputCode);
+        OutCompiledInputs.Add(InputCode);
         ++OutInputErrorData.InputIndex;
     }
-
-    OutCompiledInputs = CompiledInputs;
-
-    return EHLSLError::Default;
-}
-
-EHLSLError UCustomHLSLExpression::CompileTypedInputs(FMaterialCompiler* C,
-    const int32& OutputIndex, UMaterialExpressionCustom* TempCustom,
-    TArray<int32>& OutCompiledInputs, FInputErrorData& OutInputErrorData)
-{
-    if (NodeTypedInputs.Num() == 0)
-    {
-        return EHLSLError::Default;
-    }
-
-    EHLSLError Error;
-    for (TPair<FName, FTypedInput> TypedInput : NodeTypedInputs)
-    {
-        switch (TypedInput.Value.Type)
-        {
-            case ENodeInputType::TextureObject:
-                Error = CompileTextureObject(C, OutputIndex, TempCustom,
-                    OutCompiledInputs, TypedInput.Value.ExpressionInput,
-                    TypedInput.Key);
-                if (Error == EHLSLError::InputMissingError)
-                {
-                    OutInputErrorData.InputName = TypedInput.Key;
-                    return EHLSLError::InputMissingError;
-                }
-                else if (Error == EHLSLError::InputCompilationError)
-                {
-                    OutInputErrorData.InputName = TypedInput.Key;
-                    return EHLSLError::InputCompilationError;
-                }
-                break;
-            default:
-                break;
-        }
-        ++OutInputErrorData.InputIndex;
-    }
-
-    return EHLSLError::Default;
-}
-
-EHLSLError UCustomHLSLExpression::CompileTextureObject(FMaterialCompiler* C,
-    const int32& OutputIndex, UMaterialExpressionCustom* TempCustom,
-    TArray<int32>& OutCompiledInputs, FExpressionInput* TextureInput,
-    const FName& InputName)
-{
-    if (!TextureInput->Expression)
-    {
-        return EHLSLError::InputMissingError;
-    }
-
-    UMaterialExpressionTextureObjectParameter* TempTextureObject =
-        NewObject<UMaterialExpressionTextureObjectParameter>(this,
-            UMaterialExpressionTextureObjectParameter::StaticClass(),
-            NAME_None, RF_Transient);
-
-    // Pass node input to TextureObject and compile it
-    TempTextureObject->ParameterName = InputName;
-    TempTextureObject->TextureObject = *TextureInput;
-    TempTextureObject->SamplerType = SAMPLERTYPE_Color;
-    int32 TextureCode = TempTextureObject->Compile(C, OutputIndex);
-
-    if (TextureCode < 0)
-    {
-        return EHLSLError::InputCompilationError;
-    }
-
-    // Connect TextureObject to Custom node
-    FCustomInput CustomInput;
-    CustomInput.Input.Expression = TempTextureObject;
-    CustomInput.Input.InputName = InputName;
-    CustomInput.InputName = InputName;
-
-    int32 InputCode = TextureInput->Compile(C);
-    if (InputCode < 0)
-    {
-        OutCompiledInputs = {InputCode};
-        return EHLSLError::InputCompilationError;
-    }
-
-    TempCustom->Inputs.Add(CustomInput);
-    OutCompiledInputs.Add(InputCode);
 
     return EHLSLError::Default;
 }

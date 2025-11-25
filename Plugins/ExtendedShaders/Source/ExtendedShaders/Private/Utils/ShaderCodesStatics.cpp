@@ -18,26 +18,20 @@ UShaderCodeStatics::UShaderCodeStatics(const FObjectInitializer& ObjInit)
 int32 UShaderCodeStatics::GetMissingInputErrorMSG(FMaterialCompiler* C,
     const FString& NodeName, const int32& InputIndex, const FName& InputName)
 {
-    return C->Errorf(TEXT("Custom material %s missing input %d (%s)"),
+    return C->Errorf(TEXT("Node %s missing input %d (%s)"),
         *NodeName, InputIndex, *InputName.ToString());
 }
 
-int32 UShaderCodeStatics::CheckError(const EHLSLError& Error,
-    FMaterialCompiler* C, const FString& NodeName,
-    const FInputErrorData& InputErrorData)
+int32 UShaderCodeStatics::GetNoHLSLCodeErrorMSG(FMaterialCompiler* C)
 {
-    if (Error == EHLSLError::InputMissingError)
-    {
-        return GetMissingInputErrorMSG(
-            C, NodeName, InputErrorData.InputIndex, InputErrorData.InputName);
-    }
-    else if (Error == EHLSLError::InputCompilationError)
-    {
-        return GetCompilationErrorMSG(
-            C, NodeName, InputErrorData.InputIndex, InputErrorData.InputName);
-    }
+    return C->Errorf(TEXT("No HLSL code specified"));
+    ;
+}
 
-    return int32();
+int32 UShaderCodeStatics::GetFailedToLoadFileError(
+    FMaterialCompiler* C, const FString& HLSLFilePath)
+{
+    return C->Errorf(TEXT("Failed to load HLSL file: %s"), *HLSLFilePath);
 }
 
 int32 UShaderCodeStatics::GetCompilationErrorMSG(FMaterialCompiler* C,
@@ -46,4 +40,31 @@ int32 UShaderCodeStatics::GetCompilationErrorMSG(FMaterialCompiler* C,
     return C->Errorf(
         TEXT("Custom material %s failed to compile input %d (%s)"), *NodeName,
         InputIndex, *InputName.ToString());
+}
+
+int32 UShaderCodeStatics::CheckError(FMaterialCompiler* C,
+    const FString& NodeName, const FShaderCodeError& ShaderCodeError)
+{
+    switch (ShaderCodeError.Error)
+    {
+        case EHLSLError::InputMissingError:
+            return GetMissingInputErrorMSG(C, NodeName,
+                ShaderCodeError.InputErrorData.InputIndex,
+                ShaderCodeError.InputErrorData.InputName);
+            break;
+        case EHLSLError::InputCompilationError:
+            return GetCompilationErrorMSG(C, NodeName,
+                ShaderCodeError.InputErrorData.InputIndex,
+                ShaderCodeError.InputErrorData.InputName);
+            break;
+        case EHLSLError::NoHLSLCodeError:
+            return GetNoHLSLCodeErrorMSG(C);
+            break;
+        case EHLSLError::FailedToLoadFileError:
+            return GetFailedToLoadFileError(C, ShaderCodeError.HLSLFilePath);
+            break;
+        default:
+            break;
+    }
+    return int32();
 }

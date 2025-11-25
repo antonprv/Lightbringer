@@ -1,0 +1,46 @@
+// You can use this project non-commercially for educational purposes, any
+// commercial use, derivative commercial use is strictly prohibited
+
+#pragma once
+
+class UKernelConvolution
+{
+    static float4 ComputeKernel(
+        float3 Row1,
+        float3 Row2,
+        float3 Row3,
+        float2 UV,
+        Texture2D Texture,
+        float KernelSize
+    )
+    {
+        float3x3 Kernel = float3x3(Row1, Row2, Row3);
+        
+        int3 PixelIndex;
+        Texture.GetDimensions(0, PixelIndex.x, PixelIndex.y, PixelIndex.z);
+        PixelIndex *= UV.xyy;
+
+        float4 FinalValue = 0;
+        float WeightSum = 0;
+
+        for (int U = -1; U <= 1; ++U)
+        {
+            for (int V = -1; V <= 1; ++V)
+            {
+                float Weight = Kernel[U + 1][V + 1];
+                WeightSum += Weight;
+
+                int2 Offset = int2(
+                    U * KernelSize,
+                    V * KernelSize
+                );
+
+                FinalValue += Texture.Load(
+                    int3(PixelIndex.xy + Offset, 0)
+                ) * Weight;
+            }
+        }
+
+        return FinalValue / WeightSum;
+    }
+};

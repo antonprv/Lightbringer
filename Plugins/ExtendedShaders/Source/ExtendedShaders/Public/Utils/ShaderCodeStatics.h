@@ -36,8 +36,8 @@ public:
     // HLSL float type name
     static constexpr TCHAR ScalarFloatName[] = TEXT("float");
 
-    static int32 CheckError(const EHLSLError& Error, FMaterialCompiler* C,
-        const FString& NodeName, const FInputErrorData& InputErrorData);
+    static int32 CheckError(FMaterialCompiler* C, const FString& NodeName,
+        const FShaderCodeError& InputErrorData);
 
     static int32 GetCompilationErrorMSG(FMaterialCompiler* C,
         const FString& NodeName, const int32& InputIndex,
@@ -45,4 +45,8 @@ public:
     static int32 GetMissingInputErrorMSG(FMaterialCompiler* C,
         const FString& NodeName, const int32& InputIndex,
         const FName& InputName);
+
+    static int32 GetNoHLSLCodeErrorMSG(FMaterialCompiler* C);
+    static int32 GetFailedToLoadFileError(
+        FMaterialCompiler* C, const FString& HLSLFilePath);
 };

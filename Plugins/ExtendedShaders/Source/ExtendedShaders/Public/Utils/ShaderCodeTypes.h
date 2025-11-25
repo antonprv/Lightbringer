@@ -4,10 +4,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
+
+#if WITH_EDITOR
+#include "Materials/MaterialExpressionTextureObjectParameter.h"
+#include "Materials/MaterialExpressionFunctionInput.h"
+#endif
+
 #include "ShaderCodeTypes.generated.h"
-/**
- *
- */
 
 UENUM()
 enum class EHLSLError : uint8
@@ -27,4 +30,16 @@ struct FInputErrorData
 
     int32 InputIndex;
     FName InputName;
+};
+
+USTRUCT()
+struct FShaderCodeError
+{
+    GENERATED_USTRUCT_BODY()
+
+    EHLSLError Error;
+    
+    FInputErrorData InputErrorData;
+
+    FString HLSLFilePath;
 };

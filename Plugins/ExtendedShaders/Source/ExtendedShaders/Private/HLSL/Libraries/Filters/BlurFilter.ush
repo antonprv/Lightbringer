@@ -1,0 +1,77 @@
+// You can use this project non-commercially for educational purposes, any
+// commercial use, derivative commercial use is strictly prohibited
+
+#pragma once
+
+#include "/Libraries/Graphics/KernelConvolution.ush"
+
+class UBlurFilter
+{
+    static float4 BlurKernelBased(
+        float2 UV,
+        Texture2D Texture,
+        SamplerState TextureSampler,
+        Texture2D KernelTexture,
+        float1 KernelScale
+    )
+    {
+        uint3 TextureDimensions;
+        uint3 KernelDimensions;
+
+        // Get size of both the kernel and the texture
+        Texture.GetDimensions(0, TextureDimensions.x, TextureDimensions.y, TextureDimensions.z);
+        KernelTexture.GetDimensions(0, KernelDimensions.x, KernelDimensions.y, KernelDimensions.z);
+
+        // Track both sum of values sampled and of kernel weights
+        float4 ColorSum = float4(0, 0, 0, 0);
+        float KernelWeights = float(0);
+
+        // Looping over each pixel in the kernel
+        for (int UDirection = 0; UDirection < KernelDimensions.x; UDirection++)
+        {
+            for (int VDirection = 0; VDirection < KernelDimensions.y; VDirection++)
+            {
+                int3 KernelIndex = int3(UDirection, VDirection, 0);
+                // Load the currently pixel value from kernel
+                float KernelValue = KernelTexture.Load(KernelIndex).x;
+
+                // Convert kernel offset to texture offset, taking kernel scale into account
+                float2 Offset = float2(KernelIndex.xy - KernelDimensions.xy * .5);
+                Offset /= float2(TextureDimensions.xy);
+                Offset *= KernelScale;
+
+                // Sample the texture with the offset calculated
+                float4 TextureValue = Texture.Sample(TextureSampler, UV + Offset);
+                // Sum both kernel and sampled image values
+                KernelWeights += KernelValue;
+                ColorSum += KernelValue * TextureValue;
+            }
+        }
+        // normalize result value with result kernel weight
+        ColorSum /= KernelWeights;
+        return ColorSum;
+    }
+    
+    static float4 BlurFastBox(
+        float2 UV,
+        Texture2D Texture,
+        float KernelSize
+    )
+    {
+        return UKernelConvolution::ComputeKernel(
+            float3(1, 1, 1),
+            float3(1, 1, 1),
+            float3(1, 1, 1),
+            UV,
+            Texture,
+            KernelSize
+        );
+    }
+    
+    static float4 BlurGaussian(
+        // Some Args
+    )
+    {
+        return float4(0, 0, 0, 0);
+    }
+};
