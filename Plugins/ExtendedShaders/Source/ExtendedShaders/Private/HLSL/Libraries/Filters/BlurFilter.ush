@@ -5,6 +5,7 @@
 
 #include "/Libraries/Graphics/KernelConvolution.ush"
 
+// Function collection for various blurs
 class UBlurFilter
 {
     static float4 BlurKernelBased(
@@ -68,7 +69,7 @@ class UBlurFilter
         );
     }
     
-    static float4 BlurGaussian(
+    static float3 BlurGaussian(
         // Some Args
     )
     {
