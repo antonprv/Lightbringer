@@ -24,6 +24,8 @@ protected:
 
 private:
     TArray<AActor*> PawnsToPossess{};
+    TArray<AActor*> ValidPawnsToPossess{};
+    
     int32 CurrentPawnIndex{0};
 
     UPROPERTY()
@@ -34,4 +36,5 @@ private:
     UFUNCTION()
     void HandleSwitchKey(FName ActionName);
     void SwitchPawn();
+    void ValidatePawns();
 };

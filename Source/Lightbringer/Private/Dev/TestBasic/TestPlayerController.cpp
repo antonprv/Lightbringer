@@ -1,9 +1,7 @@
 // You can use this project non-commercially for educational purposes, any
 // commercial use, derivative commercial use is strictly prohibited
 
-#include "TestPlayerController.h"
-
-#include "TestPawn.h"
+#include "Dev/TestBasic/TestPlayerController.h"
 
 #include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
@@ -11,6 +9,8 @@
 #include "SimpleInputSubsystem.h"
 #include "InputManager.h"
 #include "InputActionData.h"
+
+#include "Dev/TestBasic/TestPawn.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogATestPlayerController, Log, Log)
 
@@ -25,14 +25,25 @@ ATestPlayerController::ATestPlayerController()
         UE_LOG(LogATestPlayerController, Warning,
             TEXT("Failed to load InputActionData"));
     }
+
+    CurrentPawnIndex = 0;
 }
 
 void ATestPlayerController::BeginPlay()
 {
     Super::BeginPlay();
 
+    if (!GetWorld())
+    {
+        UE_LOG(LogATestPlayerController, Error,
+            TEXT("GetWorld() is nullptr in BeginPlay!"));
+        return;
+    }
+
     UGameplayStatics::GetAllActorsOfClass(
         GetWorld(), ATestPawn::StaticClass(), PawnsToPossess);
+
+    ValidatePawns();
 }
 
 void ATestPlayerController::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -48,6 +59,8 @@ void ATestPlayerController::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 void ATestPlayerController::SetupInputComponent()
 {
+    Super::SetupInputComponent();
+
     if (USimpleInputSubsystem* SimpleInputSubsystem =
             USimpleInputSubsystem::Get(GetWorld()))
     {
@@ -83,4 +96,25 @@ void ATestPlayerController::SwitchPawn()
     Possess(TestPawn);
     UE_LOG(LogATestPlayerController, Display,
         TEXT("Successfully possessed pawn: %s"), *TestPawn->GetName());
+}
+
+void ATestPlayerController::ValidatePawns()
+{
+    TArray<AActor*> ValidPawns;
+    for (AActor* PawnToPossess : PawnsToPossess)
+    {
+        if (PawnToPossess && IsValid(PawnToPossess) &&
+            PawnToPossess->IsA<ATestPawn>())
+        {
+            ValidPawns.Add(PawnToPossess);
+        }
+    }
+    PawnsToPossess = ValidPawns;
+
+    if (PawnsToPossess.Num() <= 1)
+    {
+        UE_LOG(LogATestPlayerController, Warning,
+            TEXT("Not enough valid pawns to possess"));
+        return;
+    }
 }

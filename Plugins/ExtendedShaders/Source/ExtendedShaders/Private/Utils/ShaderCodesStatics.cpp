@@ -4,10 +4,8 @@
 #include "Utils/ShaderCodeStatics.h"
 #include "Utils/ShaderCodeTypes.h"
 
-#if WITH_EDITOR
 #include "MaterialCompiler.h"
 #include "MaterialExpressionIO.h"
-#endif
 
 UShaderCodeStatics::UShaderCodeStatics(const FObjectInitializer& ObjInit)
     : Super(ObjInit)

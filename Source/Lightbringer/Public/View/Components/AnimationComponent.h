@@ -10,6 +10,19 @@
 class UAnimMontage;
 class ACharacter;
 class UComponentsDelegateMediator;
+class ULBPlayerAnimSharingStateInstance;
+
+UENUM(BlueprintType)
+enum class EAnimState : uint8
+{
+    Grounded,
+    RunStop,
+    RunStart,
+    Jumps,
+    JumpLanding,
+    YawPose,
+    NoYawPose,
+};
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class LIGHTBRINGER_API UAnimationComponent : public UActorComponent
@@ -29,11 +42,23 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     UAnimMontage* DeathMontage{nullptr};
 
+    UFUNCTION(BlueprintCallable)
+    ACharacter* GetCharacterOwner();
+
+    UFUNCTION(BlueprintCallable)
+    EAnimState GetCurrentAnimState();
+    UFUNCTION(BlueprintCallable)
+    void SetCurrentAnimState(const EAnimState& AnimState);
+
 private:
     UPROPERTY()
-    UComponentsDelegateMediator* ComponentsDelegateMediator{nullptr};
+    EAnimState CurrentAnimState{EAnimState::Grounded};
+
     UPROPERTY()
     ACharacter* CharacterOwner{nullptr};
+
+    UPROPERTY()
+    UComponentsDelegateMediator* ComponentsDelegateMediator{nullptr};
 
     void PlayDeathAnimation(AActor* DeadActor);
 };

@@ -22,6 +22,9 @@ public:
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
     UInputActionData* InputActionData{nullptr};
 
+    UFUNCTION(BlueprintCallable)
+    inline APawn* GetControlledPawn() { return GetPawn(); };
+
 protected:
     virtual void BeginPlay() override;
     virtual void EndPlay(EEndPlayReason::Type EndPlayReason) override;

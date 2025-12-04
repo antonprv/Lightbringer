@@ -78,6 +78,7 @@ private:
     FString HLSLCode;
     FString HLSLFilePath;
 
+    
     FShaderCodeError ErrorData;
 
     EHLSLError LoadHLSLCode(FString& OutTempCode);

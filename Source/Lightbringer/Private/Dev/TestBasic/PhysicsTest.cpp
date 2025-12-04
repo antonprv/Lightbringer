@@ -1,7 +1,8 @@
 // You can use this project non-commercially for educational purposes, any
 // commercial use, derivative commercial use is strictly prohibited
 
-#include "PhysicsTest.h"
+#include "Dev/TestBasic/PhysicsTest.h"
+
 #include "Engine/World.h"
 #include "Components/StaticMeshComponent.h"
 #include "TimerManager.h"

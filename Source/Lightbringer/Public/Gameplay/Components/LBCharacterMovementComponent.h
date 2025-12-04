@@ -10,6 +10,8 @@
 class ACharacter;
 class UAnimMontage;
 
+
+
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class LIGHTBRINGER_API ULBCharacterMovementComponent
     : public UCharacterMovementComponent

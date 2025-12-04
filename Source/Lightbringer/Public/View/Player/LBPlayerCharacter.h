@@ -6,6 +6,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Interfaces/PlayerControllable.h"
+
 #include "LBPlayerCharacter.generated.h"
 
 class AActor;
@@ -17,8 +18,10 @@ class ALBWeaponBase;
 
 class UHealthComponent;
 class UWeaponComponent;
-class UAnimationComponent;
 class UFakeShadowComponent;
+
+class ULBPlayerAnimationComponent;
+class UAnimUpdateRateOptimizationComponent;
 
 class UCameraComponent;
 class USpringArmComponent;
@@ -53,7 +56,11 @@ public:
     // My custom components
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly,
         Category = "Components | View | Animation")
-    UAnimationComponent* AnimationComponent{nullptr};
+    ULBPlayerAnimationComponent* AnimationComponent{nullptr};
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly,
+        Category = "Components | View | Animation")
+    UAnimUpdateRateOptimizationComponent* AnimUpdateRateComponent{nullptr};
+
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly,
         Category = "Components | View | Shadow")
     UFakeShadowComponent* FakeShadowComponent{nullptr};
@@ -75,6 +82,9 @@ public:
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite,
         Category = "Components | View | Camera")
     float SprintRightCameraInterpolationSpeed{0.8f};
+
+    UFUNCTION(BlueprintCallable)
+    bool IsControlledByPlayer();
 
 protected:
     // Called when the game starts or when spawned

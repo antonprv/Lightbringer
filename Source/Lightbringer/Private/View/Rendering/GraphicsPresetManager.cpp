@@ -127,7 +127,7 @@ void UGraphicsPresetManager::SetDefaultScalability()
     {
         if (UGameUserSettings* Settings = GEngine->GetGameUserSettings())
         {
-            Settings->ScalabilityQuality.AntiAliasingQuality = 0;
+            Settings->ScalabilityQuality.AntiAliasingQuality = 3;
             Settings->ScalabilityQuality.EffectsQuality = 0;
             Settings->ScalabilityQuality.PostProcessQuality = 1;
             Settings->ScalabilityQuality.ShadowQuality = 0;
@@ -154,7 +154,7 @@ void UGraphicsPresetManager::SetLowScalability()
         if (UGameUserSettings* Settings = GEngine->GetGameUserSettings())
         {
             // Set all scalability settings to low (0)
-            Settings->ScalabilityQuality.AntiAliasingQuality = 0;
+            Settings->ScalabilityQuality.AntiAliasingQuality = 1;
             Settings->ScalabilityQuality.EffectsQuality = 0;
             Settings->ScalabilityQuality.PostProcessQuality = 0;
             Settings->ScalabilityQuality.ShadowQuality = 0;

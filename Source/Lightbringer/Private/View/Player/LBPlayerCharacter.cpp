@@ -26,8 +26,9 @@
 #include "Gameplay/Components/LBCharacterMovementComponent.h"
 #include "Gameplay/Components/HealthComponent.h"
 #include "Gameplay/Components/WeaponComponent.h"
-#include "View/Components/AnimationComponent.h"
 
+#include "View/Player/Animation/LBPlayerAnimationComponent.h"
+#include "View/Components/AnimUpdateRateOptimizationComponent.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogALBPlayerCharacter, Log, Log)
 
@@ -84,8 +85,21 @@ ALBPlayerCharacter::ALBPlayerCharacter(const FObjectInitializer& ObjInit)
     WeaponComponent =
         CreateDefaultSubobject<UWeaponComponent>("Weapon Component");
 
-    AnimationComponent =
-        CreateDefaultSubobject<UAnimationComponent>("Animation Component");
+    AnimationComponent = CreateDefaultSubobject<ULBPlayerAnimationComponent>(
+        "Animation Component");
+    AnimUpdateRateComponent =
+        CreateDefaultSubobject<UAnimUpdateRateOptimizationComponent>(
+            "Anim Update Rate Optimization Component");
+}
+
+bool ALBPlayerCharacter::IsControlledByPlayer()
+{
+    if (APlayerController* PlayerController =
+            Cast<APlayerController>(GetController()))
+    {
+        return true;
+    }
+    return false;
 }
 
 /*

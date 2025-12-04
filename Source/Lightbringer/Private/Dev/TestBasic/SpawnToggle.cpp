@@ -1,7 +1,8 @@
 // You can use this project non-commercially for educational purposes, any
 // commercial use, derivative commercial use is strictly prohibited
 
-#include "SpawnToggle.h"
+#include "Dev/TestBasic/SpawnToggle.h"
+
 #include "Components/BoxComponent.h"
 
 // Sets default values

@@ -1,7 +1,8 @@
 // You can use this project non-commercially for educational purposes, any
 // commercial use, derivative commercial use is strictly prohibited
 
-#include "QualitySettingsTest.h"
+#include "Dev/TestBasic/QualitySettingsTest.h"
+
 #include "Components/BoxComponent.h"
 #include "Engine/Engine.h"
 #include "View/Rendering/GraphicsPresetManager.h"

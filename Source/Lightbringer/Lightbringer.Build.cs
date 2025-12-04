@@ -16,6 +16,9 @@ public class Lightbringer : ModuleRules
             "Engine",
             "InputCore",
             "RenderCore",
+            "AnimationBudgetAllocator",
+            "AnimationSharing",
+            "AnimGraphRuntime",
             "SimpleInput",
             "ExtendedControlStates",
             "FakeShadow"

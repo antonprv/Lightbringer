@@ -1,7 +1,7 @@
 // You can use this project non-commercially for educational purposes, any
 // commercial use, derivative commercial use is strictly prohibited
 
-#include "TestPawn.h"
+#include "Dev/TestBasic/TestPawn.h"
 
 #include "Components/StaticMeshComponent.h"
 #include "Camera/CameraComponent.h"

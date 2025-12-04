@@ -9,6 +9,9 @@ public class LightbringerTarget : TargetRules
 	{
 		Type = TargetType.Game;
 
-		ExtraModuleNames.AddRange( new string[] { "Lightbringer" } );
+        DefaultBuildSettings = BuildSettingsVersion.V6;
+        IncludeOrderVersion = EngineIncludeOrderVersion.Unreal5_7;
+
+        ExtraModuleNames.AddRange( new string[] { "Lightbringer" } );
 	}
 }

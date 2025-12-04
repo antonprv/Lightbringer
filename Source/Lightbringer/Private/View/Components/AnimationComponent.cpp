@@ -46,6 +46,24 @@ void UAnimationComponent::EndPlay(EEndPlayReason::Type EndPlayReason)
     Super::EndPlay(EndPlayReason);
 }
 
+EAnimState UAnimationComponent::GetCurrentAnimState()
+{
+    return CurrentAnimState;
+}
+
+void UAnimationComponent::SetCurrentAnimState(
+    const EAnimState& AnimState)
+{
+    CurrentAnimState = AnimState;
+}
+
+ACharacter* UAnimationComponent::GetCharacterOwner()
+{
+    check(CharacterOwner);
+
+    return CharacterOwner;
+}
+
 void UAnimationComponent::PlayDeathAnimation(AActor* DeadActor)
 {
     if (!CharacterOwner || !DeathMontage)

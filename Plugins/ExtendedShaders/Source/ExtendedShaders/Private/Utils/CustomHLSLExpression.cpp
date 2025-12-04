@@ -255,5 +255,7 @@ void UCustomHLSLExpression::SetupAdditionalOutputs(
         CustomOutput.OutputName = Output.Key;
         TempCustom->AdditionalOutputs.Add(CustomOutput);
     }
+
+    TempCustom->AdditionalOutputs;
 }
 #endif

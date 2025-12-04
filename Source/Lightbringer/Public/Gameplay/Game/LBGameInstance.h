@@ -19,5 +19,5 @@ protected:
 
 private:
     void ApplyGraphicsSettingsAfterWorld(
-        UWorld* World, const UWorld::InitializationValues IVS);
+        UWorld* World, const UWorld::InitializationValues IVS);    
 };

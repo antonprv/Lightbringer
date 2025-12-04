@@ -11,8 +11,6 @@
 #include "/Libraries/Shapes/3D/Estimators/BoxEstimator.ush"
 #include "/Libraries/Shapes/3D/Estimators/CyllinderEstimator.ush"
 
-#include "/Libraries/Shapes/3D/Operands/SubtractOperand.ush"
-
 #include "/Libraries/Shapes/3D/BaseShape.ush"
 
 class URenderOperand : IBaseShape
@@ -60,14 +58,6 @@ class URenderOperand : IBaseShape
                     HalfHeight,
                     BevelRadius);
                 }
-            
-            case SUBTRACT_TYPE:
-            {
-                USubtractOperand SubtractOP;
-                SubtractOP.SubtractTransform = Transform;
-                SubtractOP.DrawParams = DrawParams;
-                return 
-            }
         }
         return 0;
     }

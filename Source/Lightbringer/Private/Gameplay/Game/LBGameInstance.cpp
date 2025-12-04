@@ -2,6 +2,9 @@
 // commercial use, derivative commercial use is strictly prohibited
 
 #include "Gameplay/Game/LBGameInstance.h"
+
+#include "AnimationSharingManager.h"
+
 #include "View/Subsystems/QualitySettingsSubsystem.h"
 #include "View/Rendering/GraphicsPresetManager.h"
 
