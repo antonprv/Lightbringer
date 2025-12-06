@@ -13,7 +13,7 @@
 
 #include "/Libraries/Shapes/3D/BaseShape.ush"
 
-class URenderOperand : IBaseShape
+class URenderOperand // : IBaseShape
 {
     float4 Color;
     
@@ -31,9 +31,9 @@ class URenderOperand : IBaseShape
     
     float GetDistance()
     {
-        switch (InPart)
+        switch (TO_INT(InPart))
         {
-            case SPHERE_TYPE:
+            case SPHERE_TYPE_INT:
             {
                     return USphereEstimator::CalcDistance(
                     DrawParams.ViewRayOrigin,
@@ -41,7 +41,7 @@ class URenderOperand : IBaseShape
                     Radius);
                 }
             
-            case BOX_TYPE:
+            case BOX_TYPE_INT:
             {
                     return UBoxEstimator::CalcDistance(
                     DrawParams.ViewRayOrigin,
@@ -49,7 +49,7 @@ class URenderOperand : IBaseShape
                     BevelRadius);
                 }
             
-            case CYLLINDER_TYPE:
+            case CYLLINDER_TYPE_INT:
             {
                     return UCyllinderEstimator::CalcDistance(
                     DrawParams.ViewRayOrigin,
@@ -59,7 +59,7 @@ class URenderOperand : IBaseShape
                     BevelRadius);
                 }
         }
-        return 0;
+        return 0.;
     }
     
     void UpdateViewRayOrigin()
@@ -91,9 +91,9 @@ class URenderOperand : IBaseShape
         
     float3 GetSurfaceNormal()
     {
-        switch (InPart)
+        switch (TO_INT(InPart))
         {
-            case SPHERE_TYPE:
+            case SPHERE_TYPE_INT:
             {
                     return USphereEstimator::GetSurfaceNormal(
                     DrawParams.ViewRayOrigin,
@@ -101,7 +101,7 @@ class URenderOperand : IBaseShape
                     Radius);
                 }
             
-            case BOX_TYPE:
+            case BOX_TYPE_INT:
             {
                     return UBoxEstimator::GetSurfaceNormal(
                     DrawParams.ViewRayOrigin,
@@ -109,7 +109,7 @@ class URenderOperand : IBaseShape
                     BevelRadius);
                 }
             
-            case CYLLINDER_TYPE:
+            case CYLLINDER_TYPE_INT:
             {
                     return UCyllinderEstimator::GetSurfaceNormal(
                     DrawParams.ViewRayOrigin,
@@ -158,11 +158,26 @@ class URenderOperand : IBaseShape
         
     float4 Draw()
     {
-        bool HasHit = URayMarcher::DrawShape3D(
-            this,
-            DrawParams.NumSteps,
-            DrawParams.OverlapDetectionThreshold
-        );
+        bool HasHit = false;
+
+        //HasHit = URayMarcher::DrawShape3D(
+        //    this,
+        //    DrawParams.NumSteps,
+        //    DrawParams.OverlapDetectionThreshold
+        //);
+        
+        for (int i = 0; i < DrawParams.NumSteps; ++i)
+        {
+            float Distance = GetDistance();
+        
+            if (Distance < DrawParams.OverlapDetectionThreshold)
+            {
+                HasHit = true;
+                break;
+            }
+        
+            UpdateViewRayOrigin();
+        }
         
         if (HasHit)
         {

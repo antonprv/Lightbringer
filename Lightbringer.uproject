@@ -136,11 +136,6 @@
 			]
 		},
 		{
-			"Name": "VertexLightingPlugin",
-			"Enabled": true,
-			"MarketplaceURL": "https://github.com/PixelIndieDev/Vertex-Lighting-Plugin-For-Unreal-Engine-5"
-		},
-		{
 			"Name": "TextureGraph",
 			"Enabled": true
 		},

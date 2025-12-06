@@ -144,6 +144,8 @@ void UGraphicsPresetManager::SetDefaultScalability()
         // If we select this, we probably have a powerful GPU
         // so this is more like an emergency check.
         StartVRAMTrackingTask(RareVRAMChecking);
+
+        AddAntiAliasing();
     }
 }
 
@@ -171,6 +173,8 @@ void UGraphicsPresetManager::SetLowScalability()
         // If we select this, we probably have a weak GPU, 
         // so we periodically check for VRAM overflow.
         StartVRAMTrackingTask(OftenVRAMChecking);
+
+        RemoveAntiAliasing();
     }
 }
 
@@ -204,5 +208,30 @@ void UGraphicsPresetManager::ApplyOptimizations()
         CVarShadowParallelCull->Set(0);
         UE_LOG(LogUGraphicsPresetManager, Display,
             TEXT("Set CVar: r.Shadow.ParallelCull = %d"), 0)
+    }
+}
+
+void UGraphicsPresetManager::AddAntiAliasing() 
+{
+    static IConsoleVariable* CVarMSAACount =
+        IConsoleManager::Get().FindConsoleVariable(
+            TEXT("r.MSAACount"));
+    if (CVarMSAACount)
+    {
+        CVarMSAACount->Set(4);
+        UE_LOG(LogUGraphicsPresetManager, Display,
+            TEXT("Set CVar: r.MSAACount = %d"), 4)
+    }
+}
+
+void UGraphicsPresetManager::RemoveAntiAliasing() 
+{
+    static IConsoleVariable* CVarMSAACount =
+        IConsoleManager::Get().FindConsoleVariable(TEXT("r.MSAACount"));
+    if (CVarMSAACount)
+    {
+        CVarMSAACount->Set(0);
+        UE_LOG(LogUGraphicsPresetManager, Display,
+            TEXT("Set CVar: r.MSAACount = %d"), 0)
     }
 }

@@ -1,9 +1,8 @@
 #pragma once
 
-#include "/Libraries/Shapes/3D/Estimators/BaseEstimator.ush"
-#include "/Libraries/Graphics/RayMarching.ush"
+#include "/Libraries/Graphics/RayMarchingRender.ush"
 
-class UIntersectOperand : IEstimator
+class UIntersectOperand
 {
     float BevelRadius;
     float ChamferRadius;

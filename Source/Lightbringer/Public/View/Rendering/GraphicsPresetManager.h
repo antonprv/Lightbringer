@@ -70,6 +70,9 @@ private:
     void SetLowScalability();
     void ApplyOptimizations();
 
+    void AddAntiAliasing();
+    void RemoveAntiAliasing();
+
     static constexpr float RareVRAMChecking = 15.f;
     static constexpr float OftenVRAMChecking = 5.f;
 };
