@@ -83,6 +83,11 @@ Content/*
 !Content/Maps/
 !Content/Input/
 
+# Exclude Gameplay Animation Sample assets
+Content/Blueprints/GAS/
+Content/Blueprints/GAS/*
+Content/Blueprints/GAS/*/*
+
 # Re-include all contents under Blueprints, Maps and Input
 !Content/Blueprints/**/*
 !Content/Maps/**/*
