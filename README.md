@@ -32,8 +32,6 @@ Provides retro-style rendering effects including fake render target shadows and 
 
 ### ✨ Extended Shaders Plugin
 
-✨ Extended Shaders Plugin
-
 Supercharges Unreal's Material Editor, bridging the gap between Blender's versatile shader editing and Photoshop's powerful filtering tools. Now equipped with advanced procedural modeling capabilities, including real-time fractal generation and comprehensive Boolean operations.
 
 Key Features Include:
