@@ -2,7 +2,8 @@
 This repository holds the game code for Lightbringer, along with Continuous Integration/Continuous Deployment (CI/CD) scripts and four custom-developed plugins.
 
 ### Usage Terms
-All code here is intended exclusively for **non-commercial**, **educational** purposes. Commercial usage of the raw code is strictly forbidden. However, pre-compiled standalone plugin versions may be used commercially once they become available on Fab upon completion of development.
+
+All provided code is designated solely for non-commercial, educational purposes. Any form of commercial exploitation of the raw code is explicitly prohibited. Pre-compiled standalone plugin versions, however, may be utilized commercially after their release on Fab following full development completion. Fab release will also mean that all plugins used in this game are production-ready.
 
 ---
 
@@ -30,12 +31,19 @@ Provides retro-style rendering effects including fake render target shadows and 
 - Blob shadows require creating a specific "DecalSocket" attached to either the root or pelvic bone of character models
 
 ### ✨ Extended Shaders Plugin
-Enhances Unreal's Material Editor functionality, bringing it closer to Blender's Shader Editor experience while incorporating Photoshop-like filter capabilities such as Gaussian blur:
 
-- Adds blur nodes, animated mask generators, and shape creators
-- Includes a basic High Level Shader Language (HLSL) compiler enabling direct integration of custom HLSL code into materials via customizable nodes
-- Heavily utilized by the Fake Shadow plugin for advanced shading techniques
+✨ Extended Shaders Plugin
+
+Supercharges Unreal's Material Editor, bridging the gap between Blender's versatile shader editing and Photoshop's powerful filtering tools. Now equipped with advanced procedural modeling capabilities, including real-time fractal generation and comprehensive Boolean operations.
+
+Key Features Include:
+
+- Blur Nodes, Animated Mask Generators, 2D and 3D Shape Creators.
+- Real-Time 3D Fractal Generation: Dynamically produce infinitely detailed fractal patterns, perfect for organic models and abstract designs.
+- Boolean Operations on Fractals and 3D Shapes: Combine, intersect, subtract, and manipulate  geometries interactively, even in-game!
+- Integrated Procedural Modeling: Build complex 3D structures entirely within the Material Editor, bypassing traditional polygon-based workflows.
+- Physics-Ready Geometry: Ensure seamless integration into game environments, where procedurally generated assets behave naturally with physics simulations.
 
 ---
 
-Thank you for reading! Have a fantastic day ahead!
+Thank you for reading! Have a nice day!
