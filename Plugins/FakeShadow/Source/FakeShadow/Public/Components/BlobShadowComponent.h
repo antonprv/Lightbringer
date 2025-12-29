@@ -1,3 +1,4 @@
+// Copyright Anton Piruev. All Rights Reserved.
 // You can use this project non-commercially for educational purposes, any
 // commercial use, derivative commercial use is strictly prohibited
 
@@ -27,6 +28,7 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ClampMin = "0"))
     float DecalTraceDistance{1000.f};
 
+
 protected:
     virtual void BeginPlay() override;
 
@@ -37,6 +39,7 @@ public:
 private:
     UPROPERTY()
     ACharacter* CharacterOwner{nullptr};
+
     UPROPERTY()
     UMaterialInterface* BlobShadowMaterial{nullptr};
 

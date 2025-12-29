@@ -6,6 +6,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Interfaces/PlayerControllable.h"
+#include "Interfaces/ShadowCaster.h"
 #include "LBPlayerCharacter.generated.h"
 
 class AActor;
@@ -26,46 +27,32 @@ class UTextRenderComponent;
 
 UCLASS()
 class LIGHTBRINGER_API ALBPlayerCharacter : public ACharacter,
-                                            public IPlayerControllable
+                                            public IPlayerControllable,
+                                            public IShadowCaster
 {
     GENERATED_BODY()
 
 public:
-    // Sets default values for this character's properties
-    ALBPlayerCharacter(const FObjectInitializer& ObjInit);
-
+    //=============================================
     // My custom components
+    //=============================================
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly,
         Category = "Components | Gameplay | Other")
     ULBCharacterMovementComponent* MovementHandlerComponent{nullptr};
+
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly,
         Category = "Components | Gameplay | Other")
     UWeaponComponent* WeaponComponent{nullptr};
 
-    // Unreal Components
-    UPROPERTY(VisibleAnywhere, BlueprintReadWrite,
-        Category = "Components | Gameplay | Health")
-    UHealthComponent* HealthComponent{nullptr};
-    UPROPERTY(VisibleAnywhere, BlueprintReadWrite,
-        Category = "Components | Gameplay | Health")
-    UTextRenderComponent* TextRenderComponent{nullptr};
-
-    // My custom components
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly,
         Category = "Components | View | Animation")
     UAnimationComponent* AnimationComponent{nullptr};
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly,
-        Category = "Components | View | Shadow")
-    UFakeShadowComponent* FakeShadowComponent{nullptr};
 
-    // Unreal Components
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly,
-        Category = "Components | View | Camera")
-    UCameraComponent* CameraComponent{nullptr};
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly,
-        Category = "Components | View | Camera")
-    USpringArmComponent* SpringArmComponent{nullptr};
 
+
+    //=============================================
+    // My custom components parameters
+    //=============================================
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite,
         Category = "Components | View | Camera")
     float SprintCameraFOV{100.f};
@@ -76,6 +63,25 @@ public:
         Category = "Components | View | Camera")
     float SprintRightCameraInterpolationSpeed{0.8f};
 
+    //=============================================
+    // Unreal components
+    //=============================================
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite,
+        Category = "Components | Gameplay | Health")
+    UHealthComponent* HealthComponent{nullptr};
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite,
+        Category = "Components | Gameplay | Health")
+    UTextRenderComponent* TextRenderComponent{nullptr};
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly,
+        Category = "Components | View | Camera")
+    UCameraComponent* CameraComponent{nullptr};
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly,
+        Category = "Components | View | Camera")
+    USpringArmComponent* SpringArmComponent{nullptr};
+
 protected:
     // Called when the game starts or when spawned
     virtual void BeginPlay() override;
@@ -84,13 +90,23 @@ protected:
     virtual void Jump() override;
 
 public:
-    virtual void MoveForwardCustom_Implementation(const float& Value) override;
-    virtual void MoveRightCustom_Implementation(const float& Value) override;
-    virtual void LookUpCustom_Implementation(const float& Value) override;
-    virtual void TurnAroundCustom_Implementation(const float& Value) override;
+    ALBPlayerCharacter(const FObjectInitializer& ObjInit);
+
+    // IControllable
+    virtual void MoveCustom_Implementation(const FVector2D Value) override;
+    virtual void LookCustom_Implementation(const FVector2D Value) override;
     virtual void JumpCustom_Implementation() override;
-    virtual void StartSprinting_Implementation() override;
-    virtual void StopSprinting_Implementation() override;
+    virtual void SprintCustom_Implementation(
+        const bool bWantsToSprint) override;
+    virtual void CrouchCustom_Implementation(
+        const bool bWantsToCrouch) override;
+    virtual void WalkCustom_Implementation(const bool bWantsToWalk) override;
+    virtual void AimCustom_Implementation(const bool bWantsToAim) override;
+    virtual void PickCustom_Implementation() override;
+
+    // IShadowCaster
+    virtual void GetShadowCasterMesh_Implementation(
+        USkeletalMeshComponent*& OutMesh) override;
 
 private:
     UPROPERTY()

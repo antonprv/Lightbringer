@@ -1,3 +1,4 @@
+// Copyright Anton Piruev. All Rights Reserved.
 // You can use this project non-commercially for educational purposes, any
 // commercial use, derivative commercial use is strictly prohibited
 
@@ -7,9 +8,11 @@
 #include "Components/DecalComponent.h"
 #include "FakeShadowComponent.generated.h"
 
-class ACharacter;
+class APawn;
+class USkeletalMeshComponent;
 class USceneCaptureComponent2D;
 class UTextureRenderTarget2D;
+class USkeletalMeshComponent;
 
 #if WITH_EDITORONLY_DATA
 class UArrowComponent;
@@ -29,9 +32,14 @@ public:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
     USceneCaptureComponent2D* ShadowRenderer{nullptr};
 
+
 protected:
     // Called when the game starts
     virtual void BeginPlay() override;
+    virtual void OnRegister() override;
+
+    virtual void TickComponent(float DeltaTime, ELevelTick TickType,
+        FActorComponentTickFunction* ThisTickFunction) override;
 
 private:
     static const FVector ShadowRendererDefaultLocation;
@@ -44,7 +52,8 @@ private:
 #endif
 
     UPROPERTY()
-    ACharacter* CharacterOwner{nullptr};
+    APawn* ShadowOwner{nullptr};
+   
     UPROPERTY()
     UMaterialInterface* FakeShadowMaterial{nullptr};
     UPROPERTY()
@@ -52,4 +61,6 @@ private:
 
     void CreateShadowRenderer();
     void AssignMaterials();
+
+    void GetShadowMesh(USkeletalMeshComponent*& ShadowMesh);
 };

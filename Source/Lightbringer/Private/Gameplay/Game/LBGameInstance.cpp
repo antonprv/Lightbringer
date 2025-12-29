@@ -36,7 +36,7 @@ void ULBGameInstance::ApplyGraphicsSettingsAfterWorld(
             UQualitySettingsSubsystem::Get(World))
     {
         QualitySettingsSubsystem->GetGraphicsPresetManager()
-            ->ApplyLowQualitySettings();
+            ->ApplyDefaultQualitySettings();
     }
     else
     {

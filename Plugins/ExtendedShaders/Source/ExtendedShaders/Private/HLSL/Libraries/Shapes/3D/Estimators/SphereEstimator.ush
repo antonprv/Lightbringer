@@ -1,0 +1,49 @@
+// Copyright Anton Piruev. All Rights Reserved. 
+// You can use this project non-commercially for educational purposes, any
+// commercial use, derivative commercial use is strictly prohibited
+
+#pragma once
+
+#include "/Libraries/Shapes/3D/Estimators/EstimatorParams.ush"
+#include "/Libraries/Shapes/3D/TransformManager.ush"
+
+class USphereEstimator
+{
+    static float GetType()
+    {
+        return SPHERE_TYPE;
+    }
+
+    static float CalcDistance(float3 RayOrigin, FTransform Transform, float Radius)
+    {
+        float3 LocalPosition = RayOrigin - Transform.Location;
+        LocalPosition = URotationManager::RotateByWorldEuler(LocalPosition, Transform.Rotation);
+
+        float3 ScaledPosition = LocalPosition / (Transform.Scale * Radius);
+
+        float LengthPrimary = length(ScaledPosition);
+        float LengthSecondary = length(ScaledPosition / (Transform.Scale * Radius));
+        float Distance = LengthPrimary * (LengthPrimary - 1.0f) / LengthSecondary;
+
+        return Distance * min(Transform.Scale.x, min(Transform.Scale.y, Transform.Scale.z)) * Radius;
+    }
+        
+    static float3 GetSurfaceNormal(float3 RayOrigin, FTransform Transform, float Radius)
+    {
+        const float Epsilon = KINDA_SMALL_NUMBER;
+
+        float3 OffsetX = float3(Epsilon, 0, 0);
+        float3 OffsetY = float3(0, Epsilon, 0);
+        float3 OffsetZ = float3(0, 0, Epsilon);
+
+        float DistanceCenter = USphereEstimator::CalcDistance(RayOrigin, Transform, Radius);
+        float3 Gradient = float3(
+        USphereEstimator::CalcDistance(RayOrigin + OffsetX, Transform, Radius) - DistanceCenter,
+        USphereEstimator::CalcDistance(RayOrigin + OffsetY, Transform, Radius) - DistanceCenter,
+        USphereEstimator::CalcDistance(RayOrigin + OffsetZ, Transform, Radius) - DistanceCenter
+        );
+
+        return normalize(Gradient);
+    }
+    
+};

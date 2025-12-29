@@ -1,3 +1,4 @@
+// Copyright Anton Piruev. All Rights Reserved.
 // You can use this project non-commercially for educational purposes, any
 // commercial use, derivative commercial use is strictly prohibited
 
@@ -8,6 +9,7 @@
 
 #include "GameFramework/SpectatorPawn.h"
 #include "GameFramework/Controller.h"
+#include "GameFramework/Pawn.h"
 
 UECStateSubsystem* UECStateSubsystem::Get(UWorld* World)
 {
@@ -25,7 +27,7 @@ UECStateSubsystem* UECStateSubsystem::Get(UWorld* World)
 }
 
 void UECStateSubsystem::BeginSpectating(
-    AController* Controller, TSubclassOf<ASpectatorPawn> SpectatorPawn)
+    AController* Controller, TSubclassOf<ASpectatorPawn> SpectatorPawnClass)
 {
     if (!Controller || IsSpectating()) return;
 
@@ -34,30 +36,26 @@ void UECStateSubsystem::BeginSpectating(
 
     Controller->GetPlayerViewPoint(ViewLocation, ViewRotation);
 
-    ASpectatorPawn* Spectator = GetWorld()->SpawnActor<ASpectatorPawn>(
-        SpectatorPawn, ViewLocation, ViewRotation);
+    CustomSpectatorPawn = GetWorld()->SpawnActor<ASpectatorPawn>(
+        SpectatorPawnClass, ViewLocation, ViewRotation);
     Controller->UnPossess();
-    Controller->Possess(Spectator);
+    Controller->Possess(CustomSpectatorPawn);
 
     CurrentState = ESpectatingState::Spectating;
 }
 
-void UECStateSubsystem::RespawnInWorld(
-    AGameModeBase* GameMode, AController* Controller)
+void UECStateSubsystem::RespawnInWorld(AController* Controller)
 {
-    if (!Controller || !GameMode || IsPlaying()) return;
+    if (!Controller || IsPlaying()) return;
 
-    if (SpectatorPawn)
+    if (CustomSpectatorPawn)
     {
         Controller->UnPossess();
-        SpectatorPawn->Destroy();
-        SpectatorPawn = nullptr;
+        CustomSpectatorPawn->Destroy();
+        CustomSpectatorPawn = nullptr;
     }
 
-    if (GameMode)
-    {
-        GameMode->RestartPlayer(Controller);
-    }
+    OnRespawnRequest.Broadcast(Controller);
 
     CurrentState = ESpectatingState::Playing;
 }

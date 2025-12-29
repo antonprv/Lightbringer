@@ -1,5 +1,9 @@
-// You can use this project non-commercially for educational purposes, any commercial use, derivative commercial use is strictly prohibited
+// Copyright Anton Piruev. All Rights Reserved. 
+// You can use this project non-commercially for educational purposes, any
+// commercial use, derivative commercial use is strictly prohibited
 
+using System.Collections.Generic;
+using System.IO;
 using UnrealBuildTool;
 
 public class Lightbringer : ModuleRules
@@ -14,29 +18,13 @@ public class Lightbringer : ModuleRules
             "Engine",
             "InputCore",
             "RenderCore",
-            "SimpleInput",
+            "AnimationBudgetAllocator",
+            "EnhancedInput",
             "ExtendedControlStates",
             "FakeShadow"
         });
 
-        PrivateDependencyModuleNames.AddRange(new string[]
-        {
-            //
-        });
-
-        PrivateIncludePaths.AddRange(new string[]
-        {
-            //
-        });
-
-        PublicIncludePaths.Add(ModuleDirectory);
-
-        PublicIncludePaths.AddRange(new string[] {
-            "Lightbringer/Public/Data",
-            "Lightbringer/Public/Dev",
-            "Lightbringer/Public/Gameplay",
-            "Lightbringer/Public/View"
-        });
+        PrivateDependencyModuleNames.Add("GPUCheck");
 
         // Uncomment if you are using Slate UI
         // PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });

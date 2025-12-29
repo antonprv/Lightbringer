@@ -1,3 +1,4 @@
+// Copyright Anton Piruev. All Rights Reserved.
 // You can use this project non-commercially for educational purposes, any
 // commercial use, derivative commercial use is strictly prohibited
 
@@ -10,6 +11,9 @@
 /**
  *
  */
+
+class AController;
+
 UCLASS()
 class LIGHTBRINGER_API ALBGameModeBase : public AGameModeBase
 {
@@ -17,4 +21,13 @@ class LIGHTBRINGER_API ALBGameModeBase : public AGameModeBase
 
 public:
     ALBGameModeBase();
+
+protected:
+    virtual void StartPlay() override;
+
+    virtual void StartToLeaveMap() override;
+
+private:
+    UFUNCTION()
+    void HandleRespawnRequest(AController* Controller);
 };

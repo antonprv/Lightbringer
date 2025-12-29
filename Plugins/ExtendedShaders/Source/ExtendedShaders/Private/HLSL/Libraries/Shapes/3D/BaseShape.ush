@@ -1,6 +1,10 @@
+// Copyright Anton Piruev. All Rights Reserved. 
+// You can use this project non-commercially for educational purposes, any
+// commercial use, derivative commercial use is strictly prohibited
+
 #pragma once
 
-#include "/Libraries/Graphics/RayMarching.ush"
+#define TRANSPARENT_BG float4(0, 0, 0, 0)
 
 struct FDrawParams
 {
@@ -11,25 +15,12 @@ struct FDrawParams
     float OverlapDetectionThreshold;
 };
 
-struct FTransform
-{
-    float3 Location;
-    float3 Rotation;
-    float3 Scale;
-};
-
 // A collection of interfaces for various shapes and shape properties
 interface IBaseShape
 {
     void UpdateViewRayOrigin();
     
     float GetDistance();
-    
-    float3 GetSurfaceNormal();
-    float3 GetSurfaceReflection();
-    float3 GetForwardPass();
-    float3 GetRimLight();
-    float3 GetSpecular();
     
     float4 Draw();
 };

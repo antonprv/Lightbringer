@@ -20,13 +20,19 @@ class LIGHTBRINGER_API ALBSpectatorPawn : public ASpectatorPawn,
 public:
     ALBSpectatorPawn();
 
-    virtual void MoveForwardCustom_Implementation(const float& Value) override;
-    virtual void MoveRightCustom_Implementation(const float& Value) override;
-    virtual void LookUpCustom_Implementation(const float& Value) override;
-    virtual void TurnAroundCustom_Implementation(const float& Value) override;
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+    float UpSpeed{0.f};
+
+    virtual void MoveCustom_Implementation(const FVector2D Value) override;
+    virtual void LookCustom_Implementation(const FVector2D Value) override;
     virtual void JumpCustom_Implementation() override;
-    virtual void StartSprinting_Implementation() override;
-    virtual void StopSprinting_Implementation() override;
+    virtual void SprintCustom_Implementation(
+        const bool bWantsToSprint) override;
+    virtual void CrouchCustom_Implementation(
+        const bool bWantsToCrouch) override;
+    virtual void WalkCustom_Implementation(const bool bWantsToWalk) override;
+    virtual void AimCustom_Implementation(const bool bWantsToAim) override;
+    virtual void PickCustom_Implementation() override;
 
 protected:
     virtual void BeginPlay() override;

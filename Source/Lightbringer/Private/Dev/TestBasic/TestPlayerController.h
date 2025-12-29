@@ -7,15 +7,25 @@
 #include "GameFramework/PlayerController.h"
 #include "TestPlayerController.generated.h"
 
-class UInputActionData;
-class UInputManager;
+class UInputMappingContext;
+class UInputAction;
+struct FInputActionInstance;
 
 UCLASS()
-class ATestPlayerController : public APlayerController
+class LIGHTBRINGER_API ATestPlayerController : public APlayerController
 {
     GENERATED_BODY()
-
+public:
     ATestPlayerController();
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
+    UInputMappingContext* InputMappingContext{nullptr};
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
+    UInputAction* MoveCustom{nullptr};
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
+    UInputAction* ChangePawn{nullptr};
 
 protected:
     virtual void BeginPlay() override;
@@ -26,12 +36,8 @@ private:
     TArray<AActor*> PawnsToPossess{};
     int32 CurrentPawnIndex{0};
 
-    UPROPERTY()
-    UInputActionData* InputData{nullptr};
-    UPROPERTY()
-    UInputManager* InputManager{nullptr};
+    void HandleMoveCustom(const FInputActionInstance& Input);
+    void HandleSwitchKey(const FInputActionInstance& Input);
 
-    UFUNCTION()
-    void HandleSwitchKey(FName ActionName);
-    void SwitchPawn();
+    void ChangeActivePawn();
 };

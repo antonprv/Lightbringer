@@ -18,7 +18,10 @@ class LIGHTBRINGER_API ULBCharacterMovementComponent
 
 public:
     // Sets default values for this component's properties
-    ULBCharacterMovementComponent();
+    ULBCharacterMovementComponent(const FObjectInitializer& ObjInit);
+
+    virtual void TickComponent(float DeltaTime, enum ELevelTick TickType,
+        FActorComponentTickFunction* ThisTickFunction) override;
 
 protected:
     // Called when the game starts
@@ -26,28 +29,24 @@ protected:
     virtual void EndPlay(EEndPlayReason::Type EndPlayReason) override;
 
 public:
-    // Called every frame
-    virtual void TickComponent(float DeltaTime, ELevelTick TickType,
-        FActorComponentTickFunction* ThisTickFunction) override;
-
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite,
         Category = "Ground Movement Params")
-    float SprintSpeed{1000.f};
+    float SprintSpeed{0.f};
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite,
         Category = "Ground Movement Params")
-    float MovementSmoothingSpeed{2.5f};
+    float MovementSmoothingSpeed{0.f};
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite,
         Category = "Ground Movement Params")
-    float SprintSmoothingSpeed{2.f};
+    float SprintSmoothingSpeed{0.f};
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite,
         Category = "Ground Movement Params")
-    float RotationSpeed{540.f};
+    float RotationSpeed{0.f};
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite,
         Category = "Ground Movement Params")
-    float RunTransitionDelay{0.4f};
+    float RunTransitionDelay{0.f};
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite,
         Category = "Ground Movement Params")
-    float JumpAirControl{0.2f};
+    float JumpAirControl{0.f};
 
     // Getter for animation blueprint
     UFUNCTION(BlueprintPure, Category = "Ground Movement States")
@@ -79,20 +78,23 @@ public:
     void SetRightInput(const float& Value);
     void SetLookUpInput(const float& Value);
     void SetTurnAroundInput(const float& Value);
-    void SetStartSprinting();
-    void SetStopSprinting();
+
+    void Sprint(bool bWantsToSprint);
+    void SprintInterpolate();
+
     void PerformJump();
 
     void SetLandingRules();
 
 private:
     bool bIsJumpAllowed{false};
-    bool bWantsToSprint{false};
     bool bIsMovingForward{false};
     bool bIsMovingBack{false};
     bool bIsMovingSideways{false};
     bool bIsMovingLeft{false};
     bool bIsMoving{false};
+
+    bool bCanSprint{false};
 
     float DefaultWalkSpeed{0.f};
     float CurrentMaxWalkSpeed{0.f};
@@ -100,9 +102,9 @@ private:
     float CurrentRightValue{0.f};
     float CurrentFowrardValue{0.f};
 
-    void SprintInterp(float DeltaTime);
-
     // Jumping Rules
     FTimerHandle JumpHandle;
     void AllowJumping();
+
+    void UpdateDesiredRotation();
 };

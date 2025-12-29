@@ -1,32 +1,23 @@
 // Copyright 1998-2019 Epic Games, Inc. All Rights Reserved.
 
+using System.IO;
 using UnrealBuildTool;
 
 public class ExtendedShaders : ModuleRules
 {
     public ExtendedShaders(ReadOnlyTargetRules Target) : base(Target)
     {
-        PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
-
-        PublicIncludePaths.Add(ModuleDirectory);
-
-        PrivateIncludePaths.AddRange(
-            new string[] {
-                "ExtendedShaders/Private",
-                "ExtendedShaders/Private/HLSL",
-                "ExtendedShaders/Private/HLSL/Animations",
-                "ExtendedShaders/Private/HLSL/Primitives",
-                "ExtendedShaders/Private/HLSL/Libraries",
-                "ExtendedShaders/Private/HLSL/Libraries/Shapes"
-            }
-            );
-
+        PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
         PublicDependencyModuleNames.AddRange(
             new string[]
             {
                 "Core",
+                "CoreUObject",
+                "Engine",
                 "RenderCore",
+                "RHI",
+                "Renderer",
                 "Projects"
             }
             );
@@ -35,8 +26,6 @@ public class ExtendedShaders : ModuleRules
         PrivateDependencyModuleNames.AddRange(
             new string[]
             {
-                "CoreUObject",
-                "Engine",
                 "Slate",
                 "SlateCore"
             }

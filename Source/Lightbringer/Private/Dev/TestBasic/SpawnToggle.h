@@ -9,7 +9,8 @@
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FSpawnTrigger, AActor*);
 
-UCLASS() class ASpawnToggle : public AActor
+UCLASS()
+class LIGHTBRINGER_API ASpawnToggle : public AActor
 {
     GENERATED_BODY()
 

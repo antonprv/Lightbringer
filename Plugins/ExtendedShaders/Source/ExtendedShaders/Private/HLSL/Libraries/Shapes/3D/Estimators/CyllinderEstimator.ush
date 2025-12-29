@@ -1,0 +1,56 @@
+// Copyright Anton Piruev. All Rights Reserved. 
+// You can use this project non-commercially for educational purposes, any
+// commercial use, derivative commercial use is strictly prohibited
+
+#pragma once
+
+#include "/Libraries/Shapes/3D/Estimators/EstimatorParams.ush"
+#include "/Libraries/Shapes/3D/TransformManager.ush"
+
+class UCyllinderEstimator
+{
+    static float GetType()
+    {
+        return CYLLINDER_TYPE;
+    }
+    
+    static float CalcDistance(float3 RayOrigin,
+        FTransform Transform, float Radius, float HalfHeight, float BevelRadius)
+    {
+        float3 LocalPosition = RayOrigin - Transform.Location;
+        LocalPosition = URotationManager::RotateByWorldEuler(LocalPosition, Transform.Rotation);
+
+        LocalPosition /= Transform.Scale;
+
+        float2 Distance = float2(length(LocalPosition.xz) - Radius, abs(LocalPosition.y) - HalfHeight);
+
+        return length(max(Distance, 0)) + min(max(Distance.x, Distance.y), 0) - BevelRadius;
+    }
+
+    static float3 GetSurfaceNormal(float3 RayOrigin,
+        FTransform Transform, float Radius, float HalfHeight, float BevelRadius)
+    {
+        float3 WorldPosition = RayOrigin;
+        float StepOffset = KINDA_SMALL_NUMBER;
+        
+        // Sample distance field along each axis
+        float DeltaX = CalcDistance(WorldPosition + float3(StepOffset, 0.0f, 0.0f),
+                                    Transform, Radius, HalfHeight, BevelRadius) -
+                   CalcDistance(WorldPosition - float3(StepOffset, 0.0f, 0.0f),
+                                    Transform, Radius, HalfHeight, BevelRadius);
+
+        float DeltaY = CalcDistance(WorldPosition + float3(0.0f, StepOffset, 0.0f),
+                                    Transform, Radius, HalfHeight, BevelRadius) -
+                   CalcDistance(WorldPosition - float3(0.0f, StepOffset, 0.0f),
+                                    Transform, Radius, HalfHeight, BevelRadius);
+
+        float DeltaZ = CalcDistance(WorldPosition + float3(0.0f, 0.0f, StepOffset),
+                                    Transform, Radius, HalfHeight, BevelRadius) -
+                   CalcDistance(WorldPosition - float3(0.0f, 0.0f, StepOffset),
+                                    Transform, Radius, HalfHeight, BevelRadius);
+
+        // Construct and normalize the gradient vector
+        float3 Gradient = float3(DeltaX, DeltaY, DeltaZ);
+        return normalize(Gradient);
+    }
+};

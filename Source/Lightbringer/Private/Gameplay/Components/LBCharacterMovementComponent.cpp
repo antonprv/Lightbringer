@@ -11,12 +11,17 @@
 #include "Animation/AnimMontage.h"
 
 // Sets default values for this component's properties
-ULBCharacterMovementComponent::ULBCharacterMovementComponent()
+ULBCharacterMovementComponent::ULBCharacterMovementComponent(
+    const FObjectInitializer& ObjInit)
+    : Super(ObjInit)
 {
-    // Set this component to be initialized when the game starts, and to be
-    // ticked every frame.  You can turn these features off to improve
-    // performance if you don't need them.
-    PrimaryComponentTick.bCanEverTick = true;
+    SprintSpeed = 1000.f;
+    MovementSmoothingSpeed = 10.f;
+    SprintSmoothingSpeed = 8.f;
+    RotationSpeed = 540.f;
+    RunTransitionDelay = 0.4f;
+    JumpAirControl = 0.2f;
+
     AirControl = JumpAirControl;
     RotationRate = {0, RotationSpeed, 0.f};
 }
@@ -36,21 +41,17 @@ void ULBCharacterMovementComponent::BeginPlay()
     bIsJumpAllowed = true;
 }
 
-void ULBCharacterMovementComponent::EndPlay(EEndPlayReason::Type EndPlayReason)
-{
-    Super::EndPlay(EndPlayReason);
-}
-
-// Called every frame
 void ULBCharacterMovementComponent::TickComponent(float DeltaTime,
     ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
     Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-    if (!CharacterOwner) return;
+    SprintInterpolate();
+}
 
-    bUseControllerDesiredRotation = !CharacterOwner->GetVelocity().IsZero();
-    SprintInterp(DeltaTime);
+void ULBCharacterMovementComponent::EndPlay(EEndPlayReason::Type EndPlayReason)
+{
+    Super::EndPlay(EndPlayReason);
 }
 
 void ULBCharacterMovementComponent::SetIsJumpAllowed(bool Value)
@@ -61,6 +62,8 @@ void ULBCharacterMovementComponent::SetIsJumpAllowed(bool Value)
 void ULBCharacterMovementComponent::SetForwardInput(const float& Value)
 {
     if (!CharacterOwner) return;
+
+    UpdateDesiredRotation();
 
     bIsMovingForward = Value > 0;
     bIsMovingBack = Value < 0;
@@ -82,8 +85,9 @@ void ULBCharacterMovementComponent::SetForwardInput(const float& Value)
     }
     else
     {
-        CurrentFowrardValue = FMath::FInterpConstantTo(CurrentFowrardValue,
-            Value, GetWorld()->GetDeltaSeconds(), MovementSmoothingSpeed);
+        CurrentFowrardValue = FMath::FInterpTo(CurrentFowrardValue, Value,
+            GetWorld()->GetDeltaSeconds(), MovementSmoothingSpeed);
+
         CharacterOwner->AddMovementInput(Direction, CurrentFowrardValue);
     }
 }
@@ -91,6 +95,8 @@ void ULBCharacterMovementComponent::SetForwardInput(const float& Value)
 void ULBCharacterMovementComponent::SetRightInput(const float& Value)
 {
     if (!CharacterOwner) return;
+
+    UpdateDesiredRotation();
 
     bIsMovingSideways = !FMath::IsNearlyZero(Value);
     bIsMovingRight = Value > 0;
@@ -109,8 +115,9 @@ void ULBCharacterMovementComponent::SetRightInput(const float& Value)
     }
     else
     {
-        CurrentRightValue = FMath::FInterpConstantTo(CurrentRightValue, Value,
+        CurrentRightValue = FMath::FInterpTo(CurrentRightValue, Value,
             GetWorld()->GetDeltaSeconds(), MovementSmoothingSpeed);
+
         CharacterOwner->AddMovementInput(Direction, CurrentRightValue);
     }
 }
@@ -119,6 +126,8 @@ void ULBCharacterMovementComponent::SetLookUpInput(const float& Value)
 {
     if (!CharacterOwner) return;
 
+    UpdateDesiredRotation();
+
     CharacterOwner->AddControllerPitchInput(Value);
 }
 
@@ -126,26 +135,16 @@ void ULBCharacterMovementComponent::SetTurnAroundInput(const float& Value)
 {
     if (!CharacterOwner) return;
 
+    UpdateDesiredRotation();
+
     CharacterOwner->AddControllerYawInput(Value);
-}
-
-void ULBCharacterMovementComponent::SetStartSprinting()
-{
-    if (!CharacterOwner) return;
-
-    if (IsSprintForbidden() || !IsMovingOnGround()) return;
-
-    bWantsToSprint = true;
-}
-
-void ULBCharacterMovementComponent::SetStopSprinting()
-{
-    bWantsToSprint = false;
 }
 
 void ULBCharacterMovementComponent::PerformJump()
 {
     if (!bIsJumpAllowed) return;
+    
+    UpdateDesiredRotation();
 
     CharacterOwner->Jump();
 }
@@ -165,18 +164,31 @@ void ULBCharacterMovementComponent::AllowJumping()
     JumpHandle.Invalidate();
 }
 
-void ULBCharacterMovementComponent::SprintInterp(float DeltaTime)
+void ULBCharacterMovementComponent::UpdateDesiredRotation()
+{
+    bUseControllerDesiredRotation = !CharacterOwner->GetVelocity().IsZero();
+}
+
+void ULBCharacterMovementComponent::Sprint(bool bWantsToSprint)
+{
+    if (IsSprintForbidden())
+    {
+        bCanSprint = false;
+        return;
+    };
+
+    // only allow sprinting if we're moving forward or diagonally
+    UpdateDesiredRotation();
+
+    bCanSprint = bWantsToSprint;
+}
+
+void ULBCharacterMovementComponent::SprintInterpolate()
 {
     if (!CharacterOwner) return;
 
-    // only allow sprinting if we're moving forward or diagonally
-    if (IsSprintForbidden())
-    {
-        bWantsToSprint = false;
-    }
-
     const float TargetMaxWalkSpeed =
-        bWantsToSprint ? SprintSpeed : DefaultWalkSpeed;
+        bCanSprint ? SprintSpeed : DefaultWalkSpeed;
 
     if (FMath::IsNearlyEqual(CurrentMaxWalkSpeed, TargetMaxWalkSpeed))
     {
@@ -188,8 +200,9 @@ void ULBCharacterMovementComponent::SprintInterp(float DeltaTime)
         return;
     }
 
-    CurrentMaxWalkSpeed = FMath::FInterpTo(CurrentMaxWalkSpeed,
-        TargetMaxWalkSpeed, DeltaTime, SprintSmoothingSpeed);
+    CurrentMaxWalkSpeed =
+        FMath::FInterpTo(CurrentMaxWalkSpeed, TargetMaxWalkSpeed,
+            GetWorld()->GetDeltaSeconds(), SprintSmoothingSpeed);
 
     MaxWalkSpeed = CurrentMaxWalkSpeed;
 }
@@ -203,6 +216,6 @@ bool ULBCharacterMovementComponent::IsSprinting()
 {
     if (!CharacterOwner) return false;
 
-    return bIsMovingForward && bWantsToSprint &&
+    return bIsMovingForward && bCanSprint &&
            !CharacterOwner->GetVelocity().IsZero();
 }

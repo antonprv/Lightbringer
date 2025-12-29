@@ -11,7 +11,7 @@
  *
  */
 UCLASS()
-class ATestGameMode : public AGameModeBase
+class LIGHTBRINGER_API ATestGameMode : public AGameModeBase
 {
     GENERATED_BODY()
 

@@ -8,28 +8,23 @@
 #include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
 
-#include "SimpleInputSubsystem.h"
-#include "InputManager.h"
-#include "InputActionData.h"
+#include "EnhancedInputComponent.h"
+#include "EnhancedInputSubsystems.h"
+#include "InputAction.h"
+#include "InputMappingContext.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogATestPlayerController, Log, Log)
 
-ATestPlayerController::ATestPlayerController()
-{
-    // Input
-    InputData = LoadObject<UInputActionData>(
-        nullptr, TEXT("InputActionData'/Game/Blueprints/Test/Input/"
-                      "IAD_TestFly.IAD_TestFly'"));
-    if (!IsValid(InputData))
-    {
-        UE_LOG(LogATestPlayerController, Warning,
-            TEXT("Failed to load InputActionData"));
-    }
-}
+ATestPlayerController::ATestPlayerController() {}
 
 void ATestPlayerController::BeginPlay()
 {
     Super::BeginPlay();
+
+    if (ULocalPlayer* LP = GetLocalPlayer())
+        if (UEnhancedInputLocalPlayerSubsystem* Subsystem =
+                LP->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>())
+            Subsystem->AddMappingContext(InputMappingContext, 0);
 
     UGameplayStatics::GetAllActorsOfClass(
         GetWorld(), ATestPawn::StaticClass(), PawnsToPossess);
@@ -37,10 +32,14 @@ void ATestPlayerController::BeginPlay()
 
 void ATestPlayerController::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
-    if (InputManager)
+    if (UEnhancedInputLocalPlayerSubsystem* Subsystem =
+            ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(
+                GetLocalPlayer()))
     {
-        InputManager->OnActionPressed.RemoveDynamic(
-            this, &ATestPlayerController::HandleSwitchKey);
+        if (InputMappingContext)
+        {
+            Subsystem->RemoveMappingContext(InputMappingContext);
+        }
     }
 
     Super::EndPlay(EndPlayReason);
@@ -48,29 +47,40 @@ void ATestPlayerController::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 void ATestPlayerController::SetupInputComponent()
 {
-    if (USimpleInputSubsystem* SimpleInputSubsystem =
-            USimpleInputSubsystem::Get(GetWorld()))
-    {
-        InputManager = SimpleInputSubsystem->GetInputManager();
-        if (InputManager)
-        {
-            InputManager->SetActiveActionData(this, InputComponent, InputData);
+    Super::SetupInputComponent();
 
-            InputManager->OnActionPressed.AddDynamic(
-                this, &ATestPlayerController::HandleSwitchKey);
+    if (UEnhancedInputComponent* Input =
+            Cast<UEnhancedInputComponent>(InputComponent))
+    {
+        Input->BindAction(MoveCustom, ETriggerEvent::Triggered, this,
+            &ATestPlayerController::HandleMoveCustom);
+
+        Input->BindAction(ChangePawn, ETriggerEvent::Triggered, this,
+            &ATestPlayerController::HandleSwitchKey);
+    }
+}
+
+void ATestPlayerController::HandleMoveCustom(const FInputActionInstance& Input)
+{
+    if (!InputMappingContext || !GetPawn()) return;
+
+    if (Input.GetValue().GetValueType() == EInputActionValueType::Axis2D)
+    {
+        if (ATestPawn* TestPawn = Cast<ATestPawn>(GetPawn()))
+        {
+            TestPawn->HandleMovement(Input.GetValue().Get<FVector2D>());
         }
     }
 }
 
-void ATestPlayerController::HandleSwitchKey(FName ActionName)
+void ATestPlayerController::HandleSwitchKey(const FInputActionInstance& Input)
 {
-    if (ActionName.IsEqual("SwitchPawn"))
-    {
-        SwitchPawn();
-    }
+    if (!InputMappingContext || !GetPawn()) return;
+
+    ChangeActivePawn();
 }
 
-void ATestPlayerController::SwitchPawn()
+void ATestPlayerController::ChangeActivePawn()
 {
     if (PawnsToPossess.Num() <= 1) return;
 

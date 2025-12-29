@@ -8,7 +8,7 @@
 #include "ActorSpawnHub.generated.h"
 
 UCLASS()
-class AActorSpawnHub : public AActor
+class LIGHTBRINGER_API AActorSpawnHub : public AActor
 {
     GENERATED_BODY()
 

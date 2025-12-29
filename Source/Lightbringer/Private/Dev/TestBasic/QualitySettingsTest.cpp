@@ -15,6 +15,7 @@ AQualitySettingsTest::AQualitySettingsTest()
     PrimaryActorTick.bCanEverTick = false;
 
     BoxComponent = CreateDefaultSubobject<UBoxComponent>("Collision Box");
+    BoxComponent->SetGenerateOverlapEvents(true);
     RootComponent = BoxComponent;
 }
 

@@ -13,6 +13,7 @@ ASpawnToggle::ASpawnToggle()
 
     BoxComponent = CreateDefaultSubobject<UBoxComponent>("BoxCollision");
     BoxComponent->SetHiddenInGame(false);
+    BoxComponent->SetGenerateOverlapEvents(true);
     SetRootComponent(BoxComponent);
 }
 

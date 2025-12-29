@@ -1,7 +1,8 @@
+// Copyright Anton Piruev. All Rights Reserved.
 // You can use this project non-commercially for educational purposes, any
 // commercial use, derivative commercial use is strictly prohibited
 
-#include "BlobShadowComponent.h"
+#include "Components/BlobShadowComponent.h"
 
 #include "GameFramework/Actor.h"
 #include "GameFramework/Character.h"
@@ -22,9 +23,17 @@ UBlobShadowComponent::UBlobShadowComponent()
 {
     PrimaryComponentTick.bCanEverTick = true;
 
-    BlobShadowMaterial = LoadObject<UMaterialInterface>(nullptr,
-        TEXT(
-            "MaterialInstanceConstant'/FakeShadow/Assets/Decals/Shadow/MI_Decal.MI_Decal'"));
+    // === Load assets in constructor so they are included in cook ===
+    static ConstructorHelpers::FObjectFinder<UMaterialInterface> Mat(
+        TEXT("/FakeShadow/Assets/Decals/Instances/MI_Decal.MI_Decal"));
+
+    if (ensureMsgf(Mat.Succeeded(),
+            TEXT("Failed to find %s (%s)."),
+            *BlobShadowMaterial->GetName(),
+            *BlobShadowMaterial->GetClass()->GetName()))
+    {
+        BlobShadowMaterial = Mat.Object;
+    }
 
     SetDecalMaterial(BlobShadowMaterial);
 }
@@ -80,7 +89,7 @@ void UBlobShadowComponent::UpdateDecalTransform()
         DecalHitResult,                                   //
         DecalStartHit,                                    //
         DecalEndHit,                                      //
-        ECC_Visibility,
+        ECC_WorldStatic,
         FCollisionQueryParams(),    //
         FCollisionResponseParams()  //
     );

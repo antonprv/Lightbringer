@@ -1,0 +1,20 @@
+// Copyright Anton Piruev. All Rights Reserved. 
+// You can use this project non-commercially for educational purposes, any
+// commercial use, derivative commercial use is strictly prohibited
+
+#pragma once
+
+class UScreenTexRenderer
+{
+    static float3 RenderWorldNormal(float3 WorldPosition, float3 CameraPosition)
+    {
+        float3 PositionDerivativeX = ddx(WorldPosition);
+        float3 PositionDerivativeY = ddy(WorldPosition); 
+        float3 Normal = normalize(cross(PositionDerivativeX, PositionDerivativeY)); 
+        
+        float3 ViewDirection = normalize(CameraPosition - WorldPosition); 
+        Normal *= sign(dot(Normal, ViewDirection));
+
+        return Normal;
+    }
+};

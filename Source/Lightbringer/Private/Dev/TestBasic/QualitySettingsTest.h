@@ -10,7 +10,7 @@
 class UBoxComponent;
 
 UCLASS()
-class AQualitySettingsTest : public AActor
+class LIGHTBRINGER_API AQualitySettingsTest : public AActor
 {
     GENERATED_BODY()
 

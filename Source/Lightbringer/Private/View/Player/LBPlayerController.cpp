@@ -1,33 +1,37 @@
+// Copyright Anton Piruev. All Rights Reserved.
 // You can use this project non-commercially for educational purposes, any
 // commercial use, derivative commercial use is strictly prohibited
 
-#include "LBPlayerController.h"
+#include "View/Player/LBPlayerController.h"
 
-#include "LBSpectatorPawn.h"
+#include "View/Player/LBSpectatorPawn.h"
 
-#include "PlayerDelegateMediator.h"
+#include "View/Player/PlayerDelegateMediator.h"
 #include "ECStateSubsystem.h"
 
-#include "SimpleInputSubsystem.h"
-#include "InputManager.h"
-
-#include "Interfaces/PlayerControllable.h"
+#include "View/Player/Interfaces/PlayerControllable.h"
 #include "GameFramework/Pawn.h"
 #include "Engine/World.h"
+
+#include "GameFramework/GameState.h"
+
+#include "EnhancedInputComponent.h"
+#include "EnhancedInputSubsystems.h"
+#include "InputAction.h"
+#include "InputMappingContext.h"
 
 /*
  * Initial controller setup
  */
-ALBPlayerController::ALBPlayerController()
-{
-    InputActionData = LoadObject<UInputActionData>(
-        nullptr, TEXT("InputActionData'/Game/Blueprints/Data/Input/"
-                      "IAD_ThirdPersonControls.IAD_ThirdPersonControls'"));
-}
 
 void ALBPlayerController::BeginPlay()
 {
     Super::BeginPlay();
+
+    if (ULocalPlayer* LP = GetLocalPlayer())
+        if (UEnhancedInputLocalPlayerSubsystem* Subsystem =
+                LP->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>())
+            Subsystem->AddMappingContext(InputMappingContext, 0);
 
     DelegateMediator = UPlayerDelegateMediator::Get(GetWorld());
     check(DelegateMediator);
@@ -50,6 +54,16 @@ void ALBPlayerController::EndPlay(EEndPlayReason::Type EndPlayReason)
     DelegateMediator->OnPlayerDeath.RemoveAll(this);
     DelegateMediator->OnPlayerDestruction.RemoveAll(this);
 
+    if (UEnhancedInputLocalPlayerSubsystem* Subsystem =
+            ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(
+                GetLocalPlayer()))
+    {
+        if (InputMappingContext)
+        {
+            Subsystem->RemoveMappingContext(InputMappingContext);
+        }
+    }
+
     Super::EndPlay(EndPlayReason);
 }
 
@@ -57,108 +71,43 @@ void ALBPlayerController::SetupInputComponent()
 {
     Super::SetupInputComponent();
 
-    if (USimpleInputSubsystem* SISubsystem =
-            USimpleInputSubsystem::Get(GetWorld()))
+    if (UEnhancedInputComponent* Input =
+            Cast<UEnhancedInputComponent>(InputComponent))
     {
-        if (UInputManager* SIInputManager = SISubsystem->GetInputManager())
-        {
-            SIInputManager->SetActiveActionData(
-                this, InputComponent, InputActionData);
+        Input->BindAction(MoveAction, ETriggerEvent::Triggered, this,
+            &ALBPlayerController::PawnMove);
 
-            if (!SIInputManager->OnAxisChanged.Contains(
-                    this, GET_FUNCTION_NAME_CHECKED(
-                              ALBPlayerController, ProcessInput)))
-            {
-                SIInputManager->OnAxisChanged.AddDynamic(
-                    this, &ALBPlayerController::ProcessInput);
-            }
+        Input->BindAction(LookAction, ETriggerEvent::Triggered, this,
+            &ALBPlayerController::PawnLook);
 
-            if (!SIInputManager->OnActionPressed.Contains(
-                    this, GET_FUNCTION_NAME_CHECKED(
-                              ALBPlayerController, ProcessPressed)))
-            {
-                SIInputManager->OnActionPressed.AddDynamic(
-                    this, &ALBPlayerController::ProcessPressed);
-            }
+        Input->BindAction(JumpAction, ETriggerEvent::Started, this,
+            &ALBPlayerController::PawnJump);
 
-            if (!SIInputManager->OnActionHold.Contains(
-                    this, GET_FUNCTION_NAME_CHECKED(
-                              ALBPlayerController, ProcessHold)))
-            {
-                SIInputManager->OnActionHold.AddDynamic(
-                    this, &ALBPlayerController::ProcessHold);
-            }
+        Input->BindAction(SprintAction, ETriggerEvent::Triggered, this,
+            &ALBPlayerController::PawnSprint);
 
-            if (!SIInputManager->OnActionReleased.Contains(
-                    this, GET_FUNCTION_NAME_CHECKED(
-                              ALBPlayerController, ProcessReleased)))
-            {
-                SIInputManager->OnActionReleased.AddDynamic(
-                    this, &ALBPlayerController::ProcessReleased);
-            }
-        }
-    }
-}
+        Input->BindAction(CrouchAction, ETriggerEvent::Started, this,
+            &ALBPlayerController::PawnCrouch);
 
-/*
- * Bind functions to input delegates.
- */
-void ALBPlayerController::ProcessInput(
-    FName ActionName, ESimpleInputAxisType AxisType, float Value)
-{
-    if (ActionName == "MoveForward" && AxisType == ESimpleInputAxisType::X)
-    {
-        MovePawnForward(Value);
-    }
-    else if (ActionName == "MoveRight" && AxisType == ESimpleInputAxisType::Y)
-    {
-        MovePawnRight(Value);
-    }
-    else if (ActionName == "LookUp" && AxisType == ESimpleInputAxisType::X)
-    {
-        PawnLookUp(Value);
-    }
-    else if (ActionName == "TurnAround" && AxisType == ESimpleInputAxisType::Y)
-    {
-        PawnTurnAround(Value);
-    }
-}
+        Input->BindAction(WalkAction, ETriggerEvent::Started, this,
+            &ALBPlayerController::PawnWalk);
 
-/*
- * Process input
- */
-void ALBPlayerController::ProcessPressed(FName ActionName)
-{
-    if (ActionName == "Jump")
-    {
-        PawnJump();
-    }
-}
+        Input->BindAction(AimAction, ETriggerEvent::Started, this,
+            &ALBPlayerController::PawnAim);
 
-void ALBPlayerController::ProcessHold(FName ActionName)
-{
-    if (ActionName == "StartSprinting")
-    {
-        PawnStartSprinting();
-    }
-}
-
-void ALBPlayerController::ProcessReleased(FName ActionName)
-{
-    if (ActionName == "StopSprinting")
-    {
-        PawnStopSprinting();
+        Input->BindAction(PickUpAction, ETriggerEvent::Started, this,
+            &ALBPlayerController::PawnPickUp);
     }
 }
 
 /*
  * Additional pawn callback functions
  */
-void ALBPlayerController::OnPawnDeath(APawn* Pawn)
+void ALBPlayerController::OnPawnDeath(APawn* PlayerPawn)
 {
-    if (!GetPawn()) return;
+    if (!GetPawn() || !GetWorld()) return;
 
-    if (GetPawn() == Pawn)
+    if (GetPawn() == PlayerPawn)
     {
         if (UECStateSubsystem* ControllerState =
                 UECStateSubsystem::Get(GetWorld()))
@@ -171,11 +120,16 @@ void ALBPlayerController::OnPawnDeath(APawn* Pawn)
 
 void ALBPlayerController::OnPawnDestruction(AActor* DestroyedPawnActor)
 {
-    if (!DestroyedPawnActor) return;
+    if (!DestroyedPawnActor || !GetWorld()) return;
 
     if (UECStateSubsystem* ControllerState =
             UECStateSubsystem::Get(GetWorld()))
     {
+        if (ControllerState->IsSpectating())
+        {
+            ControllerState->RespawnInWorld(this);
+        }
+
         ControllerState->BeginSpectating(
             this, ALBSpectatorPawn::StaticClass());
     }
@@ -184,51 +138,34 @@ void ALBPlayerController::OnPawnDestruction(AActor* DestroyedPawnActor)
 /*
  * Control pawn through pawn interface
  */
-void ALBPlayerController::MovePawnForward(float Value)
-{
-    if (!GetPawn()) return;
 
-    if (GetPawn()->GetClass()->ImplementsInterface(
-            UPlayerControllable::StaticClass()))
+void ALBPlayerController::PawnMove(const FInputActionInstance& Instance)
+{
+    if (Instance.GetValue().GetValueType() == EInputActionValueType::Axis2D)
     {
-        IPlayerControllable::Execute_MoveForwardCustom(GetPawn(), Value);
+        if (GetPawn()->GetClass()->ImplementsInterface(
+                UPlayerControllable::StaticClass()))
+        {
+            IPlayerControllable::Execute_MoveCustom(
+                GetPawn(), Instance.GetValue().Get<FVector2D>());
+        }
     }
 }
 
-void ALBPlayerController::MovePawnRight(float Value)
+void ALBPlayerController::PawnLook(const FInputActionInstance& Instance)
 {
-    if (!GetPawn()) return;
-
-    if (GetPawn()->GetClass()->ImplementsInterface(
-            UPlayerControllable::StaticClass()))
+    if (Instance.GetValue().GetValueType() == EInputActionValueType::Axis2D)
     {
-        IPlayerControllable::Execute_MoveRightCustom(GetPawn(), Value);
+        if (GetPawn()->GetClass()->ImplementsInterface(
+                UPlayerControllable::StaticClass()))
+        {
+            IPlayerControllable::Execute_LookCustom(
+                GetPawn(), Instance.GetValue().Get<FVector2D>());
+        }
     }
 }
 
-void ALBPlayerController::PawnLookUp(float Value)
-{
-    if (!GetPawn()) return;
-
-    if (GetPawn()->GetClass()->ImplementsInterface(
-            UPlayerControllable::StaticClass()))
-    {
-        IPlayerControllable::Execute_LookUpCustom(GetPawn(), Value);
-    }
-}
-
-void ALBPlayerController::PawnTurnAround(float Value)
-{
-    if (!GetPawn()) return;
-
-    if (GetPawn()->GetClass()->ImplementsInterface(
-            UPlayerControllable::StaticClass()))
-    {
-        IPlayerControllable::Execute_TurnAroundCustom(GetPawn(), Value);
-    }
-}
-
-void ALBPlayerController::PawnJump()
+void ALBPlayerController::PawnJump(const FInputActionInstance& Instance)
 {
     if (!GetPawn()) return;
 
@@ -239,24 +176,73 @@ void ALBPlayerController::PawnJump()
     }
 }
 
-void ALBPlayerController::PawnStartSprinting()
+void ALBPlayerController::PawnSprint(const FInputActionInstance& Instance)
 {
-    if (!GetPawn()) return;
-
-    if (GetPawn()->GetClass()->ImplementsInterface(
-            UPlayerControllable::StaticClass()))
+    if (Instance.GetValue().GetValueType() == EInputActionValueType::Boolean)
     {
-        IPlayerControllable::Execute_StartSprinting(GetPawn());
+        if (!GetPawn()) return;
+
+        if (GetPawn()->GetClass()->ImplementsInterface(
+                UPlayerControllable::StaticClass()))
+        {
+            IPlayerControllable::Execute_SprintCustom(
+                GetPawn(), Instance.GetValue().Get<bool>());
+        }
     }
 }
 
-void ALBPlayerController::PawnStopSprinting()
+void ALBPlayerController::PawnCrouch(const FInputActionInstance& Instance)
+{
+    if (Instance.GetValue().GetValueType() == EInputActionValueType::Boolean)
+    {
+        if (!GetPawn()) return;
+
+        if (GetPawn()->GetClass()->ImplementsInterface(
+                UPlayerControllable::StaticClass()))
+        {
+            IPlayerControllable::Execute_CrouchCustom(
+                GetPawn(), Instance.GetValue().Get<bool>());
+        }
+    }
+}
+
+void ALBPlayerController::PawnWalk(const FInputActionInstance& Instance)
+{
+    if (Instance.GetValue().GetValueType() == EInputActionValueType::Boolean)
+    {
+        if (!GetPawn()) return;
+
+        if (GetPawn()->GetClass()->ImplementsInterface(
+                UPlayerControllable::StaticClass()))
+        {
+            IPlayerControllable::Execute_WalkCustom(
+                GetPawn(), Instance.GetValue().Get<bool>());
+        }
+    }
+}
+
+void ALBPlayerController::PawnAim(const FInputActionInstance& Instance)
+{
+    if (Instance.GetValue().GetValueType() == EInputActionValueType::Boolean)
+    {
+        if (!GetPawn()) return;
+
+        if (GetPawn()->GetClass()->ImplementsInterface(
+                UPlayerControllable::StaticClass()))
+        {
+            IPlayerControllable::Execute_AimCustom(
+                GetPawn(), Instance.GetValue().Get<bool>());
+        }
+    }
+}
+
+void ALBPlayerController::PawnPickUp(const FInputActionInstance& Instance)
 {
     if (!GetPawn()) return;
 
     if (GetPawn()->GetClass()->ImplementsInterface(
             UPlayerControllable::StaticClass()))
     {
-        IPlayerControllable::Execute_StopSprinting(GetPawn());
+        IPlayerControllable::Execute_PickCustom(GetPawn());
     }
 }

@@ -4,7 +4,7 @@
 	"VersionName": "1.0",
 	"FriendlyName": "Fake Shadow",
 	"Description": "Simple plugin that creates fake render target shadows or blob shadows, exists to reduce boilerplate in games",
-	"Category": "VFX",
+	"Category": "Rendering",
 	"CreatedBy": "Anton Piruev",
 	"CreatedByURL": "https://antonpiruev.itch.io/",
 	"DocsURL": "",
@@ -19,6 +19,18 @@
 			"Name": "FakeShadow",
 			"Type": "Runtime",
 			"LoadingPhase": "Default"
+		}
+	],
+	"Content": [
+		{
+			"Path": "Content"
+		}
+	],
+	"IsExperimentalVersion": false,
+	"Plugins": [
+		{
+			"Name": "ExtendedShaders",
+			"Enabled": true
 		}
 	]
 }

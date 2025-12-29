@@ -19,7 +19,7 @@ APhysicsTest::APhysicsTest()
     SetRootComponent(StaticMesh);
 
     UStaticMesh* Mesh = LoadObject<UStaticMesh>(
-        nullptr, TEXT("StaticMesh'/Game/Assets/Meshes/Test/Sphere.Sphere'"));
+        nullptr, TEXT("StaticMesh'/Game/Assets/Meshes/Dev/SM_TestSphere_2.SM_TestSphere_2'"));
     if (Mesh)
     {
         StaticMesh->SetStaticMesh(Mesh);
@@ -37,9 +37,9 @@ void APhysicsTest::BeginPlay()
     Super::BeginPlay();
 
     StaticMesh->SetSimulatePhysics(true);
-    StaticMesh->SetLinearDamping(.1f);
-    StaticMesh->SetAngularDamping(.1f);
-    StaticMesh->SetMassOverrideInKg(NAME_None, 1.f);
+    StaticMesh->SetLinearDamping(.01f);
+    StaticMesh->SetAngularDamping(.01f);
+    StaticMesh->SetMassOverrideInKg(NAME_None, 0.5f);
 
     MaterialInstance = StaticMesh->CreateAndSetMaterialInstanceDynamic(0);
 

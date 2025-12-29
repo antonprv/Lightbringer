@@ -8,7 +8,7 @@
 #include "PhysicsTest.generated.h"
 
 UCLASS()
-class APhysicsTest : public AActor
+class LIGHTBRINGER_API APhysicsTest : public AActor
 {
     GENERATED_BODY()
 

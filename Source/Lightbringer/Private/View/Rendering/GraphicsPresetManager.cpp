@@ -1,10 +1,16 @@
+// Copyright Anton Piruev. All Rights Reserved.
 // You can use this project non-commercially for educational purposes, any
 // commercial use, derivative commercial use is strictly prohibited
 
-#include "GraphicsPresetManager.h"
+#include "View/Rendering/GraphicsPresetManager.h"
 #include "Engine/Engine.h"
 #include "Engine/GameViewportClient.h"
 #include "GameFramework/GameUserSettings.h"
+#include "HAL/IConsoleManager.h"
+
+#include "GPUCheck/Public/GPUCheck.h"
+
+DEFINE_LOG_CATEGORY_STATIC(LogUGraphicsPresetManager, Log, Log)
 
 UGraphicsPresetManager* UGraphicsPresetManager::Get()
 {
@@ -21,27 +27,99 @@ UGraphicsPresetManager* UGraphicsPresetManager::Get()
 }
 
 void UGraphicsPresetManager::ApplyQualitySettings(
-    const EGraphicsPreset& Preset)
+    const EGameGraphicsPreset& Preset)
 {
     switch (Preset)
     {
-        case EGraphicsPreset::Low:
+        case EGameGraphicsPreset::Low:
         {
             SetLowScalability();
-            SetMaxFPS(120);
-            SetScreenScaling(EScreenScalingPreset::Half);
-            CurrentPreset = EGraphicsPreset::Low;
             break;
         }
-        case EGraphicsPreset::Default:
+        case EGameGraphicsPreset::Default:
         {
             SetDefaultScalability();
-            SetMaxFPS(120);
-            SetScreenScaling(EScreenScalingPreset::Full);
-            CurrentPreset = EGraphicsPreset::Default;
+            break;
+        }
+        case EGameGraphicsPreset::Experimental:
+        {
+            SetExperimentalScalability();
             break;
         }
         default: break;
+    }
+
+    ApplyOptimizations();
+    CurrentPreset = Preset;
+}
+
+void UGraphicsPresetManager::ApplyLowQualitySettings()
+{
+    return ApplyQualitySettings(EGameGraphicsPreset::Low);
+}
+
+void UGraphicsPresetManager::ApplyDefaultQualitySettings()
+{
+    return ApplyQualitySettings(EGameGraphicsPreset::Default);
+}
+
+void UGraphicsPresetManager::ApplyExperimentalQualitySettings()
+{
+    return ApplyQualitySettings(EGameGraphicsPreset::Experimental);
+}
+
+void UGraphicsPresetManager::StartVRAMTrackingTask(const float& TickTime)
+{
+    if (GEngine && GEngine->GetWorld())
+    {
+        GEngine->GetWorld()->GetTimerManager().ClearTimer(
+            VRAMCheckTimerHandle);
+
+        GEngine->GetWorld()->GetTimerManager().SetTimer(VRAMCheckTimerHandle,
+            this, &UGraphicsPresetManager::UpdateVRAMUsage, TickTime, true);
+    }
+}
+
+void UGraphicsPresetManager::UpdateVRAMUsage()
+{
+    TotalVRAM = FGPUCheckModule::GetTotalVRAM();
+    UsedVRAM = FGPUCheckModule::GetUsedVRAM();
+
+    if (TotalVRAM <= 0) return;  // fallback is handled in GPUCheckModule
+
+    // Calculate free VRAM
+    FreeVRAM = TotalVRAM - UsedVRAM;
+
+    // If free VRAM drops below threshold, reduce pool percentage
+    if (FreeVRAM < MinComfortableVRAM)
+    {
+        StreamingPoolPercentage = FMath::Clamp(StreamingPoolPercentage - 0.05f,
+            0.3f, DefaultStreamingPoolPercentage);
+        AdjustStreamingPool();
+    }
+    else if (FreeVRAM > MinComfortableVRAM * 2 &&
+             StreamingPoolPercentage < 1.0f)
+    {
+        // Gradually restore pool if enough VRAM
+        StreamingPoolPercentage = FMath::Clamp(StreamingPoolPercentage + 0.02f,
+            0.3f, DefaultStreamingPoolPercentage);
+        AdjustStreamingPool();
+    }
+}
+
+void UGraphicsPresetManager::AdjustStreamingPool()
+{
+    PoolSize = FGPUCheckModule::GetTotalVRAM() * StreamingPoolPercentage;
+
+    // Set pool
+    static IConsoleVariable* CVarPoolSize =
+        IConsoleManager::Get().FindConsoleVariable(
+            TEXT("r.Streaming.PoolSize"));
+    if (CVarPoolSize)
+    {
+        CVarPoolSize->Set(PoolSize);
+        UE_LOG(LogUGraphicsPresetManager, Display,
+            TEXT("Set CVar: r.Streaming.PoolSize = %d"), PoolSize)
     }
 }
 
@@ -51,9 +129,46 @@ void UGraphicsPresetManager::SetScreenScaling(
     if (GEngine && GEngine->GameViewport)
     {
         // Set the screen percentage (resolution fraction) via console variable
-        FString Command =
-            FString::Printf(TEXT("r.ScreenPercentage %d"), ScreenPercentage);
-        GEngine->GameViewport->Exec(nullptr, *Command, *GLog);
+        static IConsoleVariable* CVarScreenPercentage =
+            IConsoleManager::Get().FindConsoleVariable(
+                TEXT("r.ScreenPercentage"));
+        if (CVarScreenPercentage)
+        {
+            CVarScreenPercentage->Set(static_cast<int32>(ScreenPercentage));
+            UE_LOG(LogUGraphicsPresetManager, Display,
+                TEXT("Set CVar: r.ScreenPercentage = %d"), ScreenPercentage)
+        }
+    }
+}
+
+void UGraphicsPresetManager::SetExperimentalScalability()
+{
+    if (GEngine)
+    {
+        if (UGameUserSettings* Settings = GEngine->GetGameUserSettings())
+        {
+            Settings->ScalabilityQuality.AntiAliasingQuality = 0;
+            Settings->ScalabilityQuality.EffectsQuality = 0;
+            Settings->ScalabilityQuality.PostProcessQuality = 1;
+            Settings->ScalabilityQuality.ShadowQuality = 0;
+            Settings->ScalabilityQuality.TextureQuality = 1;
+            Settings->ScalabilityQuality.ViewDistanceQuality = 1;
+
+            // Apply and save the settings
+            Settings->ApplyNonResolutionSettings();
+            Settings->ConfirmVideoMode();
+            Settings->ApplySettings(false);
+            Settings->SaveSettings();
+        }
+
+        // If we select this, we probably have a powerful GPU
+        // so this is more like an emergency check.
+        StartVRAMTrackingTask(RareVRAMChecking);
+
+        SetScreenScaling(EScreenScalingPreset::Double);
+
+        AddAntiAliasing();
+        SetMSAASamples(8);
     }
 }
 
@@ -66,9 +181,9 @@ void UGraphicsPresetManager::SetDefaultScalability()
             Settings->ScalabilityQuality.AntiAliasingQuality = 0;
             Settings->ScalabilityQuality.EffectsQuality = 0;
             Settings->ScalabilityQuality.PostProcessQuality = 1;
-            Settings->ScalabilityQuality.ShadowQuality = 2;
+            Settings->ScalabilityQuality.ShadowQuality = 0;
             Settings->ScalabilityQuality.TextureQuality = 0;
-            Settings->ScalabilityQuality.ViewDistanceQuality = 1;
+            Settings->ScalabilityQuality.ViewDistanceQuality = 0;
 
             // Apply and save the settings
             Settings->ApplyNonResolutionSettings();
@@ -76,6 +191,15 @@ void UGraphicsPresetManager::SetDefaultScalability()
             Settings->ApplySettings(false);
             Settings->SaveSettings();
         }
+
+        // If we select this, we probably have a powerful GPU
+        // so this is more like an emergency check.
+        StartVRAMTrackingTask(RareVRAMChecking);
+
+        SetScreenScaling(EScreenScalingPreset::Full);
+
+        AddAntiAliasing();
+        SetMSAASamples(4);
     }
 }
 
@@ -99,20 +223,72 @@ void UGraphicsPresetManager::SetLowScalability()
             Settings->ApplySettings(false);
             Settings->SaveSettings();
         }
+
+        // If we select this, we probably have a weak GPU,
+        // so we periodically check for VRAM overflow.
+        StartVRAMTrackingTask(OftenVRAMChecking);
+
+        SetScreenScaling(EScreenScalingPreset::Partial);
+        
+        AddAntiAliasing();
+        SetMSAASamples(2);
     }
 }
 
-void UGraphicsPresetManager::SetMaxFPS(const int32& MaxFPS)
+void UGraphicsPresetManager::ApplyOptimizations()
 {
-    if (GEngine)
-    {
-        UGameUserSettings* UserSettings = GEngine->GetGameUserSettings();
-        if (UserSettings)
-        {
-            UserSettings->SetFrameRateLimit(MaxFPS);
-            UserSettings->ApplySettings(true);
-        }
+    AdjustStreamingPool();
 
-        GEngine->SetMaxFPS(MaxFPS);  // "Just in case" call
+    static IConsoleVariable* CVarEarlyZPass =
+        IConsoleManager::Get().FindConsoleVariable(TEXT("r.EarlyZPass"));
+    if (CVarEarlyZPass)
+    {
+        CVarEarlyZPass->Set(2);
+        UE_LOG(LogUGraphicsPresetManager, Display,
+            TEXT("Set CVar: r.EarlyZPass = %d"), 2)
+    }
+
+    static IConsoleVariable* CVarClearScreenMethod =
+        IConsoleManager::Get().FindConsoleVariable(TEXT("r.ClearSceneMethod"));
+    if (CVarClearScreenMethod)
+    {
+        CVarClearScreenMethod->Set(0);
+        UE_LOG(LogUGraphicsPresetManager, Display,
+            TEXT("Set CVar: r.ClearSceneMethod = %d"), 0)
+    }
+
+    static IConsoleVariable* CVarShadowParallelCull =
+        IConsoleManager::Get().FindConsoleVariable(
+            TEXT("r.Shadow.ParallelCull"));
+    if (CVarShadowParallelCull)
+    {
+        CVarShadowParallelCull->Set(0);
+        UE_LOG(LogUGraphicsPresetManager, Display,
+            TEXT("Set CVar: r.Shadow.ParallelCull = %d"), 0)
+    }
+}
+
+void UGraphicsPresetManager::AddAntiAliasing()
+{
+    static IConsoleVariable* CVarAAMethod =
+        IConsoleManager::Get().FindConsoleVariable(
+            TEXT("r.AntiAliasingMethod"));
+    if (CVarAAMethod)
+    {
+        CVarAAMethod->Set(0);
+        UE_LOG(LogUGraphicsPresetManager, Display,
+            TEXT("Set CVar: r.AntiAliasingMethod = %d"), 4)
+    }
+}
+
+void UGraphicsPresetManager::SetMSAASamples(const int& Quality)
+{
+    static IConsoleVariable* CVarAAQuality =
+        IConsoleManager::Get().FindConsoleVariable(TEXT("r.MSAACount"));
+    if (CVarAAQuality)
+    {
+        CVarAAQuality->Set(Quality);
+        UE_LOG(LogUGraphicsPresetManager, Display,
+            TEXT("Set CVar: r.MSAACount = %d"), Quality)
     }
 }

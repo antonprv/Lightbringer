@@ -1,3 +1,4 @@
+// Copyright Anton Piruev. All Rights Reserved.
 // You can use this project non-commercially for educational purposes, any
 // commercial use, derivative commercial use is strictly prohibited
 
@@ -27,32 +28,42 @@ class LIGHTBRINGER_API IPlayerControllable
 public:
     UFUNCTION(
         BlueprintCallable, BlueprintNativeEvent, Category = "Process Input")
-    void MoveForwardCustom(const float& Value);
-    UFUNCTION(
-        BlueprintCallable, BlueprintNativeEvent, Category = "Process Input")
-    void MoveRightCustom(const float& Value);
+    void MoveCustom(const FVector2D Value);
 
     UFUNCTION(
         BlueprintCallable, BlueprintNativeEvent, Category = "Process Input")
-    void LookUpCustom(const float& Value);
-    UFUNCTION(
-        BlueprintCallable, BlueprintNativeEvent, Category = "Process Input")
-    void TurnAroundCustom(const float& Value);
+    void LookCustom(const FVector2D Value);
+
     UFUNCTION(
         BlueprintCallable, BlueprintNativeEvent, Category = "Process Input")
     void JumpCustom();
-    UFUNCTION(
-        BlueprintCallable, BlueprintNativeEvent, Category = "Process Input")
-    void StartSprinting();
-    UFUNCTION(
-        BlueprintCallable, BlueprintNativeEvent, Category = "Process Input")
-    void StopSprinting();
 
-    virtual void MoveForwardCustom_Implementation(const float& Value) = 0;
-    virtual void MoveRightCustom_Implementation(const float& Value) = 0;
-    virtual void LookUpCustom_Implementation(const float& Value) = 0;
-    virtual void TurnAroundCustom_Implementation(const float& Value) = 0;
-    virtual void JumpCustom_Implementation() = 0;
-    virtual void StartSprinting_Implementation() = 0;
-    virtual void StopSprinting_Implementation() = 0;
+    UFUNCTION(
+        BlueprintCallable, BlueprintNativeEvent, Category = "Process Input")
+    void SprintCustom(const bool bWantsToSprint);
+
+    UFUNCTION(
+        BlueprintCallable, BlueprintNativeEvent, Category = "Process Input")
+    void CrouchCustom(const bool bWantsToCrouch);
+
+    UFUNCTION(
+        BlueprintCallable, BlueprintNativeEvent, Category = "Process Input")
+    void WalkCustom(const bool bWantsToWalk);
+
+    UFUNCTION(
+        BlueprintCallable, BlueprintNativeEvent, Category = "Process Input")
+    void AimCustom(const bool bWantsToAim);
+
+    UFUNCTION(
+        BlueprintCallable, BlueprintNativeEvent, Category = "Process Input")
+    void PickCustom();
+    
+    virtual void MoveCustom_Implementation(const FVector2D Value) =0;
+    virtual void LookCustom_Implementation(const FVector2D Value) =0;
+    virtual void JumpCustom_Implementation() =0;
+    virtual void SprintCustom_Implementation(const bool bWantsToSprint) =0;
+    virtual void CrouchCustom_Implementation(const bool bWantsToCrouch) =0;
+    virtual void WalkCustom_Implementation(const bool bWantsToWalk) =0;
+    virtual void AimCustom_Implementation(const bool bWantsToAim) =0;
+    virtual void PickCustom_Implementation() =0;
 };

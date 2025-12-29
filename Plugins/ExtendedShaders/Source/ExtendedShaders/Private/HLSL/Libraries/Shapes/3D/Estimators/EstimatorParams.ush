@@ -1,0 +1,19 @@
+// Copyright Anton Piruev. All Rights Reserved. 
+// You can use this project non-commercially for educational purposes, any
+// commercial use, derivative commercial use is strictly prohibited
+
+#pragma once
+
+#define SPHERE_TYPE float(0)
+#define BOX_TYPE float(1)
+#define CYLLINDER_TYPE float(2)
+
+#define SUBTRACT_TYPE float(3)
+
+#define SPHERE_TYPE_INT 0
+#define BOX_TYPE_INT 1
+#define CYLLINDER_TYPE_INT 2
+
+#define SUBTRACT_TYPE_INT 3
+
+#define TO_INT(x) ((int)(x + 0.001))
