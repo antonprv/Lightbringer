@@ -74,15 +74,12 @@ ALBPlayerCharacter::ALBPlayerCharacter(const FObjectInitializer& ObjInit)
 
     TextRenderComponent->bOwnerNoSee = true;
 
-
-
     WeaponComponent =
         CreateDefaultSubobject<UWeaponComponent>("Weapon Component");
 
     AnimationComponent =
         CreateDefaultSubobject<UAnimationComponent>("Animation Component");
 }
-
 
 /*
  * Setup default values and perform checks
@@ -201,8 +198,6 @@ void ALBPlayerCharacter::OnGroundLanding(const FHitResult& Hit)
 {
     if (!GetWorld()) return;
 
-    MovementHandlerComponent->SetLandingRules();
-
     float JumpVelocity = -GetCharacterMovement()->Velocity.Z;
 
     if (ComponentsDelegateMediator)
@@ -247,7 +242,7 @@ void ALBPlayerCharacter::InterpolateSprintRightCamera(
 {
     if (!GetWorld()) return;
 
-    const float TargetOffset = MovementHandlerComponent->bIsMovingRight &&
+    const float TargetOffset = MovementHandlerComponent->IsMovingRight() &&
                                        MovementHandlerComponent->IsSprinting()
                                    ? -DefaultSocketRightOffset
                                    : DefaultSocketRightOffset;
@@ -291,7 +286,7 @@ void ALBPlayerCharacter::MoveCustom_Implementation(const FVector2D Value)
     MovementHandlerComponent->SetRightInput(Value.X);
 }
 
-void ALBPlayerCharacter::LookCustom_Implementation(const FVector2D Value) 
+void ALBPlayerCharacter::LookCustom_Implementation(const FVector2D Value)
 {
     MovementHandlerComponent->SetLookUpInput(-Value.Y);
     MovementHandlerComponent->SetTurnAroundInput(Value.X);
@@ -302,12 +297,18 @@ void ALBPlayerCharacter::JumpCustom_Implementation()
     MovementHandlerComponent->PerformJump();
 }
 
-void ALBPlayerCharacter::SprintCustom_Implementation(const bool bWantsToSprint) 
+void ALBPlayerCharacter::SprintCustom_Implementation(const bool bWantsToSprint)
 {
     MovementHandlerComponent->Sprint(bWantsToSprint);
 }
 
-void ALBPlayerCharacter::CrouchCustom_Implementation(const bool bWantsToCrouch) 
+void ALBPlayerCharacter::SprintToggleCustom_Implementation() 
+{
+    bSprintToggle = !bSprintToggle;
+    MovementHandlerComponent->Sprint(bSprintToggle);
+}
+
+void ALBPlayerCharacter::CrouchCustom_Implementation(const bool bWantsToCrouch)
 {
     // Not yet implemented
     return;
@@ -315,22 +316,29 @@ void ALBPlayerCharacter::CrouchCustom_Implementation(const bool bWantsToCrouch)
 
 void ALBPlayerCharacter::WalkCustom_Implementation(const bool bWantsToWalk) 
 {
-    // Not yet implemented
-    return;
+    MovementHandlerComponent->Walk(bWantsToWalk);
 }
 
-void ALBPlayerCharacter::AimCustom_Implementation(const bool bWantsToAim) 
+void ALBPlayerCharacter::WalkToggleCustom_Implementation() 
+{
+    bWalkToggle = !bWalkToggle;
+
+    MovementHandlerComponent->Walk(bWalkToggle);
+}
+
+void ALBPlayerCharacter::AimCustom_Implementation(const bool bWantsToAim)
 {
     // Not yet implemented
     return;
 }
 
-void ALBPlayerCharacter::PickCustom_Implementation() 
+void ALBPlayerCharacter::PickCustom_Implementation()
 {
     // Not yet implemented
     return;
 }
 
+// Will probably be deleted later
 void ALBPlayerCharacter::GetShadowCasterMesh_Implementation(
     USkeletalMeshComponent*& OutMesh)
 {

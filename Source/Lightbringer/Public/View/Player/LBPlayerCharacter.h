@@ -25,6 +25,9 @@ class UCameraComponent;
 class USpringArmComponent;
 class UTextRenderComponent;
 
+class UTrajectoryGenerator;
+class UTrajectoryErrorWarping;
+
 UCLASS()
 class LIGHTBRINGER_API ALBPlayerCharacter : public ACharacter,
                                             public IPlayerControllable,
@@ -47,8 +50,6 @@ public:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly,
         Category = "Components | View | Animation")
     UAnimationComponent* AnimationComponent{nullptr};
-
-
 
     //=============================================
     // My custom components parameters
@@ -98,9 +99,11 @@ public:
     virtual void JumpCustom_Implementation() override;
     virtual void SprintCustom_Implementation(
         const bool bWantsToSprint) override;
+    virtual void SprintToggleCustom_Implementation() override;
     virtual void CrouchCustom_Implementation(
         const bool bWantsToCrouch) override;
     virtual void WalkCustom_Implementation(const bool bWantsToWalk) override;
+    virtual void WalkToggleCustom_Implementation() override;
     virtual void AimCustom_Implementation(const bool bWantsToAim) override;
     virtual void PickCustom_Implementation() override;
 
@@ -119,6 +122,9 @@ private:
     float DefaultSocketRightOffset{0.f};
 
     float DefaultSprintRightCameraInterpolationSpeed{0.f};
+
+    bool bWalkToggle{false};
+    bool bSprintToggle{false};
 
     void HandleActorDeath(AActor* DeadActor);
     void OnHealthChanged(float CurrentHealth);

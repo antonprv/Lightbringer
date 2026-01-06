@@ -91,6 +91,14 @@ Package/*
 Saved/*
 Staging/*
 Plugins/vc-ue-extensions
+Plugins/vc-ue-extensions/*
+Plugins/vc-ue-extensions/*/*
+Plugins/FMODStudio
+Plugins/FMODStudio/*
+Plugins/FMODStudio/*/*
+Plugins/FMODStudioNiagara
+Plugins/FMODStudioNiagara/*
+Plugins/FMODStudioNiagara/*/*
 enc_temp_folder/*
 ParagonMurdock/*
 ParagonWraith/*

@@ -136,8 +136,22 @@ void UGraphicsPresetManager::SetScreenScaling(
         {
             CVarScreenPercentage->Set(static_cast<int32>(ScreenPercentage));
             UE_LOG(LogUGraphicsPresetManager, Display,
-                TEXT("Set CVar: r.ScreenPercentage = %d"), ScreenPercentage)
+                TEXT("Set CVar: r.ScreenPercentage = %d"),
+                static_cast<int32>(ScreenPercentage))
         }
+    }
+
+    if (!bIsUsingTemporalAA) return;
+
+    static IConsoleVariable* CVarTemporalAAScreen =
+        IConsoleManager::Get().FindConsoleVariable(
+            TEXT("r.TemporalAA.HistoryScreenPercentage"));
+    if (CVarTemporalAAScreen)
+    {
+        CVarTemporalAAScreen->Set(static_cast<int32>(ScreenPercentage));
+        UE_LOG(LogUGraphicsPresetManager, Display,
+            TEXT("Set CVar: r.TemporalAA.HistoryScreenPercentage = %d"),
+            static_cast<int32>(ScreenPercentage))
     }
 }
 
@@ -147,7 +161,7 @@ void UGraphicsPresetManager::SetExperimentalScalability()
     {
         if (UGameUserSettings* Settings = GEngine->GetGameUserSettings())
         {
-            Settings->ScalabilityQuality.AntiAliasingQuality = 0;
+            Settings->ScalabilityQuality.AntiAliasingQuality = 3;
             Settings->ScalabilityQuality.EffectsQuality = 0;
             Settings->ScalabilityQuality.PostProcessQuality = 1;
             Settings->ScalabilityQuality.ShadowQuality = 0;
@@ -169,6 +183,16 @@ void UGraphicsPresetManager::SetExperimentalScalability()
 
         AddAntiAliasing();
         SetMSAASamples(8);
+
+        static IConsoleVariable* CVarBloom =
+            IConsoleManager::Get().FindConsoleVariable(
+                TEXT("r.DefaultFeature.Bloom"));
+        if (CVarBloom)
+        {
+            CVarBloom->Set(1);
+            UE_LOG(LogUGraphicsPresetManager, Display,
+                TEXT("Set CVar: r.DefaultFeature.Bloom = %d"), 1)
+        }
     }
 }
 
@@ -178,7 +202,7 @@ void UGraphicsPresetManager::SetDefaultScalability()
     {
         if (UGameUserSettings* Settings = GEngine->GetGameUserSettings())
         {
-            Settings->ScalabilityQuality.AntiAliasingQuality = 0;
+            Settings->ScalabilityQuality.AntiAliasingQuality = 2;
             Settings->ScalabilityQuality.EffectsQuality = 0;
             Settings->ScalabilityQuality.PostProcessQuality = 1;
             Settings->ScalabilityQuality.ShadowQuality = 0;
@@ -210,7 +234,7 @@ void UGraphicsPresetManager::SetLowScalability()
         if (UGameUserSettings* Settings = GEngine->GetGameUserSettings())
         {
             // Set all scalability settings to low (0)
-            Settings->ScalabilityQuality.AntiAliasingQuality = 0;
+            Settings->ScalabilityQuality.AntiAliasingQuality = 1;
             Settings->ScalabilityQuality.EffectsQuality = 0;
             Settings->ScalabilityQuality.PostProcessQuality = 0;
             Settings->ScalabilityQuality.ShadowQuality = 0;
@@ -229,7 +253,7 @@ void UGraphicsPresetManager::SetLowScalability()
         StartVRAMTrackingTask(OftenVRAMChecking);
 
         SetScreenScaling(EScreenScalingPreset::Partial);
-        
+
         AddAntiAliasing();
         SetMSAASamples(2);
     }
@@ -257,38 +281,89 @@ void UGraphicsPresetManager::ApplyOptimizations()
             TEXT("Set CVar: r.ClearSceneMethod = %d"), 0)
     }
 
-    static IConsoleVariable* CVarShadowParallelCull =
+    static IConsoleVariable* CVarFinishFrame =
         IConsoleManager::Get().FindConsoleVariable(
-            TEXT("r.Shadow.ParallelCull"));
-    if (CVarShadowParallelCull)
+            TEXT("r.FinishCurrentFrame"));
+    if (CVarFinishFrame)
     {
-        CVarShadowParallelCull->Set(0);
+        CVarFinishFrame->Set(0);
         UE_LOG(LogUGraphicsPresetManager, Display,
-            TEXT("Set CVar: r.Shadow.ParallelCull = %d"), 0)
+            TEXT("Set CVar: r.FinishCurrentFrame = %d"), 0)
+    }
+
+    static IConsoleVariable* CVarMaxCSM =
+        IConsoleManager::Get().FindConsoleVariable(
+            TEXT("r.Shadow.MaxCSMResolution"));
+    if (CVarMaxCSM)
+    {
+        CVarMaxCSM->Set(512);
+        UE_LOG(LogUGraphicsPresetManager, Display,
+            TEXT("Set CVar: r.Shadow.MaxCSMResolution = %d"), 512)
+    }
+
+    static IConsoleVariable* CVarMinShadow =
+        IConsoleManager::Get().FindConsoleVariable(
+            TEXT("r.Shadow.MinResolution"));
+    if (CVarMinShadow)
+    {
+        CVarMinShadow->Set(32);
+        UE_LOG(LogUGraphicsPresetManager, Display,
+            TEXT("Set CVar: r.Shadow.MinResolution = %d"), 32)
+    }
+
+    static IConsoleVariable* CVarBackgroundStream =
+        IConsoleManager::Get().FindConsoleVariable(
+            TEXT("r.Streaming.UseBackgroundThreadPool"));
+    if (CVarBackgroundStream)
+    {
+        CVarBackgroundStream->Set(1);
+        UE_LOG(LogUGraphicsPresetManager, Display,
+            TEXT("Set CVar: r.Streaming.UseBackgroundThreadPool = %d"), 1)
+    }
+
+    static IConsoleVariable* CVarLimitPool =
+        IConsoleManager::Get().FindConsoleVariable(
+            TEXT("r.Streaming.LimitPoolSizeToVRAM"));
+    if (CVarLimitPool)
+    {
+        CVarLimitPool->Set(1);
+        UE_LOG(LogUGraphicsPresetManager, Display,
+            TEXT("Set CVar: r.Streaming.LimitPoolSizeToVRAM = %d"), 1)
+    }
+
+    static IConsoleVariable* CVarAniso =
+        IConsoleManager::Get().FindConsoleVariable(TEXT("r.MaxAnisotropy"));
+    if (CVarAniso)
+    {
+        CVarAniso->Set(4);
+        UE_LOG(LogUGraphicsPresetManager, Display,
+            TEXT("Set CVar: r.MaxAnisotropy = %d"), 4)
     }
 }
 
 void UGraphicsPresetManager::AddAntiAliasing()
 {
+    bIsUsingTemporalAA = true;
+
     static IConsoleVariable* CVarAAMethod =
         IConsoleManager::Get().FindConsoleVariable(
-            TEXT("r.AntiAliasingMethod"));
+            TEXT("r.DefaultFeature.AntiAliasing"));
     if (CVarAAMethod)
     {
-        CVarAAMethod->Set(0);
+        CVarAAMethod->Set(2);
         UE_LOG(LogUGraphicsPresetManager, Display,
-            TEXT("Set CVar: r.AntiAliasingMethod = %d"), 4)
+            TEXT("Set CVar: r.DefaultFeature.AntiAliasing = %d"), 2)
     }
 }
 
 void UGraphicsPresetManager::SetMSAASamples(const int& Quality)
 {
-    static IConsoleVariable* CVarAAQuality =
-        IConsoleManager::Get().FindConsoleVariable(TEXT("r.MSAACount"));
-    if (CVarAAQuality)
+    static IConsoleVariable* CVarAASamples =
+        IConsoleManager::Get().FindConsoleVariable(TEXT("r.TemporalAASamples"));
+    if (CVarAASamples)
     {
-        CVarAAQuality->Set(Quality);
+        CVarAASamples->Set(Quality);
         UE_LOG(LogUGraphicsPresetManager, Display,
-            TEXT("Set CVar: r.MSAACount = %d"), Quality)
+            TEXT("Set CVar: r.TemporalAASamples = %d"), Quality)
     }
 }

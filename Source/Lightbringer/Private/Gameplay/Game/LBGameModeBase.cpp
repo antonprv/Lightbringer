@@ -17,6 +17,7 @@ ALBGameModeBase::ALBGameModeBase()
 {
     DefaultPawnClass = ALBPlayerCharacter::StaticClass();
     PlayerControllerClass = ALBPlayerController::StaticClass();
+    SpectatorClass = ALBSpectatorPawn::StaticClass();
     HUDClass = ALBHUD::StaticClass();
 }
 

@@ -20,6 +20,7 @@ public class Lightbringer : ModuleRules
             "RenderCore",
             "AnimationBudgetAllocator",
             "EnhancedInput",
+            "MotionSymphony",
             "ExtendedControlStates",
             "FakeShadow"
         });

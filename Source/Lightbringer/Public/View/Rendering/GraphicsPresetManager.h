@@ -54,6 +54,8 @@ public:
     }
 
 private:
+    bool bIsUsingTemporalAA{false};
+
     EGameGraphicsPreset CurrentPreset = EGameGraphicsPreset::Default;
 
     FTimerHandle VRAMCheckTimerHandle;

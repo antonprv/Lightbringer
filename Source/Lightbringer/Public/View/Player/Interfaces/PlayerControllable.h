@@ -44,11 +44,19 @@ public:
 
     UFUNCTION(
         BlueprintCallable, BlueprintNativeEvent, Category = "Process Input")
+    void SprintToggleCustom();
+
+    UFUNCTION(
+        BlueprintCallable, BlueprintNativeEvent, Category = "Process Input")
     void CrouchCustom(const bool bWantsToCrouch);
 
     UFUNCTION(
         BlueprintCallable, BlueprintNativeEvent, Category = "Process Input")
     void WalkCustom(const bool bWantsToWalk);
+
+    UFUNCTION(
+        BlueprintCallable, BlueprintNativeEvent, Category = "Process Input")
+    void WalkToggleCustom();
 
     UFUNCTION(
         BlueprintCallable, BlueprintNativeEvent, Category = "Process Input")
@@ -62,8 +70,10 @@ public:
     virtual void LookCustom_Implementation(const FVector2D Value) =0;
     virtual void JumpCustom_Implementation() =0;
     virtual void SprintCustom_Implementation(const bool bWantsToSprint) =0;
+    virtual void SprintToggleCustom_Implementation() =0;
     virtual void CrouchCustom_Implementation(const bool bWantsToCrouch) =0;
-    virtual void WalkCustom_Implementation(const bool bWantsToWalk) =0;
+    virtual void WalkCustom_Implementation(const bool bWantsToWalk) = 0;
+    virtual void WalkToggleCustom_Implementation() =0;
     virtual void AimCustom_Implementation(const bool bWantsToAim) =0;
     virtual void PickCustom_Implementation() =0;
 };

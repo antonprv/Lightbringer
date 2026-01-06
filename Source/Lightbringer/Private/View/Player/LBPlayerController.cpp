@@ -215,8 +215,7 @@ void ALBPlayerController::PawnWalk(const FInputActionInstance& Instance)
         if (GetPawn()->GetClass()->ImplementsInterface(
                 UPlayerControllable::StaticClass()))
         {
-            IPlayerControllable::Execute_WalkCustom(
-                GetPawn(), Instance.GetValue().Get<bool>());
+            IPlayerControllable::Execute_WalkToggleCustom(GetPawn());
         }
     }
 }

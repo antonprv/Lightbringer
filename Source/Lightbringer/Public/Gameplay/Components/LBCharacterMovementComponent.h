@@ -29,15 +29,20 @@ protected:
     virtual void EndPlay(EEndPlayReason::Type EndPlayReason) override;
 
 public:
+    // =======================================
+    // Movement parameters
+    // =======================================
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite,
         Category = "Ground Movement Params")
     float SprintSpeed{0.f};
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite,
         Category = "Ground Movement Params")
-    float MovementSmoothingSpeed{0.f};
+    float WalkingSpeed{0.f};
+
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite,
         Category = "Ground Movement Params")
-    float SprintSmoothingSpeed{0.f};
+    float MovementSmoothingSpeed{0.f};
+
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite,
         Category = "Ground Movement Params")
     float RotationSpeed{0.f};
@@ -48,22 +53,20 @@ public:
         Category = "Ground Movement Params")
     float JumpAirControl{0.f};
 
-    // Getter for animation blueprint
+    // =======================================
+    // Getters for animation blueprint
+    // =======================================
     UFUNCTION(BlueprintPure, Category = "Ground Movement States")
     bool IsSprinting();
 
-    // Inline getters
     UFUNCTION(BlueprintPure, Category = "Ground Movement States")
-    bool IsMoving() { return bIsMoving; };
-    UFUNCTION(BlueprintPure, Category = "Ground Movement States")
-    bool IsMovingSideways() { return bIsMovingSideways; };
-    UFUNCTION(BlueprintPure, Category = "Ground Movement States")
-    bool IsMovingForward() { return bIsMovingForward; };
-    UFUNCTION(BlueprintPure, Category = "Ground Movement States")
-    bool IsMovingBack() { return bIsMovingBack; };
+    bool IsWalkingCustom();
 
-    // Public bools
-    bool bIsMovingRight{false};
+    UFUNCTION(BlueprintPure, Category = "Ground Movement States")
+    bool IsMoving();
+
+    UFUNCTION(BlueprintPure, Category = "Ground Movement States")
+    bool IsMovingRight();
 
     UFUNCTION(BlueprintPure, Category = "Ground Movement Triggers")
     bool IsSprintForbidden();
@@ -73,14 +76,20 @@ public:
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Jump Rules")
     float JumpDelay{0.2f};
 
-    // Movement Handlers
-    void SetForwardInput(const float& Value);
-    void SetRightInput(const float& Value);
-    void SetLookUpInput(const float& Value);
-    void SetTurnAroundInput(const float& Value);
+    UFUNCTION(BlueprintPure, Category = "Ground Movement Speed")
+    float GetDefaultWalkSpeed();
 
-    void Sprint(bool bWantsToSprint);
-    void SprintInterpolate();
+    // =======================================
+    // Movement Handlers
+    // =======================================
+    void SetForwardInput(const float Value);
+    void SetRightInput(const float Value);
+    void SetLookUpInput(const float Value);
+    void SetTurnAroundInput(const float Value);
+
+    void Sprint(const bool bWantsToSprint);
+    void Walk(const bool bWantsToWalk);
+    void SpeedInterpolate();
 
     void PerformJump();
 
@@ -88,13 +97,16 @@ public:
 
 private:
     bool bIsJumpAllowed{false};
+
     bool bIsMovingForward{false};
     bool bIsMovingBack{false};
+
     bool bIsMovingSideways{false};
+    bool bIsMovingRight{false};
     bool bIsMovingLeft{false};
-    bool bIsMoving{false};
 
     bool bCanSprint{false};
+    bool bCanWalk{false};
 
     float DefaultWalkSpeed{0.f};
     float CurrentMaxWalkSpeed{0.f};
@@ -107,4 +119,7 @@ private:
     void AllowJumping();
 
     void UpdateDesiredRotation();
+
+    UFUNCTION()
+    void OnCharacterLanding(const FHitResult& HitResult);
 };

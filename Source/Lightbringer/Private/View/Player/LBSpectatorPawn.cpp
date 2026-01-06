@@ -18,10 +18,9 @@ ALBSpectatorPawn::ALBSpectatorPawn()
     bUseControllerRotationYaw = true;
     bUseControllerRotationPitch = true;
 
-    UpSpeed = 1.f;
+    Speed = 1.f;
+    SprintSpeed = 10.f;
 }
-
-
 
 void ALBSpectatorPawn::BeginPlay()
 {
@@ -59,13 +58,21 @@ void ALBSpectatorPawn::HandleDestruction(AActor* DestroyedActor)
     }
 }
 
+void ALBSpectatorPawn::ToggleSprint(const bool bCanSprint) 
+{
+    if (bCanSprint)
+    {
+        Speed = SprintSpeed;
+    }
+}
+
 /*
  * Interface implementation
  */
 void ALBSpectatorPawn::MoveCustom_Implementation(const FVector2D Value) 
 {
-    MoveForward(Value.Y);
-    MoveRight(Value.X);
+    MoveForward(Value.Y * Speed);
+    MoveRight(Value.X * Speed);
 }
 
 void ALBSpectatorPawn::LookCustom_Implementation(const FVector2D Value) 
@@ -76,13 +83,18 @@ void ALBSpectatorPawn::LookCustom_Implementation(const FVector2D Value)
 
 void ALBSpectatorPawn::JumpCustom_Implementation()
 {
-    AddMovementInput(GetActorUpVector(), UpSpeed);
+    AddMovementInput(GetActorUpVector(), Speed);
+}
+
+void ALBSpectatorPawn::SprintToggleCustom_Implementation() 
+{
+    bSprintToggle = !bSprintToggle;
+    ToggleSprint(bSprintToggle);
 }
 
 void ALBSpectatorPawn::SprintCustom_Implementation(const bool bWantsToSprint)
 {
-    // Not implemented
-    return;
+    ToggleSprint(bWantsToSprint);
 }
 
 void ALBSpectatorPawn::CrouchCustom_Implementation(const bool bWantsToCrouch)
@@ -92,6 +104,12 @@ void ALBSpectatorPawn::CrouchCustom_Implementation(const bool bWantsToCrouch)
 }
 
 void ALBSpectatorPawn::WalkCustom_Implementation(const bool bWantsToWalk) 
+{
+    // Not implemented
+    return;
+}
+
+void ALBSpectatorPawn::WalkToggleCustom_Implementation() 
 {
     // Not implemented
     return;
