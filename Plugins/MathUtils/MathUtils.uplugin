@@ -2,9 +2,9 @@
 	"FileVersion": 3,
 	"Version": 1,
 	"VersionName": "1.0",
-	"FriendlyName": "Extended Shaders",
-	"Description": "Additional nodes and shaders for material editor",
-	"Category": "Rendering",
+	"FriendlyName": "MathUtils",
+	"Description": "Various Math utilities: vector operations, matrix operations and so on.",
+	"Category": "Other",
 	"CreatedBy": "Anton Piruev",
 	"CreatedByURL": "https://gitverse.ru/anton.prv",
 	"DocsURL": "",
@@ -12,11 +12,11 @@
 	"SupportURL": "",
 	"CanContainContent": true,
 	"IsBetaVersion": false,
-	"Installed": true,
-	"Enabled": true,
+	"IsExperimentalVersion": false,
+	"Installed": false,
 	"Modules": [
 		{
-			"Name": "ExtendedShaders",
+			"Name": "MathUtils",
 			"Type": "Runtime",
 			"LoadingPhase": "Default"
 		}

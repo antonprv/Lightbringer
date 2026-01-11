@@ -8,7 +8,10 @@
 #include "TimerManager.h"
 
 #include "Engine/World.h"
-#include "Animation/AnimMontage.h"
+
+#include "MathUtilStatics.h"
+
+DEFINE_LOG_CATEGORY_STATIC(LogULBCharacterMovementComponent, Log, Log)
 
 // Sets default values for this component's properties
 ULBCharacterMovementComponent::ULBCharacterMovementComponent(
@@ -16,7 +19,9 @@ ULBCharacterMovementComponent::ULBCharacterMovementComponent(
     : Super(ObjInit)
 {
     SprintSpeed = 1000.f;
-    MovementSmoothingSpeed = 10.f;
+    WalkToSprintSmoothing = 10.f;
+    BankingUpdateSmoothing = 10.f;
+    BankingMultiplier = 10.f;
     RotationSpeed = 540.f;
     RunTransitionDelay = 0.4f;
     JumpAirControl = 0.2f;
@@ -55,7 +60,10 @@ void ULBCharacterMovementComponent::TickComponent(float DeltaTime,
 {
     Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+    CheckSprintCondition();
+
     UpdateDesiredRotation();
+    UpdateBanking();
     SpeedInterpolate();
 }
 
@@ -90,6 +98,11 @@ float ULBCharacterMovementComponent::GetDefaultWalkSpeed()
     return DefaultWalkSpeed;
 }
 
+float ULBCharacterMovementComponent::GetBanking()
+{
+    return Banking;
+}
+
 void ULBCharacterMovementComponent::SetForwardInput(const float Value)
 {
     if (!CharacterOwner) return;
@@ -107,17 +120,7 @@ void ULBCharacterMovementComponent::SetForwardInput(const float Value)
     const FVector Direction =
         FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
 
-    if (FMath::IsNearlyEqual(CurrentFowrardValue, Value))
-    {
-        CharacterOwner->AddMovementInput(Direction, CurrentFowrardValue);
-    }
-    else
-    {
-        CurrentFowrardValue = FMath::FInterpTo(CurrentFowrardValue, Value,
-            GetWorld()->GetDeltaSeconds(), MovementSmoothingSpeed);
-
-        CharacterOwner->AddMovementInput(Direction, CurrentFowrardValue);
-    }
+    CharacterOwner->AddMovementInput(Direction, Value);
 }
 
 void ULBCharacterMovementComponent::SetRightInput(const float Value)
@@ -136,17 +139,7 @@ void ULBCharacterMovementComponent::SetRightInput(const float Value)
     const FVector Direction =
         FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 
-    if (FMath::IsNearlyEqual(CurrentRightValue, Value))
-    {
-        CharacterOwner->AddMovementInput(Direction, CurrentRightValue);
-    }
-    else
-    {
-        CurrentRightValue = FMath::FInterpTo(CurrentRightValue, Value,
-            GetWorld()->GetDeltaSeconds(), MovementSmoothingSpeed);
-
-        CharacterOwner->AddMovementInput(Direction, CurrentRightValue);
-    }
+    CharacterOwner->AddMovementInput(Direction, Value);
 }
 
 void ULBCharacterMovementComponent::SetLookUpInput(const float Value)
@@ -159,6 +152,8 @@ void ULBCharacterMovementComponent::SetLookUpInput(const float Value)
 void ULBCharacterMovementComponent::SetTurnAroundInput(const float Value)
 {
     if (!CharacterOwner) return;
+
+    NewBanking = Value * BankingMultiplier;
 
     CharacterOwner->AddControllerYawInput(Value);
 }
@@ -178,11 +173,28 @@ void ULBCharacterMovementComponent::SetLandingRules()
         &ULBCharacterMovementComponent::AllowJumping, 0.01f, false, JumpDelay);
 }
 
+void ULBCharacterMovementComponent::UpdateBanking()
+{
+    if (FMath::IsNearlyEqual(Banking, NewBanking)) return;
+
+    Banking = FMath::FInterpConstantTo(Banking, NewBanking,
+        GetWorld()->GetDeltaSeconds(), BankingUpdateSmoothing);
+}
+
 void ULBCharacterMovementComponent::AllowJumping()
 {
     bIsJumpAllowed = true;
 
     JumpHandle.Invalidate();
+}
+
+// If Player is already sprinting, make sure he cannot sprint backwards
+void ULBCharacterMovementComponent::CheckSprintCondition()
+{
+    if (bCanSprint)
+    {
+        bCanSprint = !bIsMovingBack;
+    }
 }
 
 void ULBCharacterMovementComponent::UpdateDesiredRotation()
@@ -243,21 +255,22 @@ void ULBCharacterMovementComponent::SpeedInterpolate()
 
     CurrentMaxWalkSpeed =
         FMath::FInterpTo(CurrentMaxWalkSpeed, TargetMaxWalkSpeed,
-            GetWorld()->GetDeltaSeconds(), MovementSmoothingSpeed);
+            GetWorld()->GetDeltaSeconds(), WalkToSprintSmoothing);
 
     MaxWalkSpeed = CurrentMaxWalkSpeed;
 }
 
 bool ULBCharacterMovementComponent::IsSprintForbidden()
 {
-    return !bIsMovingForward || bIsMovingSideways;
+    return !bIsMovingForward || bIsMovingSideways || bCanWalk ||
+           CharacterOwner->GetVelocity().IsZero();
 }
 
 bool ULBCharacterMovementComponent::IsSprinting()
 {
     if (!CharacterOwner) return false;
 
-    return bIsMovingForward && bCanSprint && !bCanWalk &&
+    return bCanSprint && !bCanWalk && bIsMovingForward &&
            !CharacterOwner->GetVelocity().IsZero();
 }
 

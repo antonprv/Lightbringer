@@ -41,7 +41,20 @@ public:
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite,
         Category = "Ground Movement Params")
-    float MovementSmoothingSpeed{0.f};
+    float WalkToSprintSmoothing{0.f};
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite,
+        Category = "Ground Movement Params")
+    float DirectionUpdateSmoothing{0.f};
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite,
+        Category = "Ground Movement Params",
+        meta = (Tooltip = "How much we scale player input to banking"))
+    float BankingMultiplier{0.f};
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite,
+        Category = "Ground Movement Params")
+    float BankingUpdateSmoothing{0.f};
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite,
         Category = "Ground Movement Params")
@@ -79,6 +92,9 @@ public:
     UFUNCTION(BlueprintPure, Category = "Ground Movement Speed")
     float GetDefaultWalkSpeed();
 
+    UFUNCTION(BlueprintPure, Category = "Ground Movement Speed")
+    float GetBanking();
+
     // =======================================
     // Movement Handlers
     // =======================================
@@ -114,9 +130,16 @@ private:
     float CurrentRightValue{0.f};
     float CurrentFowrardValue{0.f};
 
+    // Get character lean amount based on input
+    float Banking{0.f};
+    float NewBanking{0.f};
+    void UpdateBanking();
+
     // Jumping Rules
     FTimerHandle JumpHandle;
     void AllowJumping();
+
+    void CheckSprintCondition();
 
     void UpdateDesiredRotation();
 
