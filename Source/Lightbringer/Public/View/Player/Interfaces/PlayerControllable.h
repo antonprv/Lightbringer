@@ -52,6 +52,10 @@ public:
 
     UFUNCTION(
         BlueprintCallable, BlueprintNativeEvent, Category = "Process Input")
+    void CrouchToggleCustom();
+
+    UFUNCTION(
+        BlueprintCallable, BlueprintNativeEvent, Category = "Process Input")
     void WalkCustom(const bool bWantsToWalk);
 
     UFUNCTION(
@@ -72,6 +76,7 @@ public:
     virtual void SprintCustom_Implementation(const bool bWantsToSprint) =0;
     virtual void SprintToggleCustom_Implementation() =0;
     virtual void CrouchCustom_Implementation(const bool bWantsToCrouch) =0;
+    virtual void CrouchToggleCustom_Implementation() = 0;
     virtual void WalkCustom_Implementation(const bool bWantsToWalk) = 0;
     virtual void WalkToggleCustom_Implementation() =0;
     virtual void AimCustom_Implementation(const bool bWantsToAim) =0;

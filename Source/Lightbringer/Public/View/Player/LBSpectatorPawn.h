@@ -29,11 +29,12 @@ public:
     virtual void MoveCustom_Implementation(const FVector2D Value) override;
     virtual void LookCustom_Implementation(const FVector2D Value) override;
     virtual void JumpCustom_Implementation() override;
-    virtual void SprintToggleCustom_Implementation() override;
     virtual void SprintCustom_Implementation(
         const bool bWantsToSprint) override;
+    virtual void SprintToggleCustom_Implementation() override;
     virtual void CrouchCustom_Implementation(
         const bool bWantsToCrouch) override;
+    virtual void CrouchToggleCustom_Implementation() override;
     virtual void WalkCustom_Implementation(const bool bWantsToWalk) override;
     virtual void WalkToggleCustom_Implementation() override;
     virtual void AimCustom_Implementation(const bool bWantsToAim) override;
@@ -42,7 +43,7 @@ public:
 protected:
     virtual void BeginPlay() override;
     virtual void EndPlay(EEndPlayReason::Type EndPlayReason) override;
-
+    
 private:
     bool bSprintToggle{false};
 

@@ -35,6 +35,7 @@ ALBPlayerCharacter::ALBPlayerCharacter(const FObjectInitializer& ObjInit)
     : Super(ObjInit.SetDefaultSubobjectClass<ULBCharacterMovementComponent>(
           ACharacter::CharacterMovementComponentName))
 {
+    // Setup default C++ API parameters
     PrimaryActorTick.bCanEverTick = true;
 
     bUseControllerRotationPitch = false;
@@ -45,17 +46,15 @@ ALBPlayerCharacter::ALBPlayerCharacter(const FObjectInitializer& ObjInit)
         CreateDefaultSubobject<USpringArmComponent>("Spring Arm");
     SpringArmComponent->SetupAttachment(GetRootComponent());
     SpringArmComponent->bUsePawnControlRotation = true;
-    SpringArmComponent->CameraLagSpeed = 25.f;
     SpringArmComponent->bEnableCameraLag = true;
+    SpringArmComponent->CameraLagSpeed = 2.5f;
+    SpringArmComponent->CameraLagMaxDistance = 45.f;
     SpringArmComponent->bUsePawnControlRotation = true;
 
     SpringArmComponent->SocketOffset = {144.f, 78.f, 66.f};
 
     DefaultSocketRightOffset = SpringArmComponent->SocketOffset.Y;
     CurrentSocketRightOffset = DefaultSocketRightOffset;
-
-    DefaultSprintRightCameraInterpolationSpeed =
-        SprintRightCameraInterpolationSpeed;
 
     CameraComponent =
         CreateDefaultSubobject<UCameraComponent>("Player Camera");
@@ -79,6 +78,15 @@ ALBPlayerCharacter::ALBPlayerCharacter(const FObjectInitializer& ObjInit)
 
     AnimationComponent =
         CreateDefaultSubobject<UAnimationComponent>("Animation Component");
+
+    // Set default values
+    SprintCameraFOV = 100.f;
+    SlideCameraFOV = 120.f;
+    JumpCameraFOV = 120.f;
+    SprintCameraInterpolationSpeed = 5.f;
+    SprintRightCameraInterpolationSpeed = 0.8f;
+    DefaultSprintRightCameraInterpolationSpeed =
+        SprintRightCameraInterpolationSpeed;
 }
 
 /*
@@ -116,7 +124,7 @@ void ALBPlayerCharacter::Tick(float DeltaSeconds)
 
     TextRenderComponent->SetWorldRotation(DesiredRotation);
 
-    InterpolateSprintCamera(DeltaSeconds);
+    InterpolateCamera(DeltaSeconds);
     InterpolateSprintRightCamera(DeltaSeconds);
 }
 
@@ -213,13 +221,29 @@ void ALBPlayerCharacter::OnGroundLanding(const FHitResult& Hit)
 /*
  * Pure view functions
  */
-void ALBPlayerCharacter::InterpolateSprintCamera(const float& DeltaSeconds)
+void ALBPlayerCharacter::InterpolateCamera(const float& DeltaSeconds)
 {
     if (!GetWorld()) return;
 
-    const float TargetFOV = MovementHandlerComponent->IsSprinting()
-                                ? SprintCameraFOV
-                                : DefaultCameraFOV;
+    float TargetFOV;
+
+    if (MovementHandlerComponent->IsSprinting())
+    {
+        TargetFOV = SprintCameraFOV;
+    }
+    // TODO: Interpolate position instead of FOV for sliding and jumping
+    else if (MovementHandlerComponent->IsSliding())
+    {
+        TargetFOV = SlideCameraFOV;
+    }
+    else if (MovementHandlerComponent->IsJumping())
+    {
+        TargetFOV = JumpCameraFOV;
+    }
+    else
+    {
+        TargetFOV = DefaultCameraFOV;
+    }
 
     if (FMath::IsNearlyEqual(CurrentCameraFOV, TargetFOV, KINDA_SMALL_NUMBER))
     {
@@ -302,7 +326,7 @@ void ALBPlayerCharacter::SprintCustom_Implementation(const bool bWantsToSprint)
     MovementHandlerComponent->Sprint(bWantsToSprint);
 }
 
-void ALBPlayerCharacter::SprintToggleCustom_Implementation() 
+void ALBPlayerCharacter::SprintToggleCustom_Implementation()
 {
     bSprintToggle = !bSprintToggle;
     MovementHandlerComponent->Sprint(bSprintToggle);
@@ -310,16 +334,21 @@ void ALBPlayerCharacter::SprintToggleCustom_Implementation()
 
 void ALBPlayerCharacter::CrouchCustom_Implementation(const bool bWantsToCrouch)
 {
-    // Not yet implemented
-    return;
+    MovementHandlerComponent->SlideOrCrouch(bWantsToCrouch);
 }
 
-void ALBPlayerCharacter::WalkCustom_Implementation(const bool bWantsToWalk) 
+void ALBPlayerCharacter::CrouchToggleCustom_Implementation()
+{
+    bCrouchToggle = !bCrouchToggle;
+    MovementHandlerComponent->SlideOrCrouch(bCrouchToggle);
+}
+
+void ALBPlayerCharacter::WalkCustom_Implementation(const bool bWantsToWalk)
 {
     MovementHandlerComponent->Walk(bWantsToWalk);
 }
 
-void ALBPlayerCharacter::WalkToggleCustom_Implementation() 
+void ALBPlayerCharacter::WalkToggleCustom_Implementation()
 {
     bWalkToggle = !bWalkToggle;
 

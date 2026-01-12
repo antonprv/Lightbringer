@@ -24,6 +24,16 @@
  * Initial controller setup
  */
 
+ALBPlayerController::ALBPlayerController(const FObjectInitializer& ObjInit)
+    : Super(ObjInit)
+{
+    PrimaryActorTick.bCanEverTick = true;
+
+    bSprinthToggle = false;
+    bCrouchToggle = true;
+    bWalkToggle = true;
+}
+
 void ALBPlayerController::BeginPlay()
 {
     Super::BeginPlay();
@@ -185,8 +195,15 @@ void ALBPlayerController::PawnSprint(const FInputActionInstance& Instance)
         if (GetPawn()->GetClass()->ImplementsInterface(
                 UPlayerControllable::StaticClass()))
         {
-            IPlayerControllable::Execute_SprintCustom(
-                GetPawn(), Instance.GetValue().Get<bool>());
+            if (bSprinthToggle)
+            {
+                IPlayerControllable::Execute_SprintToggleCustom(GetPawn());
+            }
+            else if (!bSprinthToggle)
+            {
+                IPlayerControllable::Execute_SprintCustom(
+                    GetPawn(), Instance.GetValue().Get<bool>());
+            }
         }
     }
 }
@@ -200,8 +217,15 @@ void ALBPlayerController::PawnCrouch(const FInputActionInstance& Instance)
         if (GetPawn()->GetClass()->ImplementsInterface(
                 UPlayerControllable::StaticClass()))
         {
-            IPlayerControllable::Execute_CrouchCustom(
-                GetPawn(), Instance.GetValue().Get<bool>());
+            if (bCrouchToggle)
+            {
+                IPlayerControllable::Execute_CrouchToggleCustom(GetPawn());
+            }
+            else if (!bCrouchToggle)
+            {
+                IPlayerControllable::Execute_CrouchCustom(
+                    GetPawn(), Instance.GetValue().Get<bool>());
+            }
         }
     }
 }
@@ -215,7 +239,15 @@ void ALBPlayerController::PawnWalk(const FInputActionInstance& Instance)
         if (GetPawn()->GetClass()->ImplementsInterface(
                 UPlayerControllable::StaticClass()))
         {
-            IPlayerControllable::Execute_WalkToggleCustom(GetPawn());
+            if (bWalkToggle)
+            {
+                IPlayerControllable::Execute_WalkToggleCustom(GetPawn());
+            }
+            else if (!bWalkToggle)
+            {
+                IPlayerControllable::Execute_WalkCustom(
+                    GetPawn(), Instance.GetValue().Get<bool>());
+            }
         }
     }
 }

@@ -34,10 +34,17 @@ public:
     // =======================================
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite,
         Category = "Ground Movement Params")
-    float SprintSpeed{0.f};
+    float SprintingSpeed{0.f};
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite,
         Category = "Ground Movement Params")
     float WalkingSpeed{0.f};
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite,
+        Category = "Ground Movement Params")
+    float SlidingSpeed{0.f};
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite,
+        Category = "Ground Movement Params")
+    float SlideJumpZVelocity{0.f};
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite,
         Category = "Ground Movement Params")
@@ -73,21 +80,34 @@ public:
     bool IsSprinting();
 
     UFUNCTION(BlueprintPure, Category = "Ground Movement States")
+    bool IsJumping();
+
+    UFUNCTION(BlueprintPure, Category = "Ground Movement States")
+    bool IsSliding();
+
+    UFUNCTION(BlueprintPure, Category = "Ground Movement States")
     bool IsWalkingCustom();
 
     UFUNCTION(BlueprintPure, Category = "Ground Movement States")
     bool IsMoving();
 
     UFUNCTION(BlueprintPure, Category = "Ground Movement States")
+    bool IsMovingForward();
+
+    UFUNCTION(BlueprintPure, Category = "Ground Movement States")
     bool IsMovingRight();
 
-    UFUNCTION(BlueprintPure, Category = "Ground Movement Triggers")
-    bool IsSprintForbidden();
+    UFUNCTION(BlueprintCallable, Category = "Movement Rules")
+    void SetCanEverJump(bool Value);
+    UFUNCTION(BlueprintCallable, Category = "Movement Rules")
+    void SetCanEverCrouch(bool Value);
+    UFUNCTION(BlueprintCallable, Category = "Movement Rules")
+    void SetCanEverSlide(bool Value);
 
-    UFUNCTION(BlueprintCallable, Category = "Jump Rules")
-    void SetIsJumpAllowed(bool Value);
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Jump Rules")
-    float JumpDelay{0.2f};
+    float JumpDelay{0.f};
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Jump Rules")
+    float SlideDelay{0.f};
 
     UFUNCTION(BlueprintPure, Category = "Ground Movement Speed")
     float GetDefaultWalkSpeed();
@@ -105,17 +125,26 @@ public:
 
     void Sprint(const bool bWantsToSprint);
     void Walk(const bool bWantsToWalk);
-    void SpeedInterpolate();
+    void SlideOrCrouch(const bool bWantsToCrouch);
 
     void PerformJump();
 
-    void SetLandingRules();
+    // =======================================
+    // Condition state checks
+    // =======================================
+    bool IsSprintForbidden();
+    bool IsSlideForbidden();
 
 private:
     bool bIsJumpAllowed{false};
+    bool bIsSlideAllowed{false};
+    bool bCanSlideJump{false};
+
+    bool bCanEverSlide{false};
 
     bool bIsMovingForward{false};
     bool bIsMovingBack{false};
+    bool bIsNoForwardInput{false};
 
     bool bIsMovingSideways{false};
     bool bIsMovingRight{false};
@@ -123,6 +152,9 @@ private:
 
     bool bCanSprint{false};
     bool bCanWalk{false};
+    bool bCanSlide{false};
+
+    void SpeedInterpolate();
 
     float DefaultWalkSpeed{0.f};
     float CurrentMaxWalkSpeed{0.f};
@@ -130,16 +162,28 @@ private:
     float CurrentRightValue{0.f};
     float CurrentFowrardValue{0.f};
 
+    float DefaultJumpZVelocity{0.f};
+
     // Get character lean amount based on input
     float Banking{0.f};
     float NewBanking{0.f};
     void UpdateBanking();
 
+    bool bHasLanded{false};
+    
+    void SetLandingRules();
+    void SetSlidingRules();
+
     // Jumping Rules
     FTimerHandle JumpHandle;
     void AllowJumping();
 
+    // Sliding Rules
+    FTimerHandle SlideHandle;
+    void AllowSliding();
+
     void CheckSprintCondition();
+    void CheckSlideCondition();
 
     void UpdateDesiredRotation();
 

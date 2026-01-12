@@ -103,6 +103,12 @@ void ALBSpectatorPawn::CrouchCustom_Implementation(const bool bWantsToCrouch)
     return;
 }
 
+void ALBSpectatorPawn::CrouchToggleCustom_Implementation() 
+{
+    // Not implemented
+    return;
+}
+
 void ALBSpectatorPawn::WalkCustom_Implementation(const bool bWantsToWalk) 
 {
     // Not implemented

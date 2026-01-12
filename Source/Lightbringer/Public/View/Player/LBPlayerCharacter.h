@@ -56,13 +56,20 @@ public:
     //=============================================
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite,
         Category = "Components | View | Camera")
-    float SprintCameraFOV{100.f};
+    float SprintCameraFOV{0.f};
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite,
         Category = "Components | View | Camera")
-    float SprintCameraInterpolationSpeed{5.f};
+    float SlideCameraFOV{0.f};
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite,
         Category = "Components | View | Camera")
-    float SprintRightCameraInterpolationSpeed{0.8f};
+    float JumpCameraFOV{0.f};
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite,
+        Category = "Components | View | Camera")
+    float SprintCameraInterpolationSpeed{0.f};
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite,
+        Category = "Components | View | Camera")
+    float SprintRightCameraInterpolationSpeed{0.f};
 
     //=============================================
     // Unreal components
@@ -102,6 +109,7 @@ public:
     virtual void SprintToggleCustom_Implementation() override;
     virtual void CrouchCustom_Implementation(
         const bool bWantsToCrouch) override;
+    virtual void CrouchToggleCustom_Implementation() override;
     virtual void WalkCustom_Implementation(const bool bWantsToWalk) override;
     virtual void WalkToggleCustom_Implementation() override;
     virtual void AimCustom_Implementation(const bool bWantsToAim) override;
@@ -125,11 +133,12 @@ private:
 
     bool bWalkToggle{false};
     bool bSprintToggle{false};
+    bool bCrouchToggle{false};
 
     void HandleActorDeath(AActor* DeadActor);
     void OnHealthChanged(float CurrentHealth);
 
-    void InterpolateSprintCamera(const float& DeltaSeconds);
+    void InterpolateCamera(const float& DeltaSeconds);
     void InterpolateSprintRightCamera(const float& DeltaSeconds);
     void DisplayText(const float& CurrentHealth);
 

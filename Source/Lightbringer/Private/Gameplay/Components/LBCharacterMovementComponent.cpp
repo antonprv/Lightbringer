@@ -18,7 +18,11 @@ ULBCharacterMovementComponent::ULBCharacterMovementComponent(
     const FObjectInitializer& ObjInit)
     : Super(ObjInit)
 {
-    SprintSpeed = 1000.f;
+    GetNavAgentPropertiesRef().bCanCrouch = true;
+    GetNavAgentPropertiesRef().bCanJump = true;
+    bCanEverSlide = true;
+
+    SprintingSpeed = 1000.f;
     WalkToSprintSmoothing = 10.f;
     BankingUpdateSmoothing = 10.f;
     BankingMultiplier = 10.f;
@@ -27,16 +31,41 @@ ULBCharacterMovementComponent::ULBCharacterMovementComponent(
     JumpAirControl = 0.2f;
 
     WalkingSpeed = 250.f;
+    SlidingSpeed = 1250.f;
 
     AirControl = JumpAirControl;
     RotationRate = {0, RotationSpeed, 0.f};
+
+    bHasLanded = true;
+    bIsSlideAllowed = true;
+
+    JumpDelay = 0.2f;
+    SlideDelay = 0.2f;
+
+    JumpZVelocity = 600.f;
+    SlideJumpZVelocity = 800.f;
+}
+
+void ULBCharacterMovementComponent::SetCanEverJump(bool Value)
+{
+    GetNavAgentPropertiesRef().bCanJump = Value;
+}
+
+void ULBCharacterMovementComponent::SetCanEverCrouch(bool Value)
+{
+    GetNavAgentPropertiesRef().bCanCrouch = Value;
+}
+
+void ULBCharacterMovementComponent::SetCanEverSlide(bool Value)
+{
+    bCanEverSlide = false;
 }
 
 // Called when the game starts
 void ULBCharacterMovementComponent::BeginPlay()
 {
     Super::BeginPlay();
-
+    
     CharacterOwner = Cast<ACharacter>(GetOwner());
 
     if (CharacterOwner)
@@ -45,6 +74,8 @@ void ULBCharacterMovementComponent::BeginPlay()
     }
 
     bIsJumpAllowed = true;
+
+    DefaultJumpZVelocity = JumpZVelocity;
 
     if (!CharacterOwner->LandedDelegate.Contains(
             this, GET_FUNCTION_NAME_CHECKED(
@@ -61,6 +92,7 @@ void ULBCharacterMovementComponent::TickComponent(float DeltaTime,
     Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
     CheckSprintCondition();
+    CheckSlideCondition();
 
     UpdateDesiredRotation();
     UpdateBanking();
@@ -80,17 +112,9 @@ void ULBCharacterMovementComponent::EndPlay(EEndPlayReason::Type EndPlayReason)
     Super::EndPlay(EndPlayReason);
 }
 
-void ULBCharacterMovementComponent::OnCharacterLanding(
-    const FHitResult& HitResult)
+void ULBCharacterMovementComponent::UpdateDesiredRotation()
 {
-    if (!GetWorld()) return;
-
-    SetLandingRules();
-}
-
-void ULBCharacterMovementComponent::SetIsJumpAllowed(bool Value)
-{
-    bIsJumpAllowed = Value;
+    bUseControllerDesiredRotation = !CharacterOwner->GetVelocity().IsZero();
 }
 
 float ULBCharacterMovementComponent::GetDefaultWalkSpeed()
@@ -103,14 +127,16 @@ float ULBCharacterMovementComponent::GetBanking()
     return Banking;
 }
 
+// =====================================================================
+// Process directional input
+// =====================================================================
 void ULBCharacterMovementComponent::SetForwardInput(const float Value)
 {
     if (!CharacterOwner) return;
 
+    bIsNoForwardInput = Value == 0;
     bIsMovingForward = Value > 0;
     bIsMovingBack = Value < 0;
-
-    // SetRunningRules();
 
     // find out which way is forward
     const FRotator Rotation = CharacterOwner->Controller->GetControlRotation();
@@ -158,19 +184,80 @@ void ULBCharacterMovementComponent::SetTurnAroundInput(const float Value)
     CharacterOwner->AddControllerYawInput(Value);
 }
 
+// =====================================================================
+// Process input for "vertical" actions
+// =====================================================================
 void ULBCharacterMovementComponent::PerformJump()
 {
     if (!bIsJumpAllowed) return;
 
+    bHasLanded = false;
+
+    if (bCanSlideJump)
+    {
+        JumpZVelocity = SlideJumpZVelocity;
+    }
+    else
+    {
+        JumpZVelocity = DefaultJumpZVelocity;
+    }
+
     CharacterOwner->Jump();
+}
+
+void ULBCharacterMovementComponent::SlideOrCrouch(const bool bWantsToCrouch)
+{
+    if (IsSlideForbidden())
+    {
+        if (bWantsToCrouch)
+        {
+            CharacterOwner->Crouch();
+        }
+        else if (!bWantsToCrouch)
+        {
+            CharacterOwner->UnCrouch();
+        }
+    }
+    else if (!IsSlideForbidden())
+    {
+        bCanSlide = bWantsToCrouch && bIsSlideAllowed;
+        bCanSlideJump = bCanSlide;
+        SetSlidingRules();
+    }
+}
+
+void ULBCharacterMovementComponent::OnCharacterLanding(
+    const FHitResult& HitResult)
+{
+    if (!GetWorld()) return;
+
+    SetLandingRules();
 }
 
 void ULBCharacterMovementComponent::SetLandingRules()
 {
     bIsJumpAllowed = false;
+    bHasLanded = true;
+    bCanSlideJump = false;
 
-    GetWorld()->GetTimerManager().SetTimer(JumpHandle, this,
-        &ULBCharacterMovementComponent::AllowJumping, 0.01f, false, JumpDelay);
+    if (!JumpHandle.IsValid())
+    {
+        GetWorld()->GetTimerManager().SetTimer(JumpHandle, this,
+            &ULBCharacterMovementComponent::AllowJumping, 0.01f, false,
+            JumpDelay);
+    }
+}
+
+void ULBCharacterMovementComponent::SetSlidingRules()
+{
+    bIsSlideAllowed = false;
+
+    if (!SlideHandle.IsValid())
+    {
+        GetWorld()->GetTimerManager().SetTimer(SlideHandle, this,
+            &ULBCharacterMovementComponent::AllowSliding, 0.01f, false,
+            SlideDelay);
+    }
 }
 
 void ULBCharacterMovementComponent::UpdateBanking()
@@ -188,18 +275,11 @@ void ULBCharacterMovementComponent::AllowJumping()
     JumpHandle.Invalidate();
 }
 
-// If Player is already sprinting, make sure he cannot sprint backwards
-void ULBCharacterMovementComponent::CheckSprintCondition()
+void ULBCharacterMovementComponent::AllowSliding()
 {
-    if (bCanSprint)
-    {
-        bCanSprint = !bIsMovingBack;
-    }
-}
+    bIsSlideAllowed = true;
 
-void ULBCharacterMovementComponent::UpdateDesiredRotation()
-{
-    bUseControllerDesiredRotation = !CharacterOwner->GetVelocity().IsZero();
+    SlideHandle.Invalidate();
 }
 
 void ULBCharacterMovementComponent::Sprint(const bool bWantsToSprint)
@@ -231,11 +311,15 @@ void ULBCharacterMovementComponent::SpeedInterpolate()
     float TargetMaxWalkSpeed;
     if (bCanSprint)
     {
-        TargetMaxWalkSpeed = SprintSpeed;
+        TargetMaxWalkSpeed = SprintingSpeed;
     }
     else if (bCanWalk)
     {
         TargetMaxWalkSpeed = WalkingSpeed;
+    }
+    else if (bCanSlide)
+    {
+        TargetMaxWalkSpeed = SlidingSpeed;
     }
     else
     {
@@ -260,33 +344,78 @@ void ULBCharacterMovementComponent::SpeedInterpolate()
     MaxWalkSpeed = CurrentMaxWalkSpeed;
 }
 
-bool ULBCharacterMovementComponent::IsSprintForbidden()
+// =====================================================================
+// Condition state checks
+// =====================================================================
+void ULBCharacterMovementComponent::CheckSprintCondition()
 {
-    return !bIsMovingForward || bIsMovingSideways || bCanWalk ||
-           CharacterOwner->GetVelocity().IsZero();
+    if (bCanSprint)
+    {
+        bCanSprint = !IsSprintForbidden();
+    }
 }
 
+void ULBCharacterMovementComponent::CheckSlideCondition()
+{
+    if (bCanSlide)
+    {
+        bCanSlide = !IsSlideForbidden();
+        bCanSlideJump = bCanSlide;
+    }
+}
+
+bool ULBCharacterMovementComponent::IsSprintForbidden()
+{
+    return !bIsMovingForward || (bIsNoForwardInput && bIsMovingSideways) ||
+           bCanWalk || !IsMoving();
+}
+
+bool ULBCharacterMovementComponent::IsSlideForbidden()
+{
+    return (bIsNoForwardInput && bIsMovingSideways) || bCanWalk ||
+           !IsMoving() || IsCrouching() || !bCanEverSlide || IsJumping();
+}
+
+bool ULBCharacterMovementComponent::IsMovingForward()
+{
+    return IsMoving() && bIsMovingForward && !bIsMovingBack;
+}
+
+bool ULBCharacterMovementComponent::IsMovingRight()
+{
+    return bIsMovingRight;
+}
+
+// =====================================================================
+// Animation state checks
+// =====================================================================
 bool ULBCharacterMovementComponent::IsSprinting()
 {
     if (!CharacterOwner) return false;
 
-    return bCanSprint && !bCanWalk && bIsMovingForward &&
-           !CharacterOwner->GetVelocity().IsZero();
+    return bCanSprint && !bCanWalk && bIsMovingForward && IsMoving() &&
+           !IsSliding() && !IsCrouching();
+}
+
+bool ULBCharacterMovementComponent::IsJumping()
+{
+    return IsFalling() && !bHasLanded;
+}
+
+bool ULBCharacterMovementComponent::IsSliding()
+{
+    return !(bIsNoForwardInput && bIsMovingSideways) && !bCanWalk &&
+           !IsCrouching() && bCanSlide && !IsJumping();
 }
 
 bool ULBCharacterMovementComponent::IsWalkingCustom()
 {
     if (!CharacterOwner) return false;
 
-    return bCanWalk && !bCanSprint && !CharacterOwner->GetVelocity().IsZero();
+    return bCanWalk && !bCanSprint && IsMoving();
 }
 
 bool ULBCharacterMovementComponent::IsMoving()
 {
     return !CharacterOwner->GetVelocity().IsZero();
-}
-
-bool ULBCharacterMovementComponent::IsMovingRight()
-{
-    return bIsMovingRight;
 }
