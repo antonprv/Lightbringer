@@ -1,0 +1,12 @@
+/NOLOGO
+/errorReport:prompt
+/MACHINE:x64
+/SUBSYSTEM:WINDOWS
+/DEF
+/NAME:"UE4Editor-ExtendedShaders.dll"
+/IGNORE:4221
+/NODEFAULTLIB
+"C:\Repos\Lightbringer\Intermediate\Build\Win64\LightbringerEditor\Development\Engine\SharedPCH.Engine.h.obj"
+"C:\Repos\Lightbringer\Plugins\ExtendedShaders\Intermediate\Build\Win64\UE4Editor\Development\ExtendedShaders\ExtendedShaders.cpp.obj"
+"C:\Repos\Lightbringer\Plugins\ExtendedShaders\Intermediate\Build\Win64\UE4Editor\Development\ExtendedShaders\Default.rc2.res"
+/OUT:"C:\Repos\Lightbringer\Plugins\ExtendedShaders\Intermediate\Build\Win64\UE4Editor\Development\ExtendedShaders\UE4Editor-ExtendedShaders.lib"

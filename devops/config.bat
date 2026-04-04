@@ -1,47 +1,67 @@
 @echo off
 
-rem Engine params
-set EnginePath_4.23=C:\Programs\UE_4.23
-set EnginePath_5.3=C:\Programs\UE_5.3
-set EnginePath_5.6=C:\Programs\UE_5.6
+rem ============================================================
+rem  config.bat — auto-detected, drop this devops\ folder into
+rem  any project that follows the layout:
+rem
+rem    <ProjectRoot>\
+rem      src\          ← contains MyGame.uproject
+rem      devops\       ← this folder
+rem
+rem  ProjectRoot and ProjectName are resolved at runtime.
+rem ============================================================
 
-rem Select engine from the list
-set SelectedEngine=%EnginePath_4.23%
+rem ── Locate devops\ and project root ─────────────────────────
+set "DevOpsRoot=%~dp0"
+rem Strip trailing backslash
+set "DevOpsRoot=%DevOpsRoot:~0,-1%"
+rem One level up → project root
+for %%I in ("%DevOpsRoot%\..") do set "ProjectRoot=%%~fI"
 
-rem !! Engine version for packaging !!
-set RunUATPath=%SelectedEngine%\Engine\Build\BatchFiles\RunUAT.bat
+rem ── Auto-detect project name from src\*.uproject ────────────
+set "ProjectName="
+for %%F in ("%ProjectRoot%\src\*.uproject") do set "ProjectName=%%~nF"
+if "%ProjectName%"=="" (
+    echo [config] ERROR: No .uproject file found in %ProjectRoot%\src\
+    exit /b 1
+)
 
-rem Project params
-set ProjectRoot=d:\Projects\Lightbringer
-set ProjectName=Lightbringer
-set ProjectFile=%ProjectName%.uproject
-set ProjectPath=%ProjectRoot%\%ProjectFile%
+rem ── Engine paths — edit these for your machine ──────────────
+set "EnginePath_4.23=C:\Programs\UE_4.23"
+set "EnginePath_5.3=C:\Programs\UE_5.3"
+set "EnginePath_5.6=C:\Programs\UE_5.6"
 
-rem Configuration params
-set Platform=Win32
-set Configuration=Development
+rem Select engine version
+set "SelectedEngine=%EnginePath_4.23%"
 
-rem Packaging params
-set PackagePath=%ProjectRoot%\Package
+set "RunUATPath=%SelectedEngine%\Engine\Build\BatchFiles\RunUAT.bat"
 
-rem Build Visual Studio Project files and change version
-set VersionSelector=C:\Program Files (x86)\Epic Games\Launcher\Engine\Binaries\Win64\UnrealVersionSelector.exe
+rem ── Project paths (all derived automatically) ────────────────
+set "ProjectFile=%ProjectName%.uproject"
+set "ProjectPath=%ProjectRoot%\src\%ProjectFile%"
 
-rem Target params
-set EXTRA_MODULE_NAMES=%ProjectName%
+rem ── Configuration ────────────────────────────────────────────
+set "Platform=Win32"
+set "Configuration=Development"
 
-set TargetTemplatePath=D:\Projects\Lightbringer\devops\scripts\templates\GameModule.Target.cs.template
+rem ── Packaging output ─────────────────────────────────────────
+set "PackagePath=%ProjectRoot%\Package"
 
-set TargetGameTemplatePath=D:\Projects\Lightbringer\devops\scripts\templates\GameOnlyModule.Target.cs.template
+rem ── UE Version Selector ──────────────────────────────────────
+set "VersionSelector=C:\Program Files (x86)\Epic Games\Launcher\Engine\Binaries\Win64\UnrealVersionSelector.exe"
 
-set GameIni=d:\Projects\Lightbringer\Config\DefaultGame.ini
+rem ── Target generation ────────────────────────────────────────
+set "EXTRA_MODULE_NAMES=%ProjectName%"
+set "TargetTemplatePath=%DevOpsRoot%\scripts\templates\GameModule.Target.cs.template"
+set "TargetGameTemplatePath=%DevOpsRoot%\scripts\templates\GameOnlyModule.Target.cs.template"
 
-set SourceCodePath=D:\Projects\Lightbringer\Source
+rem ── Source and config paths ──────────────────────────────────
+set "GameIni=%ProjectRoot%\src\Config\DefaultGame.ini"
+set "SourceCodePath=%ProjectRoot%\src\Source"
 
-
-rem Run client and server
-set ServerExePath=%ProjectRoot%\Package\ServerWithClent\WindowsServer\%ProjectName%Server.exe
-set ClientExePath=%ProjectRoot%\Package\ServerWithClent\WindowsClient\%ProjectName%Client.exe
-set GameExePath=%ProjectRoot%\Package\Game\Windows\%ProjectName%.exe
+rem ── Packaged executable paths ────────────────────────────────
+set "ServerExePath=%PackagePath%\ServerWithClent\WindowsServer\%ProjectName%Server.exe"
+set "ClientExePath=%PackagePath%\ServerWithClent\WindowsClient\%ProjectName%Client.exe"
+set "GameExePath=%PackagePath%\Game\Windows\%ProjectName%.exe"
 
 exit /b

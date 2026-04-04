@@ -1,0 +1,8 @@
+C:\Repos\Lightbringer\Plugins\ExtendedShaders\Intermediate\Build\Win64\UE4Editor\Development\ExtendedShaders\Definitions.ExtendedShaders.h
+C:\Repos\Lightbringer\Plugins\ExtendedShaders\Source\ExtendedShaders\Public\ExtendedShaders.h
+C:\Programs\ViteEngine\Engine\Source\Runtime\Projects\Public\Interfaces/IPluginManager.h
+C:\Programs\ViteEngine\Engine\Source\Runtime\Projects\Public\PluginDescriptor.h
+C:\Programs\ViteEngine\Engine\Source\Runtime\Projects\Public\ModuleDescriptor.h
+C:\Programs\ViteEngine\Engine\Source\Runtime\Projects\Public\CustomBuildSteps.h
+C:\Programs\ViteEngine\Engine\Source\Runtime\Projects\Public\LocalizationDescriptor.h
+C:\Programs\ViteEngine\Engine\Source\Runtime\Projects\Public\PluginReferenceDescriptor.h

@@ -1,0 +1,15 @@
+C:\Repos\Lightbringer\Plugins\FakeShadow\Intermediate\Build\Win64\UE4Editor\Development\FakeShadow\Definitions.FakeShadow.h
+C:/Repos/Lightbringer/Plugins/FakeShadow/Intermediate/Build/Win64/UE4Editor/Inc/FakeShadow/BlobShadowComponent.gen.cpp
+C:\Programs\ViteEngine\Engine\Source\Runtime\CoreUObject\Public\UObject/GeneratedCppIncludes.h
+C:\Programs\ViteEngine\Engine\Source\Runtime\CoreUObject\Public\UObject/MetaData.h
+C:\Repos\Lightbringer\Plugins\FakeShadow\Source\FakeShadow/Public/Components/BlobShadowComponent.h
+C:\Programs\ViteEngine\Engine\Source\Runtime\Engine\Classes\Components/DecalComponent.h
+C:\Programs\ViteEngine\Engine\Intermediate\Build\Win64\UE4Editor\Inc\Engine\DecalComponent.generated.h
+C:\Repos\Lightbringer\Plugins\FakeShadow\Intermediate\Build\Win64\UE4Editor\Inc\FakeShadow\BlobShadowComponent.generated.h
+C:/Repos/Lightbringer/Plugins/FakeShadow/Intermediate/Build/Win64/UE4Editor/Inc/FakeShadow/FakeShadow.init.gen.cpp
+C:/Repos/Lightbringer/Plugins/FakeShadow/Intermediate/Build/Win64/UE4Editor/Inc/FakeShadow/FakeShadowComponent.gen.cpp
+C:\Repos\Lightbringer\Plugins\FakeShadow\Source\FakeShadow/Public/Components/FakeShadowComponent.h
+C:\Repos\Lightbringer\Plugins\FakeShadow\Intermediate\Build\Win64\UE4Editor\Inc\FakeShadow\FakeShadowComponent.generated.h
+C:/Repos/Lightbringer/Plugins/FakeShadow/Intermediate/Build/Win64/UE4Editor/Inc/FakeShadow/ShadowCaster.gen.cpp
+C:\Repos\Lightbringer\Plugins\FakeShadow\Source\FakeShadow/Public/Interfaces/ShadowCaster.h
+C:\Repos\Lightbringer\Plugins\FakeShadow\Intermediate\Build\Win64\UE4Editor\Inc\FakeShadow\ShadowCaster.generated.h

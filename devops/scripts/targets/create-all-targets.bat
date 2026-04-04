@@ -7,11 +7,11 @@ set TargetScripts=create-client-target.bat create-editor-target.bat create-game-
 
 rem Loop through each script and call it
 for %%S in (%TargetScripts%) do (
-    if exist "%%S" (
+    if exist "%~dp0%%S" (
         echo Running %%S...
-        call "%%S"
+        call "%~dp0%%S"
     ) else (
-        echo File not found: %%S
+        echo File not found: %~dp0%%S
     )
 )
 

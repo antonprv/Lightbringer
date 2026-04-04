@@ -1,0 +1,6 @@
+C:\Repos\Lightbringer\Plugins\MathUtils\Intermediate\Build\Win64\UE4Editor\Development\MathUtils\Definitions.MathUtils.h
+C:/Repos/Lightbringer/Plugins/MathUtils/Source/MathUtils/Private/MathUtils.cpp
+C:\Repos\Lightbringer\Plugins\MathUtils\Source\MathUtils\Public\MathUtils.h
+C:/Repos/Lightbringer/Plugins/MathUtils/Source/MathUtils/Private/MathUtilStatics.cpp
+C:\Repos\Lightbringer\Plugins\MathUtils\Source\MathUtils\Public\MathUtilStatics.h
+C:\Repos\Lightbringer\Plugins\MathUtils\Intermediate\Build\Win64\UE4Editor\Inc\MathUtils\MathUtilStatics.generated.h

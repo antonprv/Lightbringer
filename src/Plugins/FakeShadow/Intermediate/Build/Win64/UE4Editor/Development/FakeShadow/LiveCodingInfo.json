@@ -1,0 +1,17 @@
+{
+	"RemapUnityFiles": 
+	{
+		"Module.FakeShadow.cpp.obj": [
+			"BlobShadowComponent.cpp.obj",
+			"FakeShadowComponent.cpp.obj",
+			"FakeShadow.cpp.obj",
+			"ShadowCaster.cpp.obj"
+		],
+		"Module.FakeShadow.gen.cpp.obj": [
+			"BlobShadowComponent.gen.cpp.obj",
+			"FakeShadow.init.gen.cpp.obj",
+			"FakeShadowComponent.gen.cpp.obj",
+			"ShadowCaster.gen.cpp.obj"
+		]
+	}
+}
