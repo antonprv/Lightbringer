@@ -1,7 +1,0 @@
-C:\Repos\Lightbringer\Plugins\MathUtils\Intermediate\Build\Win64\UE4Editor\Development\MathUtils\Definitions.MathUtils.h
-C:/Repos/Lightbringer/Plugins/MathUtils/Intermediate/Build/Win64/UE4Editor/Inc/MathUtils/MathUtils.init.gen.cpp
-C:\Programs\ViteEngine\Engine\Source\Runtime\CoreUObject\Public\UObject/GeneratedCppIncludes.h
-C:\Programs\ViteEngine\Engine\Source\Runtime\CoreUObject\Public\UObject/MetaData.h
-C:/Repos/Lightbringer/Plugins/MathUtils/Intermediate/Build/Win64/UE4Editor/Inc/MathUtils/MathUtilStatics.gen.cpp
-C:\Repos\Lightbringer\Plugins\MathUtils\Source\MathUtils/Public/MathUtilStatics.h
-C:\Repos\Lightbringer\Plugins\MathUtils\Intermediate\Build\Win64\UE4Editor\Inc\MathUtils\MathUtilStatics.generated.h
