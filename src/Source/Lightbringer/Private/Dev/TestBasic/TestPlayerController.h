@@ -1,3 +1,4 @@
+// Copyright Anton Piruev. All Rights Reserved.
 // You can use this project non-commercially for educational purposes, any
 // commercial use, derivative commercial use is strictly prohibited
 
@@ -7,25 +8,15 @@
 #include "GameFramework/PlayerController.h"
 #include "TestPlayerController.generated.h"
 
-class UInputMappingContext;
-class UInputAction;
-struct FInputActionInstance;
+class UInputActionData;
+class UInputManager;
 
 UCLASS()
-class LIGHTBRINGER_API ATestPlayerController : public APlayerController
+class ATestPlayerController : public APlayerController
 {
     GENERATED_BODY()
-public:
+
     ATestPlayerController();
-
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
-    UInputMappingContext* InputMappingContext{nullptr};
-
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
-    UInputAction* MoveCustom{nullptr};
-
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
-    UInputAction* ChangePawn{nullptr};
 
 protected:
     virtual void BeginPlay() override;
@@ -34,10 +25,17 @@ protected:
 
 private:
     TArray<AActor*> PawnsToPossess{};
+    TArray<AActor*> ValidPawnsToPossess{};
+    
     int32 CurrentPawnIndex{0};
 
-    void HandleMoveCustom(const FInputActionInstance& Input);
-    void HandleSwitchKey(const FInputActionInstance& Input);
+    //UPROPERTY()
+    //UInputActionData* InputData{nullptr};
+    //UPROPERTY()
+    //UInputManager* InputManager{nullptr};
 
-    void ChangeActivePawn();
+    UFUNCTION()
+    void HandleSwitchKey(const FName& ActionName);
+    void SwitchPawn();
+    void ValidatePawns();
 };

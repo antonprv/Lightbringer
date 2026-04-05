@@ -19,10 +19,13 @@ public class Lightbringer : ModuleRules
             "InputCore",
             "RenderCore",
             "AnimationBudgetAllocator",
+            "Mover",
+            "MotionWarping",
             "EnhancedInput",
-            "MathUtils",
+            "GameplayCameras",
             "ExtendedControlStates",
             "FakeShadow"
+            //"CMAA2Plugin"
         });
 
         PrivateDependencyModuleNames.Add("GPUCheck");

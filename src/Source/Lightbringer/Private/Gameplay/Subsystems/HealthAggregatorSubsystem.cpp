@@ -1,8 +1,9 @@
+// Copyright Anton Piruev. All Rights Reserved.
 // You can use this project non-commercially for educational purposes, any
 // commercial use, derivative commercial use is strictly prohibited
 
-#include "HealthAggregatorSubsystem.h"
-#include "Components/HealthComponent.h"
+#include "Gameplay/Subsystems/HealthAggregatorSubsystem.h"
+#include "Gameplay/Components/HealthComponent.h"
 
 #include "Kismet/GameplayStatics.h"
 

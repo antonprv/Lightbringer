@@ -1,15 +1,29 @@
+// Copyright Anton Piruev. All Rights Reserved.
 // You can use this project non-commercially for educational purposes, any
 // commercial use, derivative commercial use is strictly prohibited
 
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Character.h"
-#include "Interfaces/PlayerControllable.h"
+#include "View/Pawns/CharacterBase.h"
+
 #include "Interfaces/ShadowCaster.h"
+#include "Interfaces/PlayerControllable.h"
+
+// Motion matching interfaces
+#include "Interfaces/AnimationPropSender.h"
+#include "Interfaces/CameraPropSender.h"
+#include "Interfaces/TraversalPropSender.h"
+
 #include "LBPlayerCharacter.generated.h"
 
 class AActor;
+class UCharacterMoverComponent;
+class USkeletalMeshComponentBudgeted;
+class UCapsuleComponent;
+class UGameplayCameraComponent;
+class UMotionWarpingComponent;
+class UNavMoverComponent;
 
 class ULBCharacterMovementComponent;
 class UComponentsDelegateMediator;
@@ -18,132 +32,105 @@ class ALBWeaponBase;
 
 class UHealthComponent;
 class UWeaponComponent;
-class UAnimationComponent;
 class UFakeShadowComponent;
+
+class ULBPlayerAnimationComponent;
+class UAnimUpdateRateOptimizationComponent;
 
 class UCameraComponent;
 class USpringArmComponent;
 class UTextRenderComponent;
 
-class UTrajectoryGenerator;
-class UTrajectoryErrorWarping;
-
 UCLASS()
-class LIGHTBRINGER_API ALBPlayerCharacter : public ACharacter,
+class LIGHTBRINGER_API ALBPlayerCharacter : public ACharacterBase,
                                             public IPlayerControllable,
-                                            public IShadowCaster
+                                            public IShadowCaster,
+                                            public IAnimationPropSender,
+                                            public ICameraPropSender,
+                                            public ITraversalPropSender
 {
     GENERATED_BODY()
 
 public:
-    //=============================================
-    // My custom components
-    //=============================================
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly,
-        Category = "Components | Gameplay | Other")
-    ULBCharacterMovementComponent* MovementHandlerComponent{nullptr};
+    // ======================================================
+    // Unreal Components
+    // ======================================================
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly,
-        Category = "Components | Gameplay | Other")
-    UWeaponComponent* WeaponComponent{nullptr};
-
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly,
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite,
         Category = "Components | View | Animation")
-    UAnimationComponent* AnimationComponent{nullptr};
+    UMotionWarpingComponent* MotionWarping{nullptr};
 
-    //=============================================
-    // My custom components parameters
-    //=============================================
-    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite,
-        Category = "Components | View | Camera")
-    float SprintCameraFOV{0.f};
-    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite,
-        Category = "Components | View | Camera")
-    float SlideCameraFOV{0.f};
-    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite,
-        Category = "Components | View | Camera")
-    float JumpCameraFOV{0.f};
+    // ======================================================
+    // Lightbringer Components
+    // ======================================================
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite,
-        Category = "Components | View | Camera")
-    float SprintCameraInterpolationSpeed{0.f};
-    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite,
-        Category = "Components | View | Camera")
-    float SprintRightCameraInterpolationSpeed{0.f};
-
-    //=============================================
-    // Unreal components
-    //=============================================
-    UPROPERTY(VisibleAnywhere, BlueprintReadWrite,
         Category = "Components | Gameplay | Health")
     UHealthComponent* HealthComponent{nullptr};
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadWrite,
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite,
         Category = "Components | Gameplay | Health")
     UTextRenderComponent* TextRenderComponent{nullptr};
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly,
-        Category = "Components | View | Camera")
-    UCameraComponent* CameraComponent{nullptr};
-
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly,
-        Category = "Components | View | Camera")
-    USpringArmComponent* SpringArmComponent{nullptr};
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly,
+        Category = "Components | View | Shadow")
+    UFakeShadowComponent* FakeShadowComponent{nullptr};
 
 protected:
-    // Called when the game starts or when spawned
-    virtual void BeginPlay() override;
-    virtual void Tick(float DeltaSeconds) override;
-    virtual void EndPlay(EEndPlayReason::Type EndPlayReason) override;
-    virtual void Jump() override;
+    // ======================================================
+    // Controller Interfaces
+    // ======================================================
+    virtual void MoveCustom_Implementation(const FVector2D Value) override;
+    virtual void PickUp_Implementation() override;
+
+    // ======================================================
+    // Motion Matching Interfaces
+    // ======================================================
+
+    // Setters -----------------
+    virtual void SetCharacterInputState_Implementation(
+        const FPlayerInputState& PlayerInputState) override;
+
+    // Getters (Out Params)-----
+    virtual void GetPropertiesForAnimation_Implementation(
+        FLBCharPropertiesForAnimation& OutPropertiesForAnimation) override;
+    virtual void GetPropertiesForCamera_Implementation(
+        FLBCharPropertiesForCamera& OutPropertiesForCamera) override;
+    virtual void GetPropertiesForTraversal_Implementation(
+        FLBCharPropertiesForTraversal& OutPropertiesForTraversal) override;
+
+    // ======================================================
+    // Fake Shadow Interfaces
+    // ======================================================
+    virtual void GetShadowCasterMesh_Implementation(
+        USkeletalMeshComponent*& OutMesh) override;
 
 public:
     ALBPlayerCharacter(const FObjectInitializer& ObjInit);
 
-    // IControllable
-    virtual void MoveCustom_Implementation(const FVector2D Value) override;
-    virtual void LookCustom_Implementation(const FVector2D Value) override;
-    virtual void JumpCustom_Implementation() override;
-    virtual void SprintCustom_Implementation(
-        const bool bWantsToSprint) override;
-    virtual void SprintToggleCustom_Implementation() override;
-    virtual void CrouchCustom_Implementation(
-        const bool bWantsToCrouch) override;
-    virtual void CrouchToggleCustom_Implementation() override;
-    virtual void WalkCustom_Implementation(const bool bWantsToWalk) override;
-    virtual void WalkToggleCustom_Implementation() override;
-    virtual void AimCustom_Implementation(const bool bWantsToAim) override;
-    virtual void PickCustom_Implementation() override;
+    UFUNCTION(BlueprintPure, Category = "Character Movement")
+    void GetMovementValues(float& OutForwardInput, float& OutRightInput);
 
-    // IShadowCaster
-    virtual void GetShadowCasterMesh_Implementation(
-        USkeletalMeshComponent*& OutMesh) override;
+protected:
+    virtual void BeginPlay() override;
+    virtual void Tick(float DeltaSeconds) override;
+    virtual void EndPlay(EEndPlayReason::Type EndPlayReason) override;
 
 private:
     UPROPERTY()
     UComponentsDelegateMediator* ComponentsDelegateMediator{nullptr};
 
-    float CurrentCameraFOV{0.f};
-    float DefaultCameraFOV{0.f};
+    float ForwardInput{0.f};
+    float RightInput{0.f};
 
-    float CurrentSocketRightOffset{0.f};
-    float DefaultSocketRightOffset{0.f};
-
-    float DefaultSprintRightCameraInterpolationSpeed{0.f};
-
-    bool bWalkToggle{false};
-    bool bSprintToggle{false};
-    bool bCrouchToggle{false};
+    bool bWasFalling{false};
+    bool bIsMovementAllowed{false};
 
     void HandleActorDeath(AActor* DeadActor);
-    void OnHealthChanged(float CurrentHealth);
-
-    void InterpolateCamera(const float& DeltaSeconds);
-    void InterpolateSprintRightCamera(const float& DeltaSeconds);
-    void DisplayText(const float& CurrentHealth);
+    void DisplayHealth(const float& CurrentHealth);
 
     UFUNCTION()
-    void OnGroundLanding(const FHitResult& Hit);
+    void HandleLanding(const FHitResult& HitResult, const float& LandingSpeed);
 
     UFUNCTION()
     void HandleDestruction(AActor* DestroyedActor);

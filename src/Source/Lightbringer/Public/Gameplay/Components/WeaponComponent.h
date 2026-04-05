@@ -1,14 +1,19 @@
+// Copyright Anton Piruev. All Rights Reserved.
 // You can use this project non-commercially for educational purposes, any
 // commercial use, derivative commercial use is strictly prohibited
 
 #pragma once
 
+// TODO: Redo all of this
+
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+
 #include "WeaponComponent.generated.h"
 
+class USphereComponent;
 class ALBWeaponBase;
-class ACharacter;
+class ACharacterBase;
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class LIGHTBRINGER_API UWeaponComponent : public UActorComponent
@@ -18,10 +23,6 @@ class LIGHTBRINGER_API UWeaponComponent : public UActorComponent
 public:
     // Sets default values for this component's properties
     UWeaponComponent();
-
-protected:
-    // Called when the game starts
-    virtual void BeginPlay() override;
 
 public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
@@ -43,14 +44,33 @@ public:
 
     UPROPERTY()
     ALBWeaponBase* WeaponActor{nullptr};
+    
+    void PickupWeapon();
+
+protected:
+    // Called when the game starts
+    virtual void BeginPlay() override;
+    virtual void EndPlay(EEndPlayReason::Type EndPlayReason) override;
 
 private:
     UPROPERTY()
-    ACharacter* CharacterOwner{nullptr};
+    ACharacterBase* CharacterOwner{nullptr};
+    UPROPERTY()
+    USphereComponent* WeaponTraceSphere{nullptr};
+
+    bool bHasWeapon{false};
+    bool bCanPickupWeapon{false};
+
     FVector WeaponLeftHandSocketLocation{FVector::ZeroVector};
     FRotator WeaponLeftHandSocketRotation{FRotator::ZeroRotator};
 
-    void SpawnWeapon();
     void UpdateLeftHandLocation();
     void UpdateLeftHandRotation();
+
+    UFUNCTION()
+    void HandleWeaponTraceOverlap(UPrimitiveComponent* OverlappedComponent,
+        AActor* OtherActor, UPrimitiveComponent* OtherComp,
+        int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+    void CheckDistanceToWeapon(AActor* WeaponToPick);
 };

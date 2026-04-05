@@ -1,7 +1,9 @@
+// Copyright Anton Piruev. All Rights Reserved.
 // You can use this project non-commercially for educational purposes, any
 // commercial use, derivative commercial use is strictly prohibited
 
-#include "PhysicsTest.h"
+#include "Dev/TestBasic/PhysicsTest.h"
+
 #include "Engine/World.h"
 #include "Components/StaticMeshComponent.h"
 #include "TimerManager.h"
@@ -19,7 +21,7 @@ APhysicsTest::APhysicsTest()
     SetRootComponent(StaticMesh);
 
     UStaticMesh* Mesh = LoadObject<UStaticMesh>(
-        nullptr, TEXT("StaticMesh'/Game/Assets/Meshes/Dev/SM_TestSphere_2.SM_TestSphere_2'"));
+        nullptr, TEXT("StaticMesh'/Game/Assets/Meshes/Test/Sphere.Sphere'"));
     if (Mesh)
     {
         StaticMesh->SetStaticMesh(Mesh);
@@ -37,9 +39,9 @@ void APhysicsTest::BeginPlay()
     Super::BeginPlay();
 
     StaticMesh->SetSimulatePhysics(true);
-    StaticMesh->SetLinearDamping(.01f);
-    StaticMesh->SetAngularDamping(.01f);
-    StaticMesh->SetMassOverrideInKg(NAME_None, 0.5f);
+    StaticMesh->SetLinearDamping(.1f);
+    StaticMesh->SetAngularDamping(.1f);
+    StaticMesh->SetMassOverrideInKg(NAME_None, 1.f);
 
     MaterialInstance = StaticMesh->CreateAndSetMaterialInstanceDynamic(0);
 
@@ -67,6 +69,8 @@ void APhysicsTest::NotifyHit(UPrimitiveComponent* MyComp, AActor* Other,
 
     GetWorldTimerManager().SetTimer(
         ColorTimer, this, &APhysicsTest::ResetColor, 0.01f);
+
+    StaticMesh->AddImpulse(HitNormal);
 }
 
 void APhysicsTest::ResetColor()

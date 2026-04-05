@@ -9,6 +9,8 @@
 
 #include "PlayerControllable.generated.h"
 
+struct FPlayerInputState;
+
 // This class does not need to be modified.
 UINTERFACE(MinimalAPI, Blueprintable)
 class UPlayerControllable : public UInterface
@@ -40,45 +42,37 @@ public:
 
     UFUNCTION(
         BlueprintCallable, BlueprintNativeEvent, Category = "Process Input")
-    void SprintCustom(const bool bWantsToSprint);
+    void Sprint(const bool bWantsToSprint);
 
     UFUNCTION(
         BlueprintCallable, BlueprintNativeEvent, Category = "Process Input")
-    void SprintToggleCustom();
+    void Crouch(const bool bWantsToCrouch);
 
     UFUNCTION(
         BlueprintCallable, BlueprintNativeEvent, Category = "Process Input")
-    void CrouchCustom(const bool bWantsToCrouch);
+    void Walk(const bool bWantsToWalk);
 
     UFUNCTION(
         BlueprintCallable, BlueprintNativeEvent, Category = "Process Input")
-    void CrouchToggleCustom();
+    void Aim(const bool bWantsToAim);
 
     UFUNCTION(
         BlueprintCallable, BlueprintNativeEvent, Category = "Process Input")
-    void WalkCustom(const bool bWantsToWalk);
-
-    UFUNCTION(
-        BlueprintCallable, BlueprintNativeEvent, Category = "Process Input")
-    void WalkToggleCustom();
-
-    UFUNCTION(
-        BlueprintCallable, BlueprintNativeEvent, Category = "Process Input")
-    void AimCustom(const bool bWantsToAim);
-
-    UFUNCTION(
-        BlueprintCallable, BlueprintNativeEvent, Category = "Process Input")
-    void PickCustom();
+    void PickUp();
     
-    virtual void MoveCustom_Implementation(const FVector2D Value) =0;
-    virtual void LookCustom_Implementation(const FVector2D Value) =0;
-    virtual void JumpCustom_Implementation() =0;
-    virtual void SprintCustom_Implementation(const bool bWantsToSprint) =0;
-    virtual void SprintToggleCustom_Implementation() =0;
-    virtual void CrouchCustom_Implementation(const bool bWantsToCrouch) =0;
-    virtual void CrouchToggleCustom_Implementation() = 0;
-    virtual void WalkCustom_Implementation(const bool bWantsToWalk) = 0;
-    virtual void WalkToggleCustom_Implementation() =0;
-    virtual void AimCustom_Implementation(const bool bWantsToAim) =0;
-    virtual void PickCustom_Implementation() =0;
+    UFUNCTION(
+        BlueprintCallable, BlueprintNativeEvent, Category = "Process Input")
+    void SetCharacterInputState(const FPlayerInputState& PlayerInputState);
+
+    virtual void SetCharacterInputState_Implementation(
+        const FPlayerInputState& PlayerInputState);
+
+    virtual void MoveCustom_Implementation(const FVector2D Value);
+    virtual void LookCustom_Implementation(const FVector2D Value);
+    virtual void JumpCustom_Implementation();
+    virtual void Sprint_Implementation(const bool bWantsToSprint);
+    virtual void Crouch_Implementation(const bool bWantsToCrouch);
+    virtual void Walk_Implementation(const bool bWantsToWalk);
+    virtual void Aim_Implementation(const bool bWantsToAim);
+    virtual void PickUp_Implementation();
 };

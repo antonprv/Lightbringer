@@ -1,3 +1,4 @@
+// Copyright Anton Piruev. All Rights Reserved.
 // You can use this project non-commercially for educational purposes, any
 // commercial use, derivative commercial use is strictly prohibited
 
@@ -19,5 +20,5 @@ protected:
 
 private:
     void ApplyGraphicsSettingsAfterWorld(
-        UWorld* World, const UWorld::InitializationValues IVS);
+        UWorld* World, const UWorld::InitializationValues IVS);    
 };

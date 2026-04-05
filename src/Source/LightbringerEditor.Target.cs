@@ -1,14 +1,22 @@
-// You can use this project non-commercially for educational purposes, any commercial use, derivative commercial use is strictly prohibited
+// Copyright Anton Piruev. All Rights Reserved. 
+// You can use this project non-commercially for educational purposes, any
+// commercial use, derivative commercial use is strictly prohibited
 
-using UnrealBuildTool;
+using EpicGames.Core;
 using System.Collections.Generic;
+using UnrealBuildTool;
+using static UnrealBuildTool.ModuleRules;
 
 public class LightbringerEditorTarget : TargetRules
 {
-	public LightbringerEditorTarget(TargetInfo Target) : base(Target)
-	{
-		Type = TargetType.Editor;
+    public LightbringerEditorTarget(TargetInfo Target) : base(Target)
+    {
 
-		ExtraModuleNames.AddRange( new string[] { "Lightbringer" } );
-	}
+        Type = TargetType.Editor;
+
+        DefaultBuildSettings = BuildSettingsVersion.V6;
+        IncludeOrderVersion = EngineIncludeOrderVersion.Unreal5_7;
+
+        ExtraModuleNames.AddRange(new string[] { "Lightbringer" });
+    }
 }

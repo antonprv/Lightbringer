@@ -1,3 +1,4 @@
+// Copyright Anton Piruev. All Rights Reserved.
 // You can use this project non-commercially for educational purposes, any
 // commercial use, derivative commercial use is strictly prohibited
 
@@ -13,7 +14,8 @@ class UComponentsDelegateMediator;
 
 class APlayerController;
 
-DECLARE_MULTICAST_DELEGATE_OneParam(FOnHealthChangedSignature, float);
+DECLARE_MULTICAST_DELEGATE_OneParam(
+    FOnHealthChangedSignature, const float&);
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class LIGHTBRINGER_API UHealthComponent : public UActorComponent
@@ -56,8 +58,8 @@ public:
 
     bool IsDead()
     {
-        return FMath::IsNearlyZero(CurrentHealth) ||
-               FMath::IsNegativeFloat(CurrentHealth);
+        return FMath::IsNearlyZero(CurrentHealth, UE_KINDA_SMALL_NUMBER) ||
+               CurrentHealth <= 0.f;
     };
 
     bool IsAtFullHealth()
@@ -87,6 +89,7 @@ private:
     UPROPERTY()
     UComponentsDelegateMediator* ComponentsDelegateMediator{nullptr};
 
+    float CachedHealth{0.f};
     float CurrentHealth{0.f};
 
     FTimerHandle RegenDelayHandle;

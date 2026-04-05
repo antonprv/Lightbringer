@@ -1,3 +1,4 @@
+// Copyright Anton Piruev. All Rights Reserved.
 // You can use this project non-commercially for educational purposes, any
 // commercial use, derivative commercial use is strictly prohibited
 
@@ -8,7 +9,7 @@
 #include "PhysicsTest.generated.h"
 
 UCLASS()
-class LIGHTBRINGER_API APhysicsTest : public AActor
+class APhysicsTest : public AActor
 {
     GENERATED_BODY()
 

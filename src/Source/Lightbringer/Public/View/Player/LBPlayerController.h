@@ -20,9 +20,6 @@ class LIGHTBRINGER_API ALBPlayerController : public APlayerController
     GENERATED_BODY()
 
 public:
-    ALBPlayerController(const FObjectInitializer& ObjInit);
-
-public:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
     class UInputMappingContext* InputMappingContext{nullptr};
 
@@ -33,20 +30,11 @@ public:
     class UInputAction* MoveAction{nullptr};
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
-    class UInputAction* JumpAction{nullptr};
-
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
-    bool bSprinthToggle{false};
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
     class UInputAction* SprintAction{nullptr};
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
-    bool bCrouchToggle{false};
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
     class UInputAction* CrouchAction{nullptr};
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
-    bool bWalkToggle{false};
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
     class UInputAction* WalkAction{nullptr};
 

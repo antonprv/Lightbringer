@@ -1,12 +1,18 @@
+// Copyright Anton Piruev. All Rights Reserved.
 // You can use this project non-commercially for educational purposes, any
 // commercial use, derivative commercial use is strictly prohibited
 
-#include "Components/WeaponComponent.h"
-#include "LBWeaponBase.h"
+// TODO: Redo all of this
 
+#include "Gameplay/Components/WeaponComponent.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Components/SphereComponent.h"
+
 #include "GameFramework/Character.h"
 #include "Engine/World.h"
+
+#include "View/Actors/LBWeaponBase.h"
+#include "View/Pawns/CharacterBase.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogUWeaponComponent, Log, Log)
 
@@ -17,42 +23,66 @@ UWeaponComponent::UWeaponComponent()
     // ticked every frame.  You can turn these features off to improve
     // performance if you don't need them.
     PrimaryComponentTick.bCanEverTick = false;
+
+    //WeaponTraceSphere =
+    //    CreateDefaultSubobject<USphereComponent>("Weapon Trace Sphere");
+    //WeaponTraceSphere->SetupAttachment(CharacterOwner->GetRootComponent());
+    //WeaponTraceSphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+    //WeaponTraceSphere->SetCollisionObjectType(ECC_WorldDynamic);
 }
 
 // Called when the game starts
 void UWeaponComponent::BeginPlay()
 {
     Super::BeginPlay();
+    //CharacterOwner = Cast<ACharacterBase>(GetOwner());
+    //check(CharacterOwner);
 
-    CharacterOwner = Cast<ACharacter>(GetOwner());
-
-    SpawnWeapon();
+    //if (!WeaponTraceSphere->OnComponentBeginOverlap.Contains(
+    //        this, GET_FUNCTION_NAME_CHECKED(
+    //                  UWeaponComponent, HandleWeaponTraceOverlap)))
+    //{
+    //    WeaponTraceSphere->OnComponentBeginOverlap.AddDynamic(
+    //        this, &UWeaponComponent::HandleWeaponTraceOverlap);
+    //}
 }
 
-void UWeaponComponent::SpawnWeapon()
+void UWeaponComponent::EndPlay(EEndPlayReason::Type EndPlayReason)
 {
-    if (!GetWorld() || !CharacterOwner || !WeaponClass) return;
-
-    FTransform SpawnTransform =
-        CharacterOwner->GetMesh()->GetSocketTransform(FName("WeaponSocket"));
-
-    WeaponActor = GetWorld()->SpawnActorDeferred<ALBWeaponBase>(WeaponClass,
-        SpawnTransform, CharacterOwner, CharacterOwner->GetInstigator());
-
-    if (!WeaponActor)
+    if (WeaponTraceSphere->OnComponentBeginOverlap.Contains(
+            this, GET_FUNCTION_NAME_CHECKED(
+                      UWeaponComponent, HandleWeaponTraceOverlap)))
     {
-        UE_LOG(LogUWeaponComponent, Error, TEXT("Spawn failed"));
-        return;
+        WeaponTraceSphere->OnComponentBeginOverlap.RemoveDynamic(
+            this, &UWeaponComponent::HandleWeaponTraceOverlap);
     }
 
-    WeaponActor->FinishSpawning(SpawnTransform);
+    Super::EndPlay(EndPlayReason);
+}
 
-    if (WeaponActor->SkeletalMesh && CharacterOwner->GetMesh())
+void UWeaponComponent::HandleWeaponTraceOverlap(
+    UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+    UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
+    const FHitResult& SweepResult)
+{
+    if (!OtherActor) return;
+
+    if (OtherActor->GetClass()->IsChildOf(ALBWeaponBase::StaticClass()))
     {
-        WeaponActor->SkeletalMesh->AttachToComponent(CharacterOwner->GetMesh(),
-            FAttachmentTransformRules::SnapToTargetNotIncludingScale,
-            TEXT("WeaponSocket"));
+        CheckDistanceToWeapon(OtherActor);
     }
+}
+
+void UWeaponComponent::CheckDistanceToWeapon(AActor* WeaponToPick)
+{
+    // FVector::Distance(
+    //     WeaponToPick->GetActorLocation(),
+    //     CharacterOwner->GetActorLocation());
+}
+
+void UWeaponComponent::PickupWeapon()
+{
+    if (bHasWeapon || !bCanPickupWeapon) return;
 }
 
 void UWeaponComponent::UpdateLeftHandRotation()

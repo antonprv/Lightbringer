@@ -1,7 +1,9 @@
+// Copyright Anton Piruev. All Rights Reserved.
 // You can use this project non-commercially for educational purposes, any
 // commercial use, derivative commercial use is strictly prohibited
 
-#include "SpawnToggle.h"
+#include "Dev/TestBasic/SpawnToggle.h"
+
 #include "Components/BoxComponent.h"
 
 // Sets default values
@@ -13,7 +15,6 @@ ASpawnToggle::ASpawnToggle()
 
     BoxComponent = CreateDefaultSubobject<UBoxComponent>("BoxCollision");
     BoxComponent->SetHiddenInGame(false);
-    BoxComponent->SetGenerateOverlapEvents(true);
     SetRootComponent(BoxComponent);
 }
 

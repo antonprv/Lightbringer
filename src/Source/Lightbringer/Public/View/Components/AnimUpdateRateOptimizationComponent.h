@@ -6,10 +6,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
-#include "View/Actors/Interfaces/BudgetableCharacter.h"
 #include "AnimUpdateRateOptimizationComponent.generated.h"
-
-class APawn;
 
 UENUM()
 enum class EAnimOptimisationMode : uint8
@@ -20,6 +17,7 @@ enum class EAnimOptimisationMode : uint8
 };
 
 class USkeletalMeshComponentBudgeted;
+class ACharacterBase;
 
 UCLASS()
 class LIGHTBRINGER_API UAnimUpdateRateOptimizationComponent
@@ -72,10 +70,9 @@ protected:
 
 private:
     UPROPERTY()
-    APawn* BudgetedMeshOwner{nullptr};
-
+    ACharacterBase* CharacterOwner{nullptr};
     UPROPERTY()
-    USkeletalMeshComponentBudgeted* BudgetedMesh{nullptr};
+    USkeletalMeshComponentBudgeted* CharacterMesh{nullptr};
 
     FAnimUpdateRateParameters AnimUpdateParams;
     TArray<float> DistanceFactorThesholds{};

@@ -1,9 +1,11 @@
+// Copyright Anton Piruev. All Rights Reserved.
 // You can use this project non-commercially for educational purposes, any
 // commercial use, derivative commercial use is strictly prohibited
 
-#include "LBGameInstance.h"
-#include "QualitySettingsSubsystem.h"
-#include "GraphicsPresetManager.h"
+#include "Gameplay/Game/LBGameInstance.h"
+
+#include "View/Subsystems/QualitySettingsSubsystem.h"
+#include "View/Rendering/GraphicsPresetManager.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LightBringerGameInstanceLog, All, All)
 

@@ -1,3 +1,4 @@
+// Copyright Anton Piruev. All Rights Reserved.
 // You can use this project non-commercially for educational purposes, any
 // commercial use, derivative commercial use is strictly prohibited
 
@@ -41,4 +42,13 @@ public:
         meta = (Tooltip =
                     "Optional curve for nonlinear regen. X = time since regen start [sec], Y= regen per second"))
     UCurveFloat* RegenCurve = nullptr;
+
+    UPROPERTY(Transient)
+    TArray<float> CachedCurveValues;
+
+    UFUNCTION(BlueprintCallable)
+    float GetCachedRegenValue(float Time) const;
+
+protected:
+    virtual void PostLoad() override;
 };

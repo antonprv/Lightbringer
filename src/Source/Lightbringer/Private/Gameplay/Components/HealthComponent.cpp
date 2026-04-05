@@ -1,23 +1,31 @@
+// Copyright Anton Piruev. All Rights Reserved.
 // You can use this project non-commercially for educational purposes, any
 // commercial use, derivative commercial use is strictly prohibited
 
-#include "Components/HealthComponent.h"
-#include "LBHealthRegenProfile.h"
-#include "LBActorDamageParams.h"
-#include "LBPlayerCharacter.h"
+#include "Gameplay/Components/HealthComponent.h"
 
 #include "GameFramework/DamageType.h"
 #include "GameFramework/Actor.h"
 #include "GameFramework/Character.h"
 #include "TimerManager.h"
 #include "Engine/World.h"
-#include "ComponentsDelegateMediator.h"
+#include "Engine/DamageEvents.h"
+
+#include "Data/LBHealthRegenProfile.h"
+#include "Data/LBActorDamageParams.h"
+#include "View/Player/LBPlayerCharacter.h"
+#include "Gameplay/Subsystems/ComponentsDelegateMediator.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogUHealthComponent, Log, Log)
 
 void UHealthComponent::SetCurrentHealth(float Value)
 {
-    CurrentHealth = FMath::Clamp(Value, 0.f, MaxHealth);
+    const float NewHealth = FMath::Clamp(Value, 0.f, MaxHealth);
+    if (FMath::IsNearlyEqual(CachedHealth, NewHealth, 0.5f)) return;
+
+    CachedHealth = NewHealth;
+    CurrentHealth = NewHealth;
+    OnHealthChanged.Broadcast(CurrentHealth);
 }
 
 UHealthComponent::UHealthComponent()
@@ -32,6 +40,7 @@ void UHealthComponent::BeginPlay()
     Super::BeginPlay();
 
     ComponentsDelegateMediator = UComponentsDelegateMediator::Get(GetWorld());
+    check(ComponentsDelegateMediator);
 
     check(ComponentsDelegateMediator);
 
@@ -55,15 +64,10 @@ void UHealthComponent::BeginPlay()
 
 void UHealthComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
-    if (UComponentsDelegateMediator* DelegateMediator =
-            UComponentsDelegateMediator::Get(GetWorld()))
-    {
-        DelegateMediator->OnJumpDamage.RemoveAll(this);
-    }
-
     if (AActor* Owner = GetOwner())
     {
-        if (Owner->OnTakeAnyDamage.Contains(this, FName("OnTakeAnyDamage")))
+        if (Owner->OnTakeAnyDamage.Contains(this,
+                GET_FUNCTION_NAME_CHECKED(UHealthComponent, OnTakeAnyDamage)))
         {
             Owner->OnTakeAnyDamage.RemoveDynamic(
                 this, &UHealthComponent::OnTakeAnyDamage);
@@ -90,15 +94,13 @@ void UHealthComponent::OnTakeAnyDamage(AActor* DamagedActor, float Damage,
     {
         StopRegen();
 
-        if (ComponentsDelegateMediator)
-        {
-            ComponentsDelegateMediator->DispatchActorDeath(GetOwner());
-        }
+        ComponentsDelegateMediator->DispatchActorDeath(GetOwner());
 
         return;
     }
 
-    if (bCanRegenerateHealth)
+    if (bCanRegenerateHealth && HealthRegenProfile &&
+        !RegenTickHandle.IsValid())
     {
         StopRegen();
         if (HealthRegenProfile)
@@ -144,51 +146,28 @@ void UHealthComponent::StartRegen()
         true);
 
     UE_LOG(LogUHealthComponent, Display,
-        TEXT("Initialized health regeneration, current curve time: %d"),
+        TEXT("Initialized health regeneration, current curve time: %f"),
         CurveTime);
 }
 
 void UHealthComponent::HandleRegen()
 {
-    if (!HealthRegenProfile) return;
-
-    if (IsDead())
+    if (IsDead() || IsAtFullHealth())
     {
         StopRegen();
         return;
     }
 
-    if (IsAtFullHealth())
-    {
-        StopRegen();
-        return;
-    }
+    // Предварительный расчет значений кривой при инициализации профиля
+    const float RegenValue =
+        HealthRegenProfile->RegenCurve
+            ? HealthRegenProfile->GetCachedRegenValue(CurveTime)
+            : HealthRegenProfile->RegenPerSecond;
 
-    // Get value from a curve every n seconds
     CurveTime += HealthRegenProfile->RegenInterval;
+    const float HealAmount = RegenValue * HealthRegenProfile->RegenInterval;
 
-    // Linear health regeneration or regeneration using a custom curve
-    if (HealthRegenProfile->RegenCurve)
-    {
-        RegenRate = HealthRegenProfile->RegenCurve->GetFloatValue(CurveTime);
-    }
-    else if (!HealthRegenProfile->RegenCurve)
-    {
-        RegenRate = HealthRegenProfile->RegenPerSecond;
-    }
-
-    float HealAmount = RegenRate * HealthRegenProfile->RegenInterval;
-    Heal(HealAmount);
-
-    if (IsAtFullHealth() || IsDead())
-    {
-        StopRegen();
-    }
-
-    UE_LOG(LogUHealthComponent, Display,
-        TEXT(
-            "Regenerating health. Curve time untill regeneration completes: %f"),
-        CurveTime);
+    if (HealAmount > 0) SetCurrentHealth(CurrentHealth + HealAmount);
 }
 
 void UHealthComponent::Heal(float Amount)
@@ -206,5 +185,5 @@ void UHealthComponent::StopRegen()
     CurveTime = 0.f;
 
     UE_LOG(LogUHealthComponent, Display,
-        TEXT("Stopped regenerating health. Set curve time to: %d"), CurveTime);
+        TEXT("Stopped regenerating health. Set curve time to: %f"), CurveTime);
 }

@@ -28,7 +28,7 @@ enum class EScreenScalingPreset : int32
  * Singleton-like class for managiing graphics presets
  */
 UCLASS()
-class LIGHTBRINGER_API UGraphicsPresetManager : public UObject
+class UGraphicsPresetManager : public UObject
 {
     GENERATED_BODY()
 
@@ -37,15 +37,22 @@ public:
 
     UFUNCTION(BlueprintCallable)
     void ApplyQualitySettings(const EGameGraphicsPreset& Preset);
-
     UFUNCTION(BlueprintCallable)
-    void ApplyLowQualitySettings();
-
+    inline void ApplyLowQualitySettings()
+    {
+        return ApplyQualitySettings(EGameGraphicsPreset::Low);
+    };
     UFUNCTION(BlueprintCallable)
-    void ApplyDefaultQualitySettings();
-
+    inline void ApplyDefaultQualitySettings()
+    {
+        return ApplyQualitySettings(EGameGraphicsPreset::Default);
+    };
     UFUNCTION(BlueprintCallable)
-    void ApplyExperimentalQualitySettings();
+    inline void ApplyExperimentalQualitySettings()
+    {
+        return ApplyQualitySettings(EGameGraphicsPreset::Experimental);
+    };
+
 
     UFUNCTION(BlueprintCallable)
     bool IsAtLowQuality() const
@@ -54,8 +61,6 @@ public:
     }
 
 private:
-    bool bIsUsingTemporalAA{false};
-
     EGameGraphicsPreset CurrentPreset = EGameGraphicsPreset::Default;
 
     FTimerHandle VRAMCheckTimerHandle;
@@ -85,7 +90,7 @@ private:
 
     void AddAntiAliasing();
 
-    void SetMSAASamples(const int& Quality);
+    void SetCMAAQuality(const int& Quality);
     
     static constexpr float RareVRAMChecking = 15.f;
     static constexpr float OftenVRAMChecking = 5.f;

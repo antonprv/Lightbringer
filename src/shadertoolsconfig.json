@@ -1,0 +1,10 @@
+{
+  "hlsl.virtualDirectoryMappings": {
+    "/Libraries": "C:\\Repos\\Lightbringer\\src\\Plugins\\ExtendedShaders\\Source\\ExtendedShaders\\Private\\HLSL\\Libraries",
+    "/Engine": "C:\\Programs\\UE_5.7\\Engine\\Shaders",
+    "/InspiredGI": "C:\\Repos\\Lightbringer\\src\\Plugins\\Shaders"
+  },
+  "hlsl.diagnostics.suppress": [
+    "syntax-error"
+  ]
+}

@@ -4,20 +4,20 @@
 
 #include "View/Components/AnimUpdateRateOptimizationComponent.h"
 #include "SkeletalMeshComponentBudgeted.h"
-#include "GameFramework/Pawn.h"
+#include "View/Pawns/CharacterBase.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogALBCharacterBase, Log, Log)
 
 // Helper macro for safe logging
 #define CHECK_MESH_AND_PARAMS(FuncName)                                   \
-    if (!BudgetedMesh)                                                    \
+    if (!CharacterMesh)                                                   \
     {                                                                     \
         UE_LOG(LogALBCharacterBase, Error,                                \
             TEXT("%s - SkinnedMeshComponentBudgeted is null."),           \
             TEXT(#FuncName));                                             \
         return;                                                           \
     }                                                                     \
-    if (!BudgetedMesh->AnimUpdateRateParams)                              \
+    if (!CharacterMesh->AnimUpdateRateParams)                             \
     {                                                                     \
         UE_LOG(LogALBCharacterBase, Error,                                \
             TEXT("%s - AnimUpdateRateParams is null."), TEXT(#FuncName)); \
@@ -63,32 +63,27 @@ void UAnimUpdateRateOptimizationComponent::BeginPlay()
 {
     Super::BeginPlay();
 
-    BudgetedMeshOwner = Cast<APawn>(GetOwner());
-    check(BudgetedMeshOwner);
+    CharacterOwner = Cast<ACharacterBase>(GetOwner());
+    check(CharacterOwner);
 
-    if (BudgetedMeshOwner->GetClass()->ImplementsInterface(
-            UBudgetableCharacter::StaticClass()))
-    {
-        IBudgetableCharacter::Execute_GetMeshBudgeted(
-            BudgetedMeshOwner, BudgetedMesh);
-        check(BudgetedMesh);
-    }
+    CharacterMesh = CharacterOwner->GetMesh();
+    check(CharacterMesh);
 
-    BudgetedMesh->bEnableUpdateRateOptimizations = true;
+    CharacterMesh->bEnableUpdateRateOptimizations = true;
 
     // Less aggressive optimizations for player
-    if (BudgetedMeshOwner->IsPlayerControlled())
+    if (CharacterOwner->IsPlayerControlled())
     {
         OffScreenFramesSkip = 1;
         DistanceFactorThesholds = {1.0f};
-        LODSkipMap = {{0, 0}};
+        LODSkipMap = {{0, 0}};           
     }
 
-    if (BudgetedMesh->OnAnimInitialized.Contains(this,
+    if (CharacterMesh->OnAnimInitialized.Contains(this,
             GET_FUNCTION_NAME_CHECKED(UAnimUpdateRateOptimizationComponent,
                 InitializeAnimUpdateRateParams)))
     {
-        BudgetedMesh->OnAnimInitialized.AddDynamic(
+        CharacterMesh->OnAnimInitialized.AddDynamic(
             this, &UAnimUpdateRateOptimizationComponent::
                       InitializeAnimUpdateRateParams);
     }
@@ -97,20 +92,20 @@ void UAnimUpdateRateOptimizationComponent::BeginPlay()
 void UAnimUpdateRateOptimizationComponent::EndPlay(
     EEndPlayReason::Type EndPlayReason)
 {
-    if (BudgetedMesh)
+    if (CharacterMesh)
     {
-        if (BudgetedMesh->OnAnimInitialized.Contains(this,
+        if (CharacterMesh->OnAnimInitialized.Contains(this,
                 GET_FUNCTION_NAME_CHECKED(UAnimUpdateRateOptimizationComponent,
                     InitializeAnimUpdateRateParams)))
         {
-            BudgetedMesh->OnAnimInitialized.RemoveDynamic(
+            CharacterMesh->OnAnimInitialized.RemoveDynamic(
                 this, &UAnimUpdateRateOptimizationComponent::
                           InitializeAnimUpdateRateParams);
         }
 
-        if (BudgetedMesh->AnimUpdateRateParams == &AnimUpdateParams)
+        if (CharacterMesh->AnimUpdateRateParams == &AnimUpdateParams)
         {
-            BudgetedMesh->AnimUpdateRateParams = nullptr;
+            CharacterMesh->AnimUpdateRateParams = nullptr;
         }
     }
 
@@ -122,7 +117,7 @@ void UAnimUpdateRateOptimizationComponent::InitializeAnimUpdateRateParams()
     CHECK_MESH_AND_PARAMS(GET_FUNCTION_NAME_CHECKED(
         UAnimUpdateRateOptimizationComponent, InitializeAnimUpdateRateParams))
 
-    BudgetedMesh->AnimUpdateRateParams = &AnimUpdateParams;
+    CharacterMesh->AnimUpdateRateParams = &AnimUpdateParams;
 }
 
 void UAnimUpdateRateOptimizationComponent::SetupAnimUpdateParams()
@@ -150,12 +145,13 @@ void UAnimUpdateRateOptimizationComponent::SetUpdateRateOptimisationMode(
     switch (UpdateRateOptimisationMode)
     {
         case EAnimOptimisationMode::VisibleDistanceFactorThresholds:
-            BudgetedMesh->AnimUpdateRateParams->bShouldUseLodMap = false;
+            CharacterMesh->AnimUpdateRateParams->bShouldUseLodMap = false;
             break;
         case EAnimOptimisationMode::LODSkipMap:
-            BudgetedMesh->AnimUpdateRateParams->bShouldUseLodMap = true;
+            CharacterMesh->AnimUpdateRateParams->bShouldUseLodMap = true;
             break;
-        default: break;
+        default:
+            break;
     }
 }
 
@@ -178,12 +174,12 @@ void UAnimUpdateRateOptimizationComponent::SetVisibleDistanceFactorThresholds(
 TArray<float> UAnimUpdateRateOptimizationComponent::
     GetVisibleDistanceFactorThresholds()
 {
-    if (!BudgetedMesh || !BudgetedMesh->AnimUpdateRateParams)
+    if (!CharacterMesh || !CharacterMesh->AnimUpdateRateParams)
     {
         return TArray<float>();
     }
 
-    return BudgetedMesh->AnimUpdateRateParams
+    return CharacterMesh->AnimUpdateRateParams
         ->BaseVisibleDistanceFactorThesholds;
 }
 
@@ -198,22 +194,22 @@ void UAnimUpdateRateOptimizationComponent::SetLODToFrameSkipMap(
 
 TMap<int32, int32> UAnimUpdateRateOptimizationComponent::GetLODToFrameSkipMap()
 {
-    if (!BudgetedMesh || !BudgetedMesh->AnimUpdateRateParams)
+    if (!CharacterMesh || !CharacterMesh->AnimUpdateRateParams)
     {
         return TMap<int32, int32>();
     }
 
-    return BudgetedMesh->AnimUpdateRateParams->LODToFrameSkipMap;
+    return CharacterMesh->AnimUpdateRateParams->LODToFrameSkipMap;
 }
 
 bool UAnimUpdateRateOptimizationComponent::IsOptimized()
 {
-    if (!BudgetedMesh)
+    if (!CharacterMesh)
     {
         return false;
     }
 
-    return BudgetedMesh->bEnableUpdateRateOptimizations;
+    return CharacterMesh->bEnableUpdateRateOptimizations;
 }
 
 void UAnimUpdateRateOptimizationComponent::SetMaxEvalRateForInterpolation(
@@ -227,14 +223,14 @@ void UAnimUpdateRateOptimizationComponent::SetMaxEvalRateForInterpolation(
 
 int32 UAnimUpdateRateOptimizationComponent::GetMaxEvalRateForInterpolation()
 {
-    if (!BudgetedMesh)
+    if (!CharacterMesh)
     {
         UE_LOG(LogALBCharacterBase, Error,
             TEXT(
                 "GetMaxEvalRateForInterpolation - SkinnedMeshComponent is null."));
         return 0;
     }
-    if (!BudgetedMesh->AnimUpdateRateParams)
+    if (!CharacterMesh->AnimUpdateRateParams)
     {
         UE_LOG(LogALBCharacterBase, Error,
             TEXT(
@@ -242,7 +238,7 @@ int32 UAnimUpdateRateOptimizationComponent::GetMaxEvalRateForInterpolation()
         return 0;
     }
 
-    return BudgetedMesh->AnimUpdateRateParams->MaxEvalRateForInterpolation;
+    return CharacterMesh->AnimUpdateRateParams->MaxEvalRateForInterpolation;
 }
 
 void UAnimUpdateRateOptimizationComponent::SetBaseNonRenderedUpdateRate(
@@ -256,14 +252,14 @@ void UAnimUpdateRateOptimizationComponent::SetBaseNonRenderedUpdateRate(
 
 int32 UAnimUpdateRateOptimizationComponent::GetBaseNonRenderedUpdateRate()
 {
-    if (!BudgetedMesh)
+    if (!CharacterMesh)
     {
         UE_LOG(LogALBCharacterBase, Error,
             TEXT(
                 "GetMaxEvalRateForInterpolation - SkinnedMeshComponent is null."));
         return 0;
     }
-    if (!BudgetedMesh->AnimUpdateRateParams)
+    if (!CharacterMesh->AnimUpdateRateParams)
     {
         UE_LOG(LogALBCharacterBase, Error,
             TEXT(
@@ -271,7 +267,7 @@ int32 UAnimUpdateRateOptimizationComponent::GetBaseNonRenderedUpdateRate()
         return 0;
     }
 
-    return BudgetedMesh->AnimUpdateRateParams->BaseNonRenderedUpdateRate;
+    return CharacterMesh->AnimUpdateRateParams->BaseNonRenderedUpdateRate;
 }
 
 void UAnimUpdateRateOptimizationComponent::SetInterpolateSkippedFrames(
@@ -285,8 +281,8 @@ void UAnimUpdateRateOptimizationComponent::SetInterpolateSkippedFrames(
 
 bool UAnimUpdateRateOptimizationComponent::GetInterpolateSkippedFrames()
 {
-    if (!BudgetedMesh) return false;
-    if (!BudgetedMesh->AnimUpdateRateParams)
+    if (!CharacterMesh) return false;
+    if (!CharacterMesh->AnimUpdateRateParams)
     {
         UE_LOG(LogALBCharacterBase, Error,
             TEXT(
@@ -294,5 +290,5 @@ bool UAnimUpdateRateOptimizationComponent::GetInterpolateSkippedFrames()
         return false;
     }
 
-    return BudgetedMesh->AnimUpdateRateParams->bInterpolateSkippedFrames;
+    return CharacterMesh->AnimUpdateRateParams->bInterpolateSkippedFrames;
 }

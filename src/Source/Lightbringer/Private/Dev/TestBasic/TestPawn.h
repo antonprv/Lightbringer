@@ -1,3 +1,4 @@
+// Copyright Anton Piruev. All Rights Reserved.
 // You can use this project non-commercially for educational purposes, any
 // commercial use, derivative commercial use is strictly prohibited
 
@@ -13,10 +14,11 @@ class UInputActionData;
 class UStaticMeshComponent;
 class UCameraComponent;
 
-struct FInputActionInstance;
+class UInputComponent;
+class UInputManager;
 
 UCLASS()
-class LIGHTBRINGER_API ATestPawn : public APawn
+class ATestPawn : public APawn
 {
     GENERATED_BODY()
 
@@ -24,25 +26,42 @@ public:
     // Sets default values for this pawn's properties
     ATestPawn();
 
-    UPROPERTY(EditDefaultsOnly, Category = "Input")
-    float Velocity{250.f};
+    UPROPERTY(VisibleAnywhere, Category = "Input")
+    float Velocity{50.f};
+
+    //UPROPERTY(VisibleAnywhere, Category = "Input")
+    //UInputActionData* InputActionData;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Base Components")
     UCameraComponent* CameraComponent{nullptr};
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Base Components")
     UStaticMeshComponent* StaticMeshComponent{nullptr};
 
-    void HandleMovement(const FVector2D& Value);
-
 protected:
+    // Called when the game starts or when spawned
+    virtual void BeginPlay() override;
+
     virtual void PossessedBy(AController* NewController) override;
     virtual void UnPossessed() override;
+
+public:
+    // Called to bind functionality to input
+    virtual void SetupPlayerInputComponent(
+        class UInputComponent* PlayerInputComponent) override;
 
 private:
     FVector VelocityVector{FVector::ZeroVector};
 
+    //UPROPERTY()
+    //UInputManager* InputManager{nullptr};
+
     UPROPERTY()
     APlayerController* PlayerController{nullptr};
+
+    void MoveFowrard(const float& Value);
+    void MoveRight(const float& Value);
+    //UFUNCTION()
+    //void HandleMovement(const FName& AxisName, const ESimpleInputAxisType& AxisType, const float& Value);
 
     bool bIsPossessed{false};
 };

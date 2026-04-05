@@ -1,3 +1,4 @@
+// Copyright Anton Piruev. All Rights Reserved.
 // You can use this project non-commercially for educational purposes, any
 // commercial use, derivative commercial use is strictly prohibited
 
@@ -10,7 +11,7 @@
 class UBoxComponent;
 
 UCLASS()
-class LIGHTBRINGER_API AQualitySettingsTest : public AActor
+class AQualitySettingsTest : public AActor
 {
     GENERATED_BODY()
 

@@ -24,16 +24,6 @@
  * Initial controller setup
  */
 
-ALBPlayerController::ALBPlayerController(const FObjectInitializer& ObjInit)
-    : Super(ObjInit)
-{
-    PrimaryActorTick.bCanEverTick = true;
-
-    bSprinthToggle = false;
-    bCrouchToggle = true;
-    bWalkToggle = true;
-}
-
 void ALBPlayerController::BeginPlay()
 {
     Super::BeginPlay();
@@ -84,29 +74,7 @@ void ALBPlayerController::SetupInputComponent()
     if (UEnhancedInputComponent* Input =
             Cast<UEnhancedInputComponent>(InputComponent))
     {
-        Input->BindAction(MoveAction, ETriggerEvent::Triggered, this,
-            &ALBPlayerController::PawnMove);
-
-        Input->BindAction(LookAction, ETriggerEvent::Triggered, this,
-            &ALBPlayerController::PawnLook);
-
-        Input->BindAction(JumpAction, ETriggerEvent::Started, this,
-            &ALBPlayerController::PawnJump);
-
-        Input->BindAction(SprintAction, ETriggerEvent::Triggered, this,
-            &ALBPlayerController::PawnSprint);
-
-        Input->BindAction(CrouchAction, ETriggerEvent::Started, this,
-            &ALBPlayerController::PawnCrouch);
-
-        Input->BindAction(WalkAction, ETriggerEvent::Started, this,
-            &ALBPlayerController::PawnWalk);
-
-        Input->BindAction(AimAction, ETriggerEvent::Started, this,
-            &ALBPlayerController::PawnAim);
-
-        Input->BindAction(PickUpAction, ETriggerEvent::Started, this,
-            &ALBPlayerController::PawnPickUp);
+        //
     }
 }
 
@@ -195,15 +163,8 @@ void ALBPlayerController::PawnSprint(const FInputActionInstance& Instance)
         if (GetPawn()->GetClass()->ImplementsInterface(
                 UPlayerControllable::StaticClass()))
         {
-            if (bSprinthToggle)
-            {
-                IPlayerControllable::Execute_SprintToggleCustom(GetPawn());
-            }
-            else if (!bSprinthToggle)
-            {
-                IPlayerControllable::Execute_SprintCustom(
-                    GetPawn(), Instance.GetValue().Get<bool>());
-            }
+            IPlayerControllable::Execute_Sprint(
+                GetPawn(), Instance.GetValue().Get<bool>());
         }
     }
 }
@@ -217,15 +178,8 @@ void ALBPlayerController::PawnCrouch(const FInputActionInstance& Instance)
         if (GetPawn()->GetClass()->ImplementsInterface(
                 UPlayerControllable::StaticClass()))
         {
-            if (bCrouchToggle)
-            {
-                IPlayerControllable::Execute_CrouchToggleCustom(GetPawn());
-            }
-            else if (!bCrouchToggle)
-            {
-                IPlayerControllable::Execute_CrouchCustom(
-                    GetPawn(), Instance.GetValue().Get<bool>());
-            }
+            IPlayerControllable::Execute_Crouch(
+                GetPawn(), Instance.GetValue().Get<bool>());
         }
     }
 }
@@ -239,15 +193,8 @@ void ALBPlayerController::PawnWalk(const FInputActionInstance& Instance)
         if (GetPawn()->GetClass()->ImplementsInterface(
                 UPlayerControllable::StaticClass()))
         {
-            if (bWalkToggle)
-            {
-                IPlayerControllable::Execute_WalkToggleCustom(GetPawn());
-            }
-            else if (!bWalkToggle)
-            {
-                IPlayerControllable::Execute_WalkCustom(
-                    GetPawn(), Instance.GetValue().Get<bool>());
-            }
+            IPlayerControllable::Execute_Walk(
+                GetPawn(), Instance.GetValue().Get<bool>());
         }
     }
 }
@@ -261,7 +208,7 @@ void ALBPlayerController::PawnAim(const FInputActionInstance& Instance)
         if (GetPawn()->GetClass()->ImplementsInterface(
                 UPlayerControllable::StaticClass()))
         {
-            IPlayerControllable::Execute_AimCustom(
+            IPlayerControllable::Execute_Aim(
                 GetPawn(), Instance.GetValue().Get<bool>());
         }
     }
@@ -274,6 +221,6 @@ void ALBPlayerController::PawnPickUp(const FInputActionInstance& Instance)
     if (GetPawn()->GetClass()->ImplementsInterface(
             UPlayerControllable::StaticClass()))
     {
-        IPlayerControllable::Execute_PickCustom(GetPawn());
+        IPlayerControllable::Execute_PickUp(GetPawn());
     }
 }

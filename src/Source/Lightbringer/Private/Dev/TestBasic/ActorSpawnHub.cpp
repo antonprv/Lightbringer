@@ -1,8 +1,9 @@
+// Copyright Anton Piruev. All Rights Reserved.
 // You can use this project non-commercially for educational purposes, any
 // commercial use, derivative commercial use is strictly prohibited
 
-#include "ActorSpawnHub.h"
-#include "PhysicsTest.h"
+#include "Dev/TestBasic/ActorSpawnHub.h"
+
 #include "Engine/World.h"
 #include "Components/SceneComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -12,6 +13,8 @@
 #if WITH_EDITORONLY_DATA
 #include "Components/BillboardComponent.h"
 #endif
+
+#include "Dev/TestBasic/PhysicsTest.h"
 
 DEFINE_LOG_CATEGORY_STATIC(AActorSpawnHubLog, Log, Log)
 
